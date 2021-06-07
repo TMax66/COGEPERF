@@ -34,10 +34,10 @@ WHERE
   dbo.Personale_V2020.Anno  >=  2019
 "
 con %>% tbl(sql(query)) %>% as_tibble() %>% 
-  saveRDS(., file = here("COGES", "data", "processed",  "orelavorate.rds"))
+  saveRDS(., file = here("data", "processed",  "orelavorate.rds"))
 
 
-tabstr <- readRDS(file = here("COGES", "data", "processed",  "orelavorate.rds") )
+tabstr <- readRDS(file = here("data", "processed",  "orelavorate.rds") )
 
 strutture <- tabstr %>% 
   select("Dipartimento" = Livello0, "Reparto" = DIPARTIMENTO, 
@@ -50,46 +50,46 @@ strutture <- tabstr %>%
 #DATI DA CONTROLLO DI GESTIONE####
 
 ##ANALISI e Ricavi####
-analisi <- read_excel(sheet = "Report 1", here("COGES", "data", "raw",  "analisi1921.xls"))
+analisi <- read_excel(sheet = "Report 1", here(  "data", "raw",  "analisi1921.xls"))
 # il file analisi1921.xls deriva da una query eseguita in business object in sai-manager##
 
 analisi %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
   select(-Reparto) %>% 
   left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
-  saveRDS(., file = here("COGES", "data", "processed",  "analisi.rds"))
+  saveRDS(., file = here(  "data", "processed",  "analisi.rds"))
   
 
 
 ##COSTI####
 
-costi <- read_excel(sheet = "Report 1", here("COGES", "data", "raw",  "costi1921.xls"))
+costi <- read_excel(sheet = "Report 1", here( "data", "raw",  "costi1921.xls"))
 # il file costi1921.xls deriva da una query eseguita in business object in sai-manager##
 
 costi %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
   select(-Reparto) %>% 
-  left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% View()
-  saveRDS(., file = here("COGES", "data", "processed",  "costi.rds"))
+  left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
+  saveRDS(., file = here( "data", "processed",  "costi.rds"))
 
 
 
 ##VENDITA PRODOTTI####
 
-VP <- read_excel(sheet = "Report 1", here("COGES", "data", "raw",  "VP1921.xls"))
+VP <- read_excel(sheet = "Report 1", here( "data", "raw",  "VP1921.xls"))
   # il file VP1921.xls  deriva da una query eseguita in business object in sai-manager##
   
 VP %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
   left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
-  saveRDS(., file = here("COGES", "data", "processed",  "vp.rds"))
+  saveRDS(., file = here( "data", "processed",  "vp.rds"))
 
 ##ATTIVITA' INTERNA####
 
-AI <- read_excel(sheet = "Report 1", here("COGES", "data", "raw",  "AI1921.xls"))
+AI <- read_excel(sheet = "Report 1", here( "data", "raw",  "AI1921.xls"))
   # il file AI1921.xls deriva da una query eseguita in business object in sai-manager##
 
 AI %>% 
   rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
   left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
-  saveRDS(., file = here("COGES", "data", "processed",  "ai.rds"))
+  saveRDS(., file = here( "data", "processed",  "ai.rds"))
 
 
 
