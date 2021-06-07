@@ -14,11 +14,11 @@ library("here")
 
 
 #####carico i dati####
-analisi <- readRDS(file = here("COGES", "data", "processed", "analisi.rds"))
-costi <- readRDS(file = here("COGES", "data", "processed", "costi.rds"))
-vp <- readRDS(file = here("COGES", "data", "processed", "vp.rds"))
-ai <- readRDS(file = here("COGES", "data", "processed", "ai.rds"))
-ore <- readRDS(file = here("COGES", "data", "processed", "orelavorate.rds"))
+analisi <- readRDS(file = here( "data", "processed", "analisi.rds"))
+costi <- readRDS(file = here(  "data", "processed", "costi.rds"))
+vp <- readRDS(file = here(  "data", "processed", "vp.rds"))
+ai <- readRDS(file = here(   "data", "processed", "ai.rds"))
+ore <- readRDS(file = here(  "data", "processed", "orelavorate.rds"))
 
 
 
