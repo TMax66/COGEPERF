@@ -33,19 +33,24 @@ FROM
 WHERE
   dbo.Personale_V2020.Anno  >=  2019
 "
-con %>% tbl(sql(query)) %>% as_tibble() %>% 
-  saveRDS(., file = here("data", "processed",  "orelavorate.rds"))
+ore <- con %>% tbl(sql(query)) %>% as_tibble()  
+  # saveRDS(., file = here("data", "processed",  "orelavorate.rds"))
 
 
-tabstr <- readRDS(file = here("data", "processed",  "orelavorate.rds") )
+# tabstr <- readRDS(file = here("data", "processed",  "orelavorate.rds") )
 
-strutture <- tabstr %>% 
+strutture <- ore %>% 
   select("Dipartimento" = Livello0, "Reparto" = DIPARTIMENTO, 
          "Laboratorio" = REPARTO, CENTRO_DI_COSTO) %>% 
   unique()
   #saveRDS(., file = here("COGES", "data", "processed",  "strutture.rds"))
 
-
+ore %>% 
+  left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
+  select(-Livello0, -DIPARTIMENTO, -REPARTO) %>% 
+  mutate(hcontratto = ifelse(Dirigente == "N", (36*Percentuale*47.4), (38*Percentuale*47.4))) %>% 
+  saveRDS(., file = here(  "data", "processed",  "orelavorate.rds"))
+  
 
 #DATI DA CONTROLLO DI GESTIONE####
 

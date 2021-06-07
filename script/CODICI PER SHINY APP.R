@@ -1,6 +1,6 @@
 library("tidyverse")
 library("readxl")
-library("RColorBrewer")
+#library("RColorBrewer")
 # library("shiny")
 # library("shinydashboard")
 library("here")
@@ -20,6 +20,13 @@ vp <- readRDS(file = here(  "data", "processed", "vp.rds"))
 ai <- readRDS(file = here(   "data", "processed", "ai.rds"))
 ore <- readRDS(file = here(  "data", "processed", "orelavorate.rds"))
 
+
+###orelavorate per dip/rep/lab/matricola
+
+ore %>%
+  group_by(Anno, Dipartimento, Reparto, Laboratorio, Dirigente, Matricola, hcontratto) %>% 
+  summarise(hworked = sum(Ore, na.rm = T)) %>% View()
+ 
 
 
 
