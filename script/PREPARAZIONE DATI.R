@@ -70,8 +70,6 @@ costi %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>%
   left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
   saveRDS(., file = here( "data", "processed",  "costi.rds"))
 
-
-
 ##VENDITA PRODOTTI####
 
 VP <- read_excel(sheet = "Report 1", here( "data", "raw",  "VP1921.xls"))
