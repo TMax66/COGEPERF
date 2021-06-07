@@ -1,0 +1,57 @@
+---
+output: pdf_document
+header-includes:
+   - \usepackage{setspace}
+   - \singlespacing
+link-citations: yes
+linkcolor: blue
+fontsize: 12pt
+---
+\thispagestyle{empty}
+ <!-- \begin{titlepage} -->
+ \begin{figure}[htbp]
+      \begin{center}
+        \includegraphics[width=10cm]{figure/Logo-IZSLER.png}
+      \end{center}
+    \end{figure}
+
+
+
+  <!-- \vspace*{2cm} -->
+  \begin{center}
+    
+  \LARGE
+   \textcolor{blue}{Relazione sulla Performance anno 2020 \\ dell'Istituto Zooprofilattico Sperimentale della Lombardia e dell'Emilia Romagna}
+  
+  \end{center}
+  
+  
+  \begin{figure}[htbp]
+      \begin{center}
+        \includegraphics[width=10cm]{figure/izsler.jpg}
+      \end{center}
+    \end{figure}
+  
+ 
+  
+\begin{center} 
+ Adottata con Deliberazione del Consiglio di Amministrazione n. del 
+ \end{center}
+ 
+  
+  
+  \begin{center}
+  \small
+   Istituto Zooprofilattico Sperimentale della Lombardia e dell'Emilia Romagna "Bruno Ubertini"\\
+   Via A.Bianchi, 9 - 25124 Brescia- Tel. +3903022901- www.izsler.it
+  \end{center}
+  
+
+
+  
+
+ 
+
+
+ 
+
