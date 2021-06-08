@@ -21,14 +21,15 @@ ai <- readRDS(file = here(   "data", "processed", "ai.rds"))
 ore <- readRDS(file = here(  "data", "processed", "orelavorate.rds"))
 
 
-###orelavorate per dip/rep/lab/matricola
+###orelavorate e FULL TIME Equivalenti per dip/rep/lab/
+
 
 ore %>%
-  group_by(Anno, Dipartimento, Reparto, Laboratorio, Dirigente, Matricola, hcontratto) %>% 
-  summarise(hworked = sum(Ore, na.rm = T)) %>% View()
+  group_by(Anno, Dipartimento, Reparto, Laboratorio, Dirigente) %>%  
+  filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
+  summarise(hworked = sum(Ore, na.rm = T)) %>% 
+  mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(38*47.4), hworked/(36*47.4))) 
  
-
-
 
 
 ###tabella IZSLER###

@@ -48,7 +48,7 @@ strutture <- ore %>%
 ore %>% 
   left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
   select(-Livello0, -DIPARTIMENTO, -REPARTO) %>% 
-  mutate(hcontratto = ifelse(Dirigente == "N", (36*Percentuale*47.4), (38*Percentuale*47.4))) %>% 
+  mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza")) %>%
   saveRDS(., file = here(  "data", "processed",  "orelavorate.rds"))
   
 
