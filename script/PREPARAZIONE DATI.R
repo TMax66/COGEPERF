@@ -49,6 +49,12 @@ ore %>%
   left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
   select(-Livello0, -DIPARTIMENTO, -REPARTO) %>% 
   mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza")) %>%
+  filter(Dipartimento != "Non applicabile") %>% 
+  group_by(Anno, Dipartimento, Reparto, Laboratorio, Dirigente) %>%  
+  filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
+  summarise(hworked = sum(Ore, na.rm = T)) %>% 
+  mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(38*47.4), hworked/(36*47.4))) %>% 
+  pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE")) %>%
   saveRDS(., file = here(  "data", "processed",  "orelavorate.rds"))
   
 

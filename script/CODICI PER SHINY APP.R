@@ -24,12 +24,35 @@ ore <- readRDS(file = here(  "data", "processed", "orelavorate.rds"))
 ###orelavorate e FULL TIME Equivalenti per dip/rep/lab/
 
 
-ore %>%
-  group_by(Anno, Dipartimento, Reparto, Laboratorio, Dirigente) %>%  
-  filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
-  summarise(hworked = sum(Ore, na.rm = T)) %>% 
-  mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(38*47.4), hworked/(36*47.4))) 
- 
+# ore %>%
+#   filter(Dipartimento != "Non applicabile") %>% 
+#   group_by(Anno, Dipartimento, Reparto, Laboratorio, Dirigente) %>%  
+#   filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
+#   summarise(hworked = sum(Ore, na.rm = T)) %>% 
+#   mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(38*47.4), hworked/(36*47.4))) %>% 
+#   pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE"))
+#  
+
+analisi %>% 
+  group_by(Anno, Dipartimento, Reparto) %>% 
+  summarise(esami = sum(Determinazioni), 
+            valore = sum(`A Tariffario`)) %>%
+  left_join(
+    (vp %>%
+       group_by(Anno, Dipartimento, Reparto) %>% 
+       summarise(nprodotti = sum(Numero), 
+                 ricavovp = sum(Fatturato))
+
+       ), by =c("Anno", "Dipartimento", "Reparto")
+  ) %>% 
+  left_join(
+    (ai %>% 
+       group_by(Anno, Dipartimento, Reparto) %>% 
+       summarise( valoreai = sum(`A Tariffario`))
+       ), by = c("Anno", "Dipartimento", "Reparto")
+  ) %>% 
+  filter(!is.na(Dipartimento)) 
+
 
 
 ###tabella IZSLER###
