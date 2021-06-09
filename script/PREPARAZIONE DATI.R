@@ -4,7 +4,6 @@ library("readxl")
 library("DBI")
 library("odbc")
  
-#library(dbplyr)
 
 #DATI ORE LAVORATE DA DBASE PERSONALE_COGE####
 con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02", 
@@ -64,10 +63,10 @@ ore %>%
 analisi <- read_excel(sheet = "Report 1", here(  "data", "raw",  "analisi1921.xls"))
 # il file analisi1921.xls deriva da una query eseguita in business object in sai-manager##
 
-analisi %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
+analisi <- analisi %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
   select(-Reparto) %>% 
-  left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
-  saveRDS(., file = here(  "data", "processed",  "analisi.rds"))
+  left_join(strutture, by = c("CENTRO_DI_COSTO"))
+  #saveRDS(., file = here(  "data", "processed",  "analisi.rds"))
   
 
 
@@ -79,28 +78,65 @@ costi <- read_excel(sheet = "Report 1", here( "data", "raw",  "costi1921.xls"))
 costi %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
   select(-Reparto) %>% 
   left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
-  saveRDS(., file = here( "data", "processed",  "costi.rds"))
+  #saveRDS(., file = here( "data", "processed",  "costi.rds"))
 
 ##VENDITA PRODOTTI####
 
 VP <- read_excel(sheet = "Report 1", here( "data", "raw",  "VP1921.xls"))
   # il file VP1921.xls  deriva da una query eseguita in business object in sai-manager##
   
-VP %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
-  left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
-  saveRDS(., file = here( "data", "processed",  "vp.rds"))
+vp <- VP %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
+  left_join(strutture, by = c("CENTRO_DI_COSTO")) 
+  #saveRDS(., file = here( "data", "processed",  "vp.rds"))
 
 ##ATTIVITA' INTERNA####
 
 AI <- read_excel(sheet = "Report 1", here( "data", "raw",  "AI1921.xls"))
   # il file AI1921.xls deriva da una query eseguita in business object in sai-manager##
 
-AI %>% 
+ai <- AI %>% 
   rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
-  left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
-  saveRDS(., file = here( "data", "processed",  "ai.rds"))
+  left_join(strutture, by = c("CENTRO_DI_COSTO")) 
+  # saveRDS(., file = here( "data", "processed",  "ai.rds"))
 
 
+
+
+#TABELLA PRINCIPALE####
+analisi %>% 
+  group_by(Anno, Dipartimento, Reparto, Laboratorio) %>% 
+  summarise(esami = sum(Determinazioni), 
+            valore = sum(`A Tariffario`)) %>%
+  left_join(
+    (vp %>%
+       group_by(Anno, Dipartimento, Reparto,Laboratorio ) %>% 
+       summarise(nprodotti = sum(Numero), 
+                 ricavovp = sum(Fatturato))
+     
+    ), by =c("Anno", "Dipartimento", "Reparto", "Laboratorio")
+  ) %>% 
+  left_join(
+    (ai %>% 
+       group_by(Anno, Dipartimento, Reparto, Laboratorio) %>% 
+       summarise( valoreai = sum(`A Tariffario`))
+    ), by = c("Anno", "Dipartimento", "Reparto", "Laboratorio")
+  ) %>% 
+  left_join(
+    (costi %>% 
+       group_by(Anno, Dipartimento, Reparto, Laboratorio) %>% 
+       summarise(costi = sum(Costo))
+    ), by = c("Anno", "Dipartimento", "Reparto", "Laboratorio")
+  ) %>% 
+  left_join(
+    (ore %>% 
+       group_by(Anno, Dipartimento, Reparto, Laboratorio) %>% 
+       summarise(FTED = sum(FTE_Dirigenza, na.rm = T), 
+                 FTEC = sum (FTE_Comparto, na.rm = T))
+    ), by = c("Anno", "Dipartimento", "Reparto", "Laboratorio")
+  ) %>% 
+  filter(!is.na(Dipartimento)) %>% rowwise() %>% 
+  mutate(totricavi = sum(valore, ricavovp, valoreai, na.rm = T)) %>% 
+  saveRDS(., file = here( "data", "processed",  "TABELLA.rds"))
 
 
 #DATI DA PROGETTI DI RICERCA####
