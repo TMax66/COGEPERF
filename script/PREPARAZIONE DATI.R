@@ -44,7 +44,7 @@ strutture <- ore %>%
   unique()
   #saveRDS(., file = here("COGES", "data", "processed",  "strutture.rds"))
 
-ore %>% 
+ore <- ore %>% 
   left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
   select(-Livello0, -DIPARTIMENTO, -REPARTO) %>% 
   mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza")) %>%
@@ -53,8 +53,8 @@ ore %>%
   filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
   summarise(hworked = sum(Ore, na.rm = T)) %>% 
   mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(38*47.4), hworked/(36*47.4))) %>% 
-  pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE")) %>%
-  saveRDS(., file = here(  "data", "processed",  "orelavorate.rds"))
+  pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE"))  
+  #saveRDS(., file = here(  "data", "processed",  "orelavorate.rds"))
   
 
 #DATI DA CONTROLLO DI GESTIONE####
@@ -75,9 +75,9 @@ analisi <- analisi %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>%
 costi <- read_excel(sheet = "Report 1", here( "data", "raw",  "costi1921.xls"))
 # il file costi1921.xls deriva da una query eseguita in business object in sai-manager##
 
-costi %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
+costi <- costi %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
   select(-Reparto) %>% 
-  left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
+  left_join(strutture, by = c("CENTRO_DI_COSTO"))  
   #saveRDS(., file = here( "data", "processed",  "costi.rds"))
 
 ##VENDITA PRODOTTI####
@@ -106,12 +106,12 @@ ai <- AI %>%
 analisi %>% 
   group_by(Anno, Dipartimento, Reparto, Laboratorio) %>% 
   summarise(esami = sum(Determinazioni), 
-            valore = sum(`A Tariffario`)) %>%
+            valore = sum(`A Tariffario`)) %>% View()
   left_join(
     (vp %>%
        group_by(Anno, Dipartimento, Reparto,Laboratorio ) %>% 
        summarise(nprodotti = sum(Numero), 
-                 ricavovp = sum(Fatturato))
+                 ricavovp = sum(Fatturato))%>% View()
      
     ), by =c("Anno", "Dipartimento", "Reparto", "Laboratorio")
   ) %>% 
@@ -135,7 +135,7 @@ analisi %>%
     ), by = c("Anno", "Dipartimento", "Reparto", "Laboratorio")
   ) %>% 
   filter(!is.na(Dipartimento)) %>% rowwise() %>% 
-  mutate(totricavi = sum(valore, ricavovp, valoreai, na.rm = T)) %>% 
+  mutate(totricavi = sum(valore, ricavovp, valoreai, na.rm = T)) %>%  
   saveRDS(., file = here( "data", "processed",  "TABELLA.rds"))
 
 
