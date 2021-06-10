@@ -106,12 +106,12 @@ ai <- AI %>%
 analisi %>% 
   group_by(Anno, Dipartimento, Reparto, Laboratorio) %>% 
   summarise(esami = sum(Determinazioni), 
-            valore = sum(`A Tariffario`)) %>% View()
+            valore = sum(`A Tariffario`)) %>%  
   left_join(
     (vp %>%
        group_by(Anno, Dipartimento, Reparto,Laboratorio ) %>% 
        summarise(nprodotti = sum(Numero), 
-                 ricavovp = sum(Fatturato))%>% View()
+                 ricavovp = sum(Fatturato))   
      
     ), by =c("Anno", "Dipartimento", "Reparto", "Laboratorio")
   ) %>% 

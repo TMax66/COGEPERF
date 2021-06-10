@@ -6,18 +6,33 @@ source("librerie.R")
 tabIZSLER <- readRDS(file = here( "data", "processed", "TABELLA.rds"))
 
 
- tabIZSLER%>% 
+tabIZSLER %>% 
+   filter(Anno == 2019) %>% 
   rename("ricavi" = valore, "VP" = ricavovp, "AI" = valoreai) %>% 
   group_by(Anno, Dipartimento) %>% 
-  summarise_at(c("esami", "ricavi",  "VP", "AI", "FTED", "FTEC","costi"), sum) %>% View()
+  summarise_at(c("esami", "ricavi",  "VP", "AI", "FTED", "FTEC","costi"), sum, na.rm = T) %>% 
   mutate(RT = (ricavi+VP+AI),
-         FTE_t = round((FTE_d+FTE_c),1)) %>%
+         FTE_T = round((FTED+FTED),1)) %>%
   arrange(desc(esami)) %>%
   adorn_totals(where = "row", name = "Totale") %>%
-  mutate("R-FTE" = round(RT/FTE_t,0) ) %>%
-  select(Dipartimento, "N.esami" = esami, "FTED" = FTE_d,   "FTEC" = FTE_c, "FTET" = FTE_t, "RA" = ricavi, "RVP" = VP,
-         "RAI" = AI, "RT" = RT, "R/FTET" = "R-FTE")
+  mutate("R-FTE" = round(RT/FTE_T,0) )  %>% View()
+  # select(Dipartimento, "N.esami" = esami, "FTED" = FTE_d,   "FTEC" = FTE_c, "FTET" = FTE_t, "RA" = ricavi, "RVP" = VP,
+  #        "RAI" = AI, "RT" = RT, "R/FTET" = "R-FTE")
 
+
+tizsler <-  tabIZSLER %>%
+                      rename("ricavi" = valore, "VP" = ricavovp, "AI" = valoreai) %>%
+                      group_by(Anno, Dipartimento) %>%
+                      summarise_at(c("esami", "ricavi",  "VP", "AI", "FTED", "FTEC","costi"), sum, na.rm = T) %>%
+                      mutate(RT = (ricavi+VP+AI),
+                             FTE_T = round((FTED+FTED),1)) %>%
+                      arrange(desc(esami)) %>%
+                      mutate("R-FTE" = round(RT/FTE_T,0) )
+
+
+tizsler %>%
+  filter(Anno == 2019) %>% 
+  summarise(totes = sum(esami))
 
 ###tabella Dipartimenti###
 
