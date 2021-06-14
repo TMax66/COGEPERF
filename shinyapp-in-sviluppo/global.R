@@ -16,7 +16,8 @@ library("fmsb")
 
 #Carico i dati----
 tabIZSLER <- readRDS(file = here( "data", "processed", "TABELLA.rds"))#-tabella complessiva izsler esami prodotti orelav##
-prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella prj attivi dal 2019
+prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
+pub <- readRDS(file = here( "data", "processed", "pub.rds"))
  
 # 
 # ###IZSLER######_________________________________________________________________
@@ -32,6 +33,11 @@ tizsler <-  tabIZSLER %>%
   arrange(desc(esami)) %>%
   mutate("R-FTE" = round(RT/FTE_T,0) )   
 
-
-####progetti di ricerca----
+#Tabella pubblicazioni----
+pub <- pub %>% 
+  mutate(articoliif = ifelse(Congr == "IF ; Int" | Congr == "IF",  "IF", NA), 
+         INT = ifelse(Congr == "IF ; Int" | Congr == "Int",  "Int", NA ), 
+         NAZ = ifelse(Congr == "Naz", "Naz", NA), 
+         Oth = ifelse(Congr == "Others" , "Others", NA), 
+         IF = as.numeric(IF))
 

@@ -10,6 +10,9 @@ pr <- reactive(prj %>%
                  mutate("Stato" = ifelse(annofine < input$anno, "Archiviato", "Attivo")) %>% 
                  filter(Stato == "Attivo" & annoinizio <= input$anno))
 
+pubs <- reactive(pub %>% 
+                  filter(OA == input$anno))
+
 
 
 #value boxes######  
@@ -31,6 +34,18 @@ output$PR <- renderValueBox({
          summarise(n = nlevels(factor(Codice)))
     ), "Progetti di ricerca in corso ", icon = icon("user-graduate"), color = "light-blue")
 })
+
+
+output$IF <- renderValueBox({
+    valueBox(
+      (pubs() %>%
+         filter(articoliif == "IF") %>%
+         group_by(NR) %>%
+         count(NR) %>%
+         select(NR) %>%
+         nrow()),  "Articoli pubblicati su riviste peer-review con IF", icon = icon("book"), color = "light-blue")
+  })
+
 
 #   
 # ra <- reactive(tizsler %>% 
@@ -250,19 +265,19 @@ output$PR <- renderValueBox({
 # 
 # ####tabelle modali pubblicazioni e convegni####################################################
 # 
-# paper <- reactive({
-#   ricerca %>% filter(IF == "IF") %>% 
-#     select("AUTORI" = autori, "JOURNAL" = `TITOLO RIVISTA`, "TITOLO" = titinglese, "IF" = impf) %>%
-#     unique() %>% 
-#     arrange(desc(IF))
-# })
-#  
-# output$articoli <- renderDataTable(paper(),server = FALSE, class = 'cell-border stripe', rownames=FALSE,
-#                                    extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
-#                                                                           paging = TRUE,autoWidth = TRUE,
-#                                                                          buttons = c('excel')))
-# 
-#  
+paper <- reactive({
+  pubs() %>% filter(articoliif == "IF") %>%
+    select("Autori" = CAU, "Journal" = datoBibl, "Titolo" = TI, "IF" = IF) %>%
+    unique() %>%
+    arrange(desc(IF))
+})
+
+output$articoli <- renderDataTable(paper(),server = FALSE, class = 'cell-border stripe', rownames=FALSE,
+                                   extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
+                                                                          paging = TRUE,autoWidth = TRUE,
+                                                                         buttons = c('excel')))
+
+
 # ###tabella modale convegni internazionali
 # 
 # Cint <- reactive({
