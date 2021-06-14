@@ -17,7 +17,7 @@ library("fmsb")
 #Carico i dati----
 tabIZSLER <- readRDS(file = here( "data", "processed", "TABELLA.rds"))#-tabella complessiva izsler esami prodotti orelav##
 prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
-pub <- readRDS(file = here( "data", "processed", "pub.rds"))
+pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazioni
  
 # 
 # ###IZSLER######_________________________________________________________________
