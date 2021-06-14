@@ -141,6 +141,16 @@ analisi %>%
 
 #DATI DA PROGETTI DI RICERCA####
 
+prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2020.xlsx"))
+
+pr %>% select(-14, -15) %>% 
+  mutate("Stato" = ifelse(DataFine < as.Date("2019-01-01"), "Archiviato", "Attivo")) %>% 
+  filter(Stato == "Attivo" & DataInizio <= as.Date("2019-12-31")) %>% 
+  mutate("Statoanno" = ifelse(DataFine <=as.Date("2019-12-31"), "Concluso", "Aperto")) %>%
+  left_join(repMat, by = c("MatrRSUO" = "matricola")) %>%
+  saveRDS(here("programmazione", "shinyapp", "prj.rds"))
+
+
 
 #DATI DA PUBBLICAZIONI####
 
