@@ -44,7 +44,7 @@ strutture <- ore %>%
   unique()
   #saveRDS(., file = here("COGES", "data", "processed",  "strutture.rds"))
 
-ore <- ore %>% 
+ore1 <- ore %>% 
   left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
   select(-Livello0, -DIPARTIMENTO, -REPARTO) %>% 
   mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza")) %>%
@@ -128,7 +128,7 @@ analisi %>%
     ), by = c("Anno", "Dipartimento", "Reparto", "Laboratorio")
   ) %>% 
   left_join(
-    (ore %>% 
+    (ore1 %>% 
        group_by(Anno, Dipartimento, Reparto, Laboratorio) %>% 
        summarise(FTED = sum(FTE_Dirigenza, na.rm = T), 
                  FTEC = sum (FTE_Comparto, na.rm = T))
@@ -143,12 +143,22 @@ analisi %>%
 
 prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2020.xlsx"))
 
-pr %>% select(-14, -15) %>% 
-  mutate("Stato" = ifelse(DataFine < as.Date("2019-01-01"), "Archiviato", "Attivo")) %>% 
-  filter(Stato == "Attivo" & DataInizio <= as.Date("2019-12-31")) %>% 
-  mutate("Statoanno" = ifelse(DataFine <=as.Date("2019-12-31"), "Concluso", "Aperto")) %>%
-  left_join(repMat, by = c("MatrRSUO" = "matricola")) %>%
-  saveRDS(here("programmazione", "shinyapp", "prj.rds"))
+anag <- ore %>% 
+  select(-Anno, -Ore, -Mese) %>% 
+  mutate(annoraplav = year(FineRapporto)) %>% 
+  filter(annoraplav > 2018) %>% 
+  distinct(Matricola, .keep_all = TRUE)
+
+
+
+prj %>%
+  # mutate("Stato" = ifelse(DataFine < as.Date("2018-01-01"), "Archiviato", "Attivo")) %>%
+  # filter(Stato == "Attivo") %>%
+  left_join(anag, by = c("MatrRSUO" = "Matricola")) %>% 
+  mutate(annoinizio = year(DataInizio), 
+  saveRDS(., file = here( "data", "processed",  "prj.rds"))
+  
+
 
 
 

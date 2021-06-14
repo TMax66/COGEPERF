@@ -29,11 +29,12 @@ ui <- dashboardPage(
     fluidRow(
       tableOutput("TT"), 
     valueBoxOutput("esami"),
-    valueBoxOutput("ra"),
-    valueBoxOutput("vp"),
-    valueBoxOutput("ai"),
-    valueBoxOutput("rt"),
-    valueBoxOutput("rfte")
+    
+    # valueBoxOutput("ra"),
+    # valueBoxOutput("vp"),
+    # valueBoxOutput("ai"),
+    # valueBoxOutput("rt"),
+    # valueBoxOutput("rfte")
     
     # div(id='clickdiv0',
     #     valueBoxOutput("IF")),
@@ -43,9 +44,9 @@ ui <- dashboardPage(
     #     valueBoxOutput("Int")),
     # bsModal("CI", "Partecipazione a convegni internazionali", "clickdiv1", dataTableOutput("convegni"), size = "large"),
     # 
-    # div(id='clickdiv2',
-    #   valueBoxOutput("PR")),
-    # bsModal("Prj", "Progetti di ricerca in corso", "clickdiv2", dataTableOutput("projr"), size = "large"),
+    div(id='clickdiv2',
+      valueBoxOutput("PR")),
+    bsModal("Prj", "Progetti di ricerca in corso", "clickdiv2", dataTableOutput("projr"), size = "large"),
   
     ), 
     

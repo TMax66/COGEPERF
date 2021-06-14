@@ -34,6 +34,14 @@ tizsler %>%
   filter(Anno == 2019) %>% 
   summarise(totes = sum(esami))
 
+
+prj %>% 
+  mutate("Stato" = ifelse(annofine < 2021, "Archiviato", "Attivo")) %>% 
+  filter(Stato == "Attivo" & annoinizio <= 2021) %>% 
+  summarise(n = nlevels(factor(Codice)))
+
+
+
 ###tabella Dipartimenti###
 
 ###tabella Reparti###

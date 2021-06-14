@@ -2,11 +2,17 @@ server <- function(input, output, session) {
 
 
 #IZSLER#####
-
+##codici reactive di preparazione ----
 IZSLER <- reactive( tizsler %>% 
                          filter(Anno == input$anno))
 
-####value boxes######  
+pr <- reactive(prj %>% 
+                 mutate("Stato" = ifelse(annofine < input$anno, "Archiviato", "Attivo")) %>% 
+                 filter(Stato == "Attivo" & annoinizio <= input$anno))
+
+
+
+#value boxes######  
 es <- reactive(
         IZSLER() %>%
          summarise(totes = sum(esami)) %>% 
@@ -17,6 +23,14 @@ output$esami <- renderValueBox({
     )
   })
 
+
+
+output$PR <- renderValueBox({
+  valueBox(
+    (  pr() %>% 
+         summarise(n = nlevels(factor(Codice)))
+    ), "Progetti di ricerca in corso ", icon = icon("user-graduate"), color = "light-blue")
+})
 
 #   
 # ra <- reactive(tizsler %>% 
@@ -263,28 +277,28 @@ output$esami <- renderValueBox({
 #                                                                           paging = TRUE,autoWidth = TRUE,
 #                                                                          buttons = c('excel')))
 # 
-# Prj <- reactive({
-#   pr %>%
-#     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient) %>% 
-#     summarise(Budget = sum(Budget), nUO = n()) %>% 
-#     ungroup() %>% 
-#     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient, Budget, nUO) %>% 
-#     summarise(Durata = as.numeric(DataFine-DataInizio), 
-#               R = as.numeric(date("2019-12-31")-date(DataInizio)), 
-#               Realizzazione = ifelse(R>Durata, 100, 100*(R/Durata)),
-#               Realizzazione = paste(round(Realizzazione, 0), "%") )%>% 
-#     mutate(DataInizio = as.character(DataInizio), 
-#            DataFine = as.character(DataFine)) %>% 
-#     arrange(Realizzazione) %>% 
-#     select(-R, -Durata)
-#   
-# })
+Prj <- reactive({
+  pr() %>%
+    group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient) %>%
+    summarise(Budget = sum(Budget), nUO = n()) %>%
+    ungroup() %>%
+    group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient, Budget, nUO) %>%
+    # summarise(Durata = as.numeric(DataFine-DataInizio),
+    #           R = as.numeric(date("2019-12-31")-date(DataInizio)),
+    #           Realizzazione = ifelse(R>Durata, 100, 100*(R/Durata)),
+    #           Realizzazione = paste(round(Realizzazione, 0), "%") )%>%
+    mutate(DataInizio = as.character(DataInizio),
+           DataFine = as.character(DataFine)) #%>%
+    #arrange(Realizzazione) %>%
+    #select(-R, -Durata)
+
+})
 # 
-# output$projr <- renderDataTable(Prj(), server = FALSE, class = 'cell-border stripe', rownames=FALSE,
-#                                 extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
-#                                                                       paging = TRUE,autoWidth = TRUE,
-#                                                                       buttons = c('excel')))
-# 
+output$projr <- renderDataTable(Prj(), server = FALSE, class = 'cell-border stripe', rownames=FALSE,
+                                extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
+                                                                      paging = TRUE,autoWidth = TRUE,
+                                                                      buttons = c('excel')))
+
 # ###tabelle modali percentuali KPI
 # 
 # output$tbw <- renderTable(tb() %>% 
