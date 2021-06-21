@@ -27,6 +27,58 @@ output$esami <- renderValueBox({
   })
 
 
+ric <- reactive(
+  IZSLER() %>%
+    summarise(totric = round(sum(ricavi), 0)) %>% 
+    select(totric))
+output$ricavi <- renderValueBox({
+  valueBox(prettyNum(ric(), big.mark = "." ), "Ricavi",  icon = icon("euro"),
+           color = "blue"
+  )
+})
+
+vp <- reactive(
+  IZSLER() %>%
+    summarise(totvp = round(sum(VP), 0)) %>% 
+    select(totvp))
+output$venprod <- renderValueBox({
+  valueBox(prettyNum(vp(), big.mark = "." ), "Vendita Prodotti",  icon = icon("euro"),
+           color = "blue"
+  )
+})
+
+ai <- reactive(
+  IZSLER() %>%
+    summarise(totai = round(sum(AI), 0))%>% 
+    select(totai))
+output$attint <- renderValueBox({
+  valueBox(prettyNum(ai(), big.mark = "." ), "Attività Interna",  icon = icon("euro"),
+           color = "blue"
+  )
+})
+
+rt <- reactive(
+  IZSLER() %>%
+    summarise(rt = round(sum(RT), 0)) %>% 
+    select(rt))
+output$rictot <- renderValueBox({
+  valueBox(prettyNum(rt(), big.mark = "." ), "Ricavi Totali",  icon = icon("euro"),
+           color = "blue"
+  )
+})
+
+
+rtfte <- reactive(
+  IZSLER() %>%
+    summarise(rtf = round((sum(RT)/sum(FTE_T)), 0)) %>% 
+    select(rtf))
+output$RFTE <- renderValueBox({
+  valueBox(prettyNum(rtfte(), big.mark = "." ), "Ricavo per Full Time Equivalente",  icon = icon("euro"),
+           color = "blue"
+  )
+})
+
+
 
 output$PR <- renderValueBox({
   valueBox(

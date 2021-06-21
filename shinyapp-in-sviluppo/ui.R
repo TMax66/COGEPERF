@@ -27,14 +27,12 @@ ui <- dashboardPage(
 #####IZSLER#####
     tabItem( tabName = "izsler", 
     fluidRow(
-      tableOutput("TT"), 
-    valueBoxOutput("esami"),
-    
-    # valueBoxOutput("ra"),
-    # valueBoxOutput("vp"),
-    # valueBoxOutput("ai"),
-    # valueBoxOutput("rt"),
-    # valueBoxOutput("rfte")
+      valueBoxOutput("esami"),
+      valueBoxOutput("ricavi"),
+      valueBoxOutput("venprod"),
+      valueBoxOutput("attint"),
+      valueBoxOutput("rictot"),
+      valueBoxOutput("RFTE"),
     
     div(id='clickdiv0',
         valueBoxOutput("IF")),

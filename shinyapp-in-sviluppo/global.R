@@ -31,7 +31,10 @@ tizsler <-  tabIZSLER %>%
   mutate(RT = (ricavi+VP+AI),
          FTE_T = round((FTED+FTED),1)) %>%
   arrange(desc(esami)) %>%
-  mutate("R-FTE" = round(RT/FTE_T,0) )   
+  mutate("R-FTE" = round(RT/FTE_T,0) ) 
+
+
+
 
 #Tabella pubblicazioni----
 pub <- pub %>% 
