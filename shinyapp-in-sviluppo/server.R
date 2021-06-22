@@ -1,6 +1,6 @@
 server <- function(input, output, session) { 
 
-
+options(shiny.reactlog=TRUE)
 #IZSLER#####
 ##codici reactive di preparazione ----
 IZSLER <- reactive( tizsler %>% 
@@ -32,7 +32,7 @@ ric <- reactive(
     summarise(totric = round(sum(ricavi), 0)) %>% 
     select(totric))
 output$ricavi <- renderValueBox({
-  valueBox(prettyNum(ric(), big.mark = "." ), "Ricavi",  icon = icon("euro"),
+  valueBox(prettyNum(ric(), big.mark = "." ), "Valorizzazioni da Tariffario",  icon = icon("euro"),
            color = "blue"
   )
 })
@@ -79,6 +79,41 @@ output$RFTE <- renderValueBox({
 })
 
 
+cst <- reactive(
+  IZSLER() %>%
+    summarise(costi = round((sum(costi)), 0)) %>% 
+    select(costi))
+output$Costi <- renderValueBox({
+  valueBox(prettyNum(cst(), big.mark = "." ), "Costi complessivi",  icon = icon("euro"),
+           color = "blue"
+  )
+})
+
+
+cstfte <- reactive(
+  IZSLER() %>%
+    summarise(costifte = round((sum(costi)/ sum(FTE_T)), 0)) %>% 
+    select(costifte))
+output$costifte <- renderValueBox({
+  valueBox(prettyNum(cstfte(), big.mark = "." ), "Costi per Full Time Equivalente",  icon = icon("euro"),
+           color = "blue"
+  )
+})
+
+
+
+roit <- reactive(
+  IZSLER() %>%
+    summarise(roi = round((sum(RT)/sum(costi)), 2)) %>% 
+    select(roi))
+output$roi <- renderValueBox({
+  valueBox(prettyNum(roit(), big.mark = "." , decimal.mark = ","), "ROI",
+           color = ifelse(roit() >= 1, "green", "red")
+  )
+})
+
+
+
 
 output$PR <- renderValueBox({
   valueBox(
@@ -99,144 +134,68 @@ output$IF <- renderValueBox({
   })
 
 
-#   
-# ra <- reactive(tizsler %>% 
-#   filter(Dipartimento == "Totale") %>% 
-#   select("RA"))
-# 
-#   output$ra <- renderValueBox({
-#     valueBox(prettyNum(ra(), big.mark = ".") , "Ricavi per attività analitica", icon = icon("euro"),
-#       color = "aqua"
-#     )
-#   })
-# 
-#   vp <- reactive(tizsler %>% 
-#                    filter(Dipartimento == "Totale") %>% 
-#                    select("RVP"))
-#   
-#   output$vp <- renderValueBox({
-#     valueBox(prettyNum(vp(), big.mark = ".") , "Ricavi per vendita prodotti", icon = icon("euro"),
-#              color = "aqua"
-#     )
-#   })
-#   
-#   
-#   ai <- reactive(tizsler %>% 
-#                    filter(Dipartimento == "Totale") %>% 
-#                    select("RAI"))
-#   
-#   output$ai <- renderValueBox({
-#     valueBox(prettyNum(ai(), big.mark = ".") , "Ricavi per attività interna", icon = icon("euro"),
-#              color = "aqua"
-#     )
-#   })
-#   
-#   rt <- reactive(tizsler %>% 
-#                    filter(Dipartimento == "Totale") %>% 
-#                    select("RT"))
-#   
-#   output$rt <- renderValueBox({
-#     valueBox(prettyNum(rt(), big.mark = ".") , "Ricavi totali", icon = icon("euro"),
-#              color = "aqua"
-#     )
-#   })
-#   
-#   rfte <- reactive(tizsler %>% 
-#                    filter(Dipartimento == "Totale") %>% 
-#                    select("R/FTET"))
-#   
-#   output$rfte <- renderValueBox({
-#     valueBox(prettyNum(rfte(), big.mark = ".") , "Ricavo per Full Time Equivalente", icon = icon("euro"),
-#              color = "aqua"
-#     )
-#   })
-# 
-# 
-#   output$IF <- renderValueBox({
-#     valueBox(
-#       (ricerca %>% 
-#          filter(IF == "IF") %>% 
-#          group_by(nr) %>% 
-#          count(nr) %>% 
-#          select(nr) %>% 
-#          nrow()),  "Articoli pubblicati su riviste peer-review con IF", icon = icon("book"), color = "light-blue")
-#   })
-#   
-#   
-#   output$Int <- renderValueBox({
-#     valueBox(
-#       (ricerca %>% 
-#          filter(INT == "Int") %>% 
-#          group_by(nr) %>% 
-#          count(nr) %>% 
-#          select(nr) %>% 
-#          nrow()
-#         # ric() %>% 
-#         #  filter(tipologia == "Int") %>% 
-#         #  select(n.articoli)
-#         ), "Lavori presentati a convegni internazionali", icon = icon("book"), color = "light-blue")
-#   })
-#   
-#   
-#   output$PR <- renderValueBox({
-#     valueBox(
-#       (  pr %>% 
-#            summarise(n = nlevels(factor(Codice)))
-#       ), "Progetti di ricerca in corso ", icon = icon("user-graduate"), color = "light-blue")
-#   })
-# 
-# ###tabella x dipartimenti####
-# 
-#   output$t <- renderUI({
-#     border <- officer::fp_border()
-#     flextable(
-#     #   (tizsler %>%
-#     #      filter(Dipartimento != "Totale") %>% 
-#     #      left_join(
-#     #        (ricerca %>%
-#     #           filter(IF == IF) %>%
-#     #           count(Dipartimento, nr) %>%
-#     #           group_by(Dipartimento) %>%
-#     #           count(nr) %>%
-#     #           summarise("Pubblicazioni" = sum(n))), by = "Dipartimento") %>% 
-#     #      left_join(
-#     #        (pr %>% 
-#     #          group_by(Dipartimento) %>% 
-#     #          summarise("Progetti di Ricerca"=nlevels(factor(Codice))) %>% 
-#     #          filter(!is.na(Dipartimento))),  by = "Dipartimento")
-#     # 
-#     # )
-#     Tizsler
-#     )%>%
-#       theme_booktabs() %>%
-#       color(i = 1, color = "blue", part = "header") %>%
-#       bold( part = "header") %>%
-#       fontsize(size=15) %>%
-#       fontsize(part = "header", size = 15) %>%
-#       line_spacing(space = 2.5) %>%
-#       colformat_num(j = c( "RA", "RVP", "RAI", "RT", "R/FTET"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
-#       autofit() %>%
-#       color(j= "R/FTET", color = "red", part = "all") %>%
-#       color(j= "Pubblicazioni",color = "red", part = "all" ) %>%
-#       color(j= "Progetti di Ricerca", color = "red", part = "all") %>% 
-#       vline(j= "RT", border = border, part = "all") %>%
-#       footnote(i=1, j=3:10,
-#                value = as_paragraph(
-#                  c("Full Time Equivalenti Dirigenza",
-#                    "Full Time Equivalenti Comparto",
-#                    "Full Time Equivalenti Totale",
-#                    "Ricavo da Analisi",
-#                    "Ricavo Vendita Prodotti",
-#                    "Ricavo Attività Interna",
-#                    "Ricavo Totale",
-#                    "Ricavo per Full Equivalenti Totale")
-#                ),
-#                ref_symbols = c("a","b","c","d","e","f","g","h"),
-#                part = "header", inline = T) %>%
-#       fontsize( i = NULL, j = NULL, size = 13, part = "footer") %>%
-#       htmltools_value()
-#   })
-#   
+output$Int <- renderValueBox({
+      valueBox(
+        (pubs() %>%
+           filter(articoliif == "Int") %>%
+           group_by(NR) %>%
+           count(NR) %>%
+           select(NR) %>%
+           nrow()
+          ), "Lavori presentati a convegni internazionali", icon = icon("book"), color = "light-blue")
+    })
+
+
+###tabella x dipartimenti####
+
+  output$t <- renderUI({
+    border <- officer::fp_border()
+    flextable(   
+      (IZSLER() %>%
+         left_join(
+           (pubs() %>%
+              filter(articoliif == "IF") %>%
+              count(DIPARTIMENTO, NR) %>%
+              group_by(DIPARTIMENTO) %>%
+              count(NR) %>%
+              summarise("Pubblicazioni" = sum(n))), by = c("Dipartimento" = "DIPARTIMENTO")) %>%  
+         left_join(
+           (pr() %>%
+              group_by(DIPARTIMENTO) %>%
+              summarise("Progetti di Ricerca"=nlevels(factor(Codice)))  
+           ),  by =c("Dipartimento" = "DIPARTIMENTO"))
+       
+      )) %>%
+    theme_booktabs() 
+    # %>%
+      # color(i = 1, color = "blue", part = "header") %>%
+      # bold( part = "header") %>%
+      # fontsize(size=15) %>%
+      # fontsize(part = "header", size = 15) %>%
+      # line_spacing(space = 2.5) %>%
+      # colformat_num(j = c( "RA", "RVP", "RAI", "RT", "R/FTET"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
+      # autofit() %>%
+      # color(j= "R/FTET", color = "red", part = "all") %>%
+      # color(j= "Pubblicazioni",color = "red", part = "all" ) %>%
+      # color(j= "Progetti di Ricerca", color = "red", part = "all") %>%
+      # vline(j= "RT", border = border, part = "all") %>%
+      # footnote(i=1, j=3:10,
+      #          value = as_paragraph(
+      #            c("Full Time Equivalenti Dirigenza",
+      #              "Full Time Equivalenti Comparto",
+      #              "Full Time Equivalenti Totale",
+      #              "Ricavo da Analisi",
+      #              "Ricavo Vendita Prodotti",
+      #              "Ricavo Attività Interna",
+      #              "Ricavo Totale",
+      #              "Ricavo per Full Equivalenti Totale")
+      #          ),
+      #          ref_symbols = c("a","b","c","d","e","f","g","h"),
+      #          part = "header", inline = T) %>%
+      # fontsize( i = NULL, j = NULL, size = 13, part = "footer") %>%
+      # htmltools_value()
+  })
+
 #   
 #   
 #   

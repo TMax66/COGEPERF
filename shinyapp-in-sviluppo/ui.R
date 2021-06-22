@@ -3,7 +3,7 @@ ui <- dashboardPage(
   dashboardSidebar(
     width = 300,
     sidebarMenu(
-      menuItem("IZSLER", tabName = "izsler", icon = icon("globe")), 
+      menuItem("DIPARTIMENTI", tabName = "izsler", icon = icon("globe")), 
       menuItem("Dipartimento Sicurezza Alimentare", tabName = "dsalim", icon = icon("sitemap")), 
       menuItem("Dipartimento Tutela e Salute Animale", tabName = "dsa", icon = icon("sitemap")),
       menuItem("Area Territoriale Lombardia", tabName = "lomb", icon = icon("sitemap")),
@@ -33,15 +33,18 @@ ui <- dashboardPage(
       valueBoxOutput("attint"),
       valueBoxOutput("rictot"),
       valueBoxOutput("RFTE"),
+      valueBoxOutput("Costi"), 
+      valueBoxOutput("costifte"), 
+      valueBoxOutput("roi"), 
     
     div(id='clickdiv0',
         valueBoxOutput("IF")),
     bsModal("P", "Pubblicazioni IF", "clickdiv0",dataTableOutput("articoli"), size = "large"),
-    # 
-    # div(id='clickdiv1',
-    #     valueBoxOutput("Int")),
-    # bsModal("CI", "Partecipazione a convegni internazionali", "clickdiv1", dataTableOutput("convegni"), size = "large"),
-    # 
+
+    div(id='clickdiv1',
+        valueBoxOutput("Int")),
+    bsModal("CI", "Partecipazione a convegni internazionali", "clickdiv1", dataTableOutput("convegni"), size = "large"),
+
     div(id='clickdiv2',
       valueBoxOutput("PR")),
     bsModal("Prj", "Progetti di ricerca in corso", "clickdiv2", dataTableOutput("projr"), size = "large"),
@@ -51,10 +54,10 @@ ui <- dashboardPage(
     br(),
     
     fluidRow( ),
-    #   div(id='radar1',  
-    # tableOutput("t")),
+    #   div(id='radar1',
+    tableOutput("t")),
     # bsModal("R1", "IZSLER: profilo indicatori di performances", "radar1", plotOutput("radarIZSLER"), size = "large")),
-    # 
+
     br(),
     fluidRow(
     # column(1, 
