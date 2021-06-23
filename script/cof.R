@@ -13,7 +13,8 @@ pubs <- pub %>%
 # flextable(   
 # (
   
-IZSLER %>%
+x <- IZSLER %>%
+  select(-Anno) %>% 
   left_join(
     (pubs %>%
        filter(articoliif == "IF") %>%
@@ -25,12 +26,23 @@ IZSLER %>%
     (pr %>%
        group_by(Dipartimento) %>%
        summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
-    ),  by = "Dipartimento" ) %>% View()
-
-))
+    ),  by = "Dipartimento" )  
 
 
-%>%
+
+flextable(x[, -1]) %>% 
+  theme_booktabs() %>%
+  color(i = 1, color = "blue", part = "header") %>%
+  bold( part = "header") %>%
+  fontsize(size=15) %>%
+  fontsize(part = "header", size = 15) %>%
+  line_spacing(space = 2.5)
+  
+
+#))
+
+
+#%>%
   theme_booktabs() %>%
   color(i = 1, color = "blue", part = "header") %>%
   bold( part = "header") %>%
