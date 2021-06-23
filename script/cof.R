@@ -10,22 +10,27 @@ pubs <- pub %>%
   filter(OA == 2019)
 
 
-flextable(   
-(IZSLER %>%
+# flextable(   
+# (
+  
+IZSLER %>%
   left_join(
     (pubs %>%
        filter(articoliif == "IF") %>%
-       count(DIPARTIMENTO, NR) %>%
-       group_by(DIPARTIMENTO) %>%
+       count(Dipartimento, NR) %>%
+       group_by(Dipartimento) %>%  
        count(NR) %>%
-       summarise("Pubblicazioni" = sum(n))), by = c("Dipartimento" = "DIPARTIMENTO")) %>%  
+       summarise("Pubblicazioni" = sum(n))), by = "Dipartimento") %>%    
   left_join(
     (pr %>%
-       group_by(DIPARTIMENTO) %>%
-       summarise("Progetti di Ricerca"=nlevels(factor(Codice)))  
-    ),  by =c("Dipartimento" = "DIPARTIMENTO"))
+       group_by(Dipartimento) %>%
+       summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
+    ),  by = "Dipartimento" ) %>% View()
 
-)) %>%
+))
+
+
+%>%
   theme_booktabs() %>%
   color(i = 1, color = "blue", part = "header") %>%
   bold( part = "header") %>%

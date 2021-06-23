@@ -148,25 +148,24 @@ output$Int <- renderValueBox({
 
 ###tabella x dipartimenti####
 
-  output$t <- renderUI({
+output$t <- renderUI({
     border <- officer::fp_border()
-    flextable(   
+    flextable(
       (IZSLER() %>%
          left_join(
            (pubs() %>%
               filter(articoliif == "IF") %>%
-              count(DIPARTIMENTO, NR) %>%
-              group_by(DIPARTIMENTO) %>%
+              count(Dipartimento, NR) %>%
+              group_by(Dipartimento) %>%  
               count(NR) %>%
-              summarise("Pubblicazioni" = sum(n))), by = c("Dipartimento" = "DIPARTIMENTO")) %>%  
+              summarise("Pubblicazioni" = sum(n))), by = "Dipartimento") %>%    
          left_join(
            (pr() %>%
-              group_by(DIPARTIMENTO) %>%
-              summarise("Progetti di Ricerca"=nlevels(factor(Codice)))  
-           ),  by =c("Dipartimento" = "DIPARTIMENTO"))
-       
-      )) %>%
-    theme_booktabs() 
+              group_by(Dipartimento) %>%
+              summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
+           ),  by = "Dipartimento" )),
+      theme_booktabs()
+})
     # %>%
       # color(i = 1, color = "blue", part = "header") %>%
       # bold( part = "header") %>%
@@ -194,8 +193,7 @@ output$Int <- renderValueBox({
       #          part = "header", inline = T) %>%
       # fontsize( i = NULL, j = NULL, size = 13, part = "footer") %>%
       # htmltools_value()
-  })
-
+  
 #   
 #   
 #   

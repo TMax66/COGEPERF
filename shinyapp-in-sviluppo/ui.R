@@ -53,8 +53,8 @@ ui <- dashboardPage(
     
     br(),
     
-    fluidRow( ),
-    #   div(id='radar1',
+    fluidRow(  
+    # #   div(id='radar1',
     tableOutput("t")),
     # bsModal("R1", "IZSLER: profilo indicatori di performances", "radar1", plotOutput("radarIZSLER"), size = "large")),
 

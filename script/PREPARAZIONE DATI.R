@@ -149,7 +149,8 @@ analisi %>%
 prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2020.xlsx"))
 
 anag <- ore %>% 
-  select(-Anno, -Ore, -Mese) %>% 
+  left_join(strutture, by = c("CENTRO_DI_COSTO")) %>% 
+  select(-Anno, -Ore, -Mese, -Livello0, -DIPARTIMENTO, -REPARTO) %>%  
   mutate(annoraplav = year(FineRapporto)) %>% 
   filter(annoraplav > 2018) %>% 
   distinct(Matricola, .keep_all = TRUE)
@@ -157,7 +158,7 @@ anag <- ore %>%
 prj %>%
   left_join(anag, by = c("MatrRSUO" = "Matricola")) %>% 
   mutate(annoinizio = year(DataInizio), 
-         annofine = year(DataFine)) %>% 
+         annofine = year(DataFine)) %>% View()
   saveRDS(., file = here( "data", "processed",  "prj.rds"))
   
 
@@ -171,6 +172,7 @@ pubblicazioni %>% filter(OA >= 2019) %>%
                           "COSCIANI_CUNICO" = "COSCIANI CUNICO",
   )) %>%
   left_join(anag, by = c("Cognome" = "Cognome")) %>%
+  filter(Dirigente == "S") %>%  
   saveRDS(., file = here( "data", "processed",  "pub.rds"))
 
 
