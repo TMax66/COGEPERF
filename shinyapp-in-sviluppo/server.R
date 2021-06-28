@@ -16,6 +16,47 @@ pubs <- reactive(pub %>%
 
 
 
+
+tdip <- reactive(
+  IZSLER() %>%
+  left_join(
+    (pubs() %>%
+       filter(articoliif == "IF") %>%
+       count(Dipartimento, NR) %>%
+       group_by(Dipartimento) %>%  
+       count(NR) %>%
+       summarise("Pubblicazioni" = sum(n))), by = "Dipartimento") %>%    
+  left_join(
+    (pr() %>%
+       group_by(Dipartimento) %>%
+       summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
+    ),  by = "Dipartimento" ))
+
+
+
+
+
+tdiprep <- reactive(
+  tabIZSLER %>% 
+    filter(Anno == input$anno & Dipartimento == input$dip) %>% 
+    rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
+            "COSTI" = costi) %>%
+    group_by(Reparto) %>%
+    summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+    mutate(RT = (VALORE+VP+AI),
+           FTE_T = round((FTED+FTED),1)) %>%
+    arrange(desc(ANALISI)) %>%
+    mutate("R-FTE" = round(RT/FTE_T,0), 
+           "C-FTE" = round(COSTI/FTE_T, 0)) %>% 
+    select(-FTED, -FTEC) 
+)
+
+
+
+
+
+
+
 #value boxes######  
 es <- reactive(
         IZSLER() %>%
@@ -150,20 +191,7 @@ output$Int <- renderValueBox({
 
 output$t <- renderUI({
     border <- officer::fp_border()
-    flextable(
-      (IZSLER() %>%
-         left_join(
-           (pubs() %>%
-              filter(articoliif == "IF") %>%
-              count(Dipartimento, NR) %>%
-              group_by(Dipartimento) %>%  
-              count(NR) %>%
-              summarise("Pubblicazioni" = sum(n))), by = "Dipartimento") %>%    
-         left_join(
-           (pr() %>%
-              group_by(Dipartimento) %>%
-              summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
-           ),  by = "Dipartimento" )), 
+   flextable(tdip(),
       col_keys = c("Dipartimento", "ANALISI", "VALORE", "VP", "AI", "COSTI", "RT", "R-FTE", "C-FTE", "Pubblicazioni", "Progetti di Ricerca")
       ) %>%  
       theme_booktabs() %>% 
@@ -182,9 +210,25 @@ output$t <- renderUI({
 ###tabella Dipartimento/Reparto####
 
  
-output$tr <- renderTable( 
-  diprep(Anno = input$anno, Dipartimento = input$dip)
-)
+output$tr <- renderUI({
+  border <- officer::fp_border()
+  flextable(tdiprep(), 
+            
+            col_keys = c("Dipartimento", "ANALISI", "VALORE", "VP", "AI", "COSTI", "RT", "R-FTE", "C-FTE", "Pubblicazioni", "Progetti di Ricerca")
+  ) %>%  
+    theme_booktabs() %>% 
+    color(i = 1, color = "blue", part = "header") %>%
+    bold( part = "header") %>%
+    fontsize(size=15) %>%
+    fontsize(part = "header", size = 15) %>%
+    line_spacing(space = 2.5) %>% 
+    autofit() %>%
+    colformat_num(j = c( "VALORE", "VP", "AI", "COSTI",  "RT", "R-FTE", "C-FTE"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
+    colformat_num(j= c("ANALISI"), big.mark = ".", decimal.mark = ",", prefix = "€") %>% 
+    htmltools_value() 
+            
+
+})
 }
      
       
@@ -211,5 +255,5 @@ output$tr <- renderTable(
       # htmltools_value()
   
 
- }
+ #}
 

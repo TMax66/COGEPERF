@@ -1,24 +1,28 @@
 ui <- dashboardPage(
   dashboardHeader(title = "Controllo di gestione e performances", titleWidth = 400),
+   navbarPage(  
+     tabPanel("Quadro Generale Dipartimenti", 
+  
+  
   dashboardSidebar(
-    width = 300,
-    sidebarMenu( 
-      menuItem("Quadro Generale", tabName = "izsler", icon = icon("globe")), 
-      # menuItem("Dipartimento Sicurezza Alimentare", tabName = "Dipartimento Sicurezza Alimentare", icon = icon("sitemap")), 
-      # menuItem("Dipartimento Tutela e Salute Animale", tabName = "dsa", icon = icon("sitemap")),
-      # menuItem("Area Territoriale Lombardia", tabName = "lomb", icon = icon("sitemap")),
-      # menuItem("Area Territoriale Emilia Romagna", tabName = "emil", icon = icon("sitemap")),
-      hr(), 
-      br(), 
-      
-      selectInput("dip", "Seleziona il Dipartimento", choices = unique(factor(tabIZSLER$Dipartimento)), 
-                  selected = ""), 
-      sliderInput("anno", "Seleziona l'Anno", min=2019, max = 2021, value= 2021),
-      menuItem("Note", tabName = "help", icon = icon("book")), 
-      menuItem("Programmazione 2021", "tabName"= "pr21"),
-      hr(),
-      br()
-    )
+  width = 300,
+  #   sidebarMenu( 
+  #     #menuItem("Quadro Generale", tabName = "izsler", icon = icon("globe")), 
+  #     # menuItem("Dipartimento Sicurezza Alimentare", tabName = "Dipartimento Sicurezza Alimentare", icon = icon("sitemap")), 
+  #     # menuItem("Dipartimento Tutela e Salute Animale", tabName = "dsa", icon = icon("sitemap")),
+  #     # menuItem("Area Territoriale Lombardia", tabName = "lomb", icon = icon("sitemap")),
+  #     # menuItem("Area Territoriale Emilia Romagna", tabName = "emil", icon = icon("sitemap")),
+  #     hr(), 
+  #     br(), 
+  #     
+  #     selectInput("dip", "Seleziona il Dipartimento", choices = unique(factor(tabIZSLER$Dipartimento)), 
+  #                 selected = ""), 
+  sliderInput("anno", "Seleziona l'Anno", min=2019, max = 2021, value= 2021)
+  #     #menuItem("Note", tabName = "help", icon = icon("book")), 
+  #     #menuItem("Programmazione 2021", "tabName"= "pr21"),
+  #     hr(),
+  #     br()
+  #   )
   ),
   dashboardBody(
     tags$head(tags$style(HTML('
@@ -26,45 +30,45 @@ ui <- dashboardPage(
                         width: 1500px;
                         }
                       '))),
-  tabItems(
+ # tabItems(
 #####IZSLER#####
-    tabItem( tabName = "izsler", 
-    fluidRow(
-      valueBoxOutput("esami"),
-      valueBoxOutput("ricavi"),
-      valueBoxOutput("venprod"),
-      valueBoxOutput("attint"),
-      valueBoxOutput("rictot"),
-      valueBoxOutput("RFTE"),
-      valueBoxOutput("Costi"), 
-      valueBoxOutput("costifte"), 
-      valueBoxOutput("roi"), 
-    
-    div(id='clickdiv0',
-        valueBoxOutput("IF")),
-    bsModal("P", "Pubblicazioni IF", "clickdiv0",dataTableOutput("articoli"), size = "large"),
+  # tabItem( tabName = "izsler",
+   fluidRow(
+     valueBoxOutput("esami"),
+     valueBoxOutput("ricavi"),
+     valueBoxOutput("venprod"),
+     valueBoxOutput("attint"),
+     valueBoxOutput("rictot"),
+     valueBoxOutput("RFTE"),
+     valueBoxOutput("Costi"),
+     valueBoxOutput("costifte"),
+     valueBoxOutput("roi"),
 
-    div(id='clickdiv1',
-        valueBoxOutput("Int")),
-    bsModal("CI", "Partecipazione a convegni internazionali", "clickdiv1", dataTableOutput("convegni"), size = "large"),
+   div(id='clickdiv0',
+       valueBoxOutput("IF")),
+   bsModal("P", "Pubblicazioni IF", "clickdiv0",dataTableOutput("articoli"), size = "large"),
 
-    div(id='clickdiv2',
-      valueBoxOutput("PR")),
-    bsModal("Prj", "Progetti di ricerca in corso", "clickdiv2", dataTableOutput("projr"), size = "large"),
-  
-    ), 
+   div(id='clickdiv1',
+       valueBoxOutput("Int")),
+   bsModal("CI", "Partecipazione a convegni internazionali", "clickdiv1", dataTableOutput("convegni"), size = "large"),
+
+   div(id='clickdiv2',
+     valueBoxOutput("PR")),
+   bsModal("Prj", "Progetti di ricerca in corso", "clickdiv2", dataTableOutput("projr"), size = "large"),
+
+   ),
     
-    br(),
+    #br(),
     
     fluidRow(  
     # #   div(id='radar1',
     tableOutput("t"),
-    tableOutput("tr")
+   # tableOutput("tr")
     ),
     # bsModal("R1", "IZSLER: profilo indicatori di performances", "radar1", plotOutput("radarIZSLER"), size = "large")),
 
-    br(),
-    fluidRow(
+   # br(),
+    #fluidRow(
     # column(1, 
     # radioButtons("ind", "", 
     #             c("IP" = "IP","Dipartimento" = "Dipartimento" ))),
@@ -77,9 +81,27 @@ ui <- dashboardPage(
     #  
     )
   ), 
+tabPanel("Dipartimenti",  
+
+dashboardSidebar(
+           width = 300,
+           selectInput("dip", "Seleziona il Dipartimento", choices = unique(factor(tabIZSLER$Dipartimento)), selected = ""), 
+           sliderInput("anno", "Seleziona l'Anno", min=2019, max = 2021, value= 2021)
+
+), 
+
+dashboardBody(
+  fluidRow(
+   tableOutput("tr")
+  )
+
+)
+)
+)
+)#, 
 ####Dipartimento Sicurezza Alimentare####
-   tabItem(tabName = "dsalim", 
-       fluidRow(
+  # tabItem(tabName = "dsalim", 
+     #  fluidRow(
 #         valueBoxOutput("esami2"),
 #         valueBoxOutput("ra2"),
 #         valueBoxOutput("vp2"),
@@ -110,7 +132,7 @@ ui <- dashboardPage(
 #       
 #       fluidRow( 
 #         div(id='radar2',  
-tableOutput("tr")),
+#tableOutput("tr")),
 #         bsModal("R2", "Dipartimento Sicurezza Alimentare: profilo indicatori di performances", "radar2", plotOutput("radarDSA"), size = "large")), 
 #       
 #       br(),
@@ -124,7 +146,7 @@ tableOutput("tr")),
 #                    plotOutput("tbd2")),
 #                bsModal("TW2", "Distribuzione percentuale degli Indicatori di performance  tra i Reparti",  'clickdiv01', tableOutput("tbw2")))
 #       )
-)
+#)
 # 
 # ####Dipartimento Tutela Salute Animale#####
 #   tabItem(tabName = "dsa", 
@@ -477,5 +499,5 @@ tableOutput("tr")),
 # 
 # 
 
-)))
+#)))
 

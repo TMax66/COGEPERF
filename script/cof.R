@@ -28,7 +28,7 @@ pubs <- pub %>%
 diprep <- function(Anno, Dipartimento)
 {
   tabIZSLER %>% 
-    filter(Anno == Anno & Dipartimento == Dipartimento) %>% 
+    filter(Anno == Anno & Dipartimento == "Dipartimento") %>% 
     rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
             "COSTI" = costi) %>%
     group_by(Reparto) %>%
@@ -43,6 +43,22 @@ diprep <- function(Anno, Dipartimento)
 }
 
 diprep(Anno = 2019, Dipartimento = "Direzione Sanitaria")
+
+tabIZSLER %>% 
+  filter(Anno == 2019 ) %>% 
+  rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
+          "COSTI" = costi) %>%
+  group_by(Reparto) %>%
+  summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+  mutate(RT = (VALORE+VP+AI),
+         FTE_T = round((FTED+FTED),1)) %>%
+  arrange(desc(ANALISI)) %>%
+  mutate("R-FTE" = round(RT/FTE_T,0), 
+         "C-FTE" = round(COSTI/FTE_T, 0)) %>% 
+  select(-FTED, -FTEC)
+
+
+
 
 
 flextable(
