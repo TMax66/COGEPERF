@@ -19,10 +19,10 @@ pubs <- reactive(pub %>%
 #value boxes######  
 es <- reactive(
         IZSLER() %>%
-         summarise(totes = sum(esami)) %>% 
+         summarise(totes = sum(ANALISI)) %>% 
           select(totes))
 output$esami <- renderValueBox({
-    valueBox(prettyNum(es(), big.mark = "."), "N. esami",  icon = icon("flask"),
+    valueBox(prettyNum(es(), big.mark = "."), "N. Analisi",  icon = icon("flask"),
       color = "blue"
     )
   })
@@ -30,7 +30,7 @@ output$esami <- renderValueBox({
 
 ric <- reactive(
   IZSLER() %>%
-    summarise(totric = round(sum(ricavi), 0)) %>% 
+    summarise(totric = round(sum(VALORE), 0)) %>% 
     select(totric))
 output$ricavi <- renderValueBox({
   valueBox(prettyNum(ric(), big.mark = "." ), "Valorizzazioni da Tariffario",  icon = icon("euro"),
@@ -82,7 +82,7 @@ output$RFTE <- renderValueBox({
 
 cst <- reactive(
   IZSLER() %>%
-    summarise(costi = round((sum(costi)), 0)) %>% 
+    summarise(costi = round((sum(COSTI)), 0)) %>% 
     select(costi))
 output$Costi <- renderValueBox({
   valueBox(prettyNum(cst(), big.mark = "." ), "Costi complessivi",  icon = icon("euro"),
@@ -93,7 +93,7 @@ output$Costi <- renderValueBox({
 
 cstfte <- reactive(
   IZSLER() %>%
-    summarise(costifte = round((sum(costi)/ sum(FTE_T)), 0)) %>% 
+    summarise(costifte = round((sum(COSTI)/ sum(FTE_T)), 0)) %>% 
     select(costifte))
 output$costifte <- renderValueBox({
   valueBox(prettyNum(cstfte(), big.mark = "." ), "Costi per Full Time Equivalente",  icon = icon("euro"),
@@ -102,10 +102,9 @@ output$costifte <- renderValueBox({
 })
 
 
-
 roit <- reactive(
   IZSLER() %>%
-    summarise(roi = round((sum(RT)/sum(costi)), 2)) %>% 
+    summarise(roi = round((sum(RT)/sum(COSTI)), 2)) %>% 
     select(roi))
 output$roi <- renderValueBox({
   valueBox(prettyNum(roit(), big.mark = "." , decimal.mark = ","), "ROI",
@@ -147,7 +146,7 @@ output$Int <- renderValueBox({
     })
 
 
-###tabella x dipartimenti####
+###tabella complessiva DIPARTIMENTI####
 
 output$t <- renderUI({
     border <- officer::fp_border()
@@ -164,7 +163,8 @@ output$t <- renderUI({
            (pr() %>%
               group_by(Dipartimento) %>%
               summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
-           ),  by = "Dipartimento" ))
+           ),  by = "Dipartimento" )), 
+      col_keys = c("Dipartimento", "ANALISI", "VALORE", "VP", "AI", "COSTI", "RT", "R-FTE", "C-FTE", "Pubblicazioni", "Progetti di Ricerca")
       ) %>%  
       theme_booktabs() %>% 
       color(i = 1, color = "blue", part = "header") %>%
@@ -173,13 +173,19 @@ output$t <- renderUI({
       fontsize(part = "header", size = 15) %>%
       line_spacing(space = 2.5) %>% 
       autofit() %>%
-      colformat_num(j = c( "ricavi", "VP", "AI", "costi",  "RT"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
+      colformat_num(j = c( "VALORE", "VP", "AI", "COSTI",  "RT", "R-FTE", "C-FTE"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
+      colformat_num(j= c("ANALISI"), big.mark = ".", decimal.mark = ",", prefix = "€") %>% 
       htmltools_value() 
       
 })
   
-     
+###tabella Dipartimento/Reparto####
+
  
+output$tr <- renderTable( 
+  diprep(Anno = input$anno, Dipartimento = input$dip)
+)
+}
      
       
       # 

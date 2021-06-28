@@ -18,20 +18,50 @@ library("fmsb")
 tabIZSLER <- readRDS(file = here( "data", "processed", "TABELLA.rds"))#-tabella complessiva izsler esami prodotti orelav##
 prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
 pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazioni
- 
+
+
+#Carico funzioni----
+
+diprep <- function(Anno, Dipartimento)
+{
+  tabIZSLER %>% 
+    filter(Anno == Anno & Dipartimento == Dipartimento) %>% 
+    rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
+            "COSTI" = costi) %>%
+    group_by(Reparto) %>%
+    summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+    mutate(RT = (VALORE+VP+AI),
+           FTE_T = round((FTED+FTED),1)) %>%
+    arrange(desc(ANALISI)) %>%
+    mutate("R-FTE" = round(RT/FTE_T,0), 
+           "C-FTE" = round(COSTI/FTE_T, 0)) %>% 
+    select(-FTED, -FTEC) 
+  
+}
 # 
 # ###IZSLER######_________________________________________________________________
 # 
 
 #TABELLA IZSLER aggregato per dipartimenti con FTE----
-tizsler <-  tabIZSLER %>%
-  rename("ricavi" = valore, "VP" = ricavovp, "AI" = valoreai) %>%
+tizsler <-  tabIZSLER %>%  
+  rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
+          "COSTI" = costi) %>%
   group_by(Anno, Dipartimento) %>%
-  summarise_at(c("esami", "ricavi",  "VP", "AI", "FTED", "FTEC","costi"), sum, na.rm = T) %>%
-  mutate(RT = (ricavi+VP+AI),
+  summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+  mutate(RT = (VALORE+VP+AI),
          FTE_T = round((FTED+FTED),1)) %>%
-  arrange(desc(esami)) %>%
-  mutate("R-FTE" = round(RT/FTE_T,0) ) 
+  arrange(desc(ANALISI)) %>%
+  mutate("R-FTE" = round(RT/FTE_T,0), 
+         "C-FTE" = round(COSTI/FTE_T, 0)) %>% 
+  select(-FTED, -FTEC)
+
+
+
+#TABELLA DIPARTIMENTO da aggregare per reparto e anno con FTE----
+
+
+
+
 
 
 
