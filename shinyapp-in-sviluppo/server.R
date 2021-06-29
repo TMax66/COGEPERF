@@ -38,7 +38,7 @@ tdip <- reactive(
 
 tdiprep <- reactive(
   tabIZSLER %>% 
-    filter(Anno == input$anno & Dipartimento == input$dip) %>% 
+    filter(Anno == input$anno2 & Dipartimento == input$dip) %>% 
     rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
             "COSTI" = costi) %>%
     group_by(Reparto) %>%
@@ -53,7 +53,7 @@ tdiprep <- reactive(
 
 
 
-
+output$year <- renderText(input$anno)
 
 
 
@@ -192,7 +192,7 @@ output$Int <- renderValueBox({
 output$t <- renderUI({
     border <- officer::fp_border()
    flextable(tdip(),
-      col_keys = c("Dipartimento", "ANALISI", "VALORE", "VP", "AI", "COSTI", "RT", "R-FTE", "C-FTE", "Pubblicazioni", "Progetti di Ricerca")
+      col_keys = c("Dipartimento", "ANALISI", "VALORE", "VP", "AI", "COSTI", "RT", "FTE_T", "R-FTE", "C-FTE", "Pubblicazioni", "Progetti di Ricerca")
       ) %>%  
       theme_booktabs() %>% 
       color(i = 1, color = "blue", part = "header") %>%
@@ -202,7 +202,7 @@ output$t <- renderUI({
       line_spacing(space = 2.5) %>% 
       autofit() %>%
       colformat_num(j = c( "VALORE", "VP", "AI", "COSTI",  "RT", "R-FTE", "C-FTE"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
-      colformat_num(j= c("ANALISI"), big.mark = ".", decimal.mark = ",", prefix = "€") %>% 
+      colformat_num(j= c("ANALISI", "FTE_T"), big.mark = ".", decimal.mark = "," ) %>% 
       htmltools_value() 
       
 })
@@ -224,7 +224,7 @@ output$tr <- renderUI({
     line_spacing(space = 2.5) %>% 
     autofit() %>%
     colformat_num(j = c( "VALORE", "VP", "AI", "COSTI",  "RT", "R-FTE", "C-FTE"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
-    colformat_num(j= c("ANALISI"), big.mark = ".", decimal.mark = ",", prefix = "€") %>% 
+    colformat_num(j= c("ANALISI"), big.mark = ".", decimal.mark = "," ) %>% 
     htmltools_value() 
             
 
