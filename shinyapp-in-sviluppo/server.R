@@ -1,7 +1,7 @@
 server <- function(input, output, session) { 
 
 options(shiny.reactlog=TRUE)
-#IZSLER#####
+  
 ##codici reactive di preparazione ----
 
 IZSLER <- reactive( tizsler %>% 
@@ -11,9 +11,19 @@ pr <- reactive(prj %>%
                  mutate("Stato" = ifelse(annofine < input$anno, "Archiviato", "Attivo")) %>% 
                  filter(Stato == "Attivo" & annoinizio <= input$anno))
 
+prdip <- reactive(
+  prj %>% 
+    mutate("Stato" = ifelse(annofine < input$anno2, "Archiviato", "Attivo")) %>% 
+    filter(Stato == "Attivo" & annoinizio <= input$anno2 & Dipartimento == input$dip))
+
+
+
 pubs <- reactive(pub %>% 
                   filter(OA == input$anno))
 
+
+pubsdip <- reactive(pub %>% 
+                      filter(OA == input$anno2 & Dipartimento == input$dip))
 
 
 
@@ -37,7 +47,7 @@ tdip <- reactive(
 
 
 tdiprep <- reactive(
-  tabIZSLER %>% 
+  (tabIZSLER %>% 
     filter(Anno == input$anno2 & Dipartimento == input$dip) %>% 
     rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
             "COSTI" = costi) %>%
@@ -47,8 +57,21 @@ tdiprep <- reactive(
            FTE_T = round((FTED+FTED),1)) %>%
     arrange(desc(ANALISI)) %>%
     mutate("R-FTE" = round(RT/FTE_T,0), 
-           "C-FTE" = round(COSTI/FTE_T, 0)) %>% 
-    select(-FTED, -FTEC) 
+           "C-FTE" = round(COSTI/FTE_T, 0), 
+           "ROI" = round(RT/COSTI, 2)) %>% 
+    select(-FTED, -FTEC)) %>% 
+    left_join(
+      (pubsdip() %>%
+         filter(articoliif == "IF") %>%
+         count(Reparto, NR) %>%
+         group_by(Reparto) %>%  
+         count(NR) %>%
+         summarise("Pubblicazioni" = sum(n))), by = "Reparto") %>%    
+    left_join(
+      (prdip() %>%
+         group_by(Reparto) %>%
+         summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
+      ), by = "Reparto")
 )
 
 
@@ -187,12 +210,12 @@ output$Int <- renderValueBox({
     })
 
 
-###tabella complessiva DIPARTIMENTI####
+##tabella complessiva DIPARTIMENTI####
 
 output$t <- renderUI({
     border <- officer::fp_border()
    flextable(tdip(),
-      col_keys = c("Dipartimento", "ANALISI", "VALORE", "VP", "AI", "COSTI", "RT", "FTE_T", "R-FTE", "C-FTE", "Pubblicazioni", "Progetti di Ricerca")
+      col_keys = c("Dipartimento", "ANALISI", "VALORE", "VP", "AI",  "RT","COSTI", "ROI", "FTE_T", "R-FTE", "C-FTE", "Pubblicazioni", "Progetti di Ricerca")
       ) %>%  
       theme_booktabs() %>% 
       color(i = 1, color = "blue", part = "header") %>%
@@ -207,14 +230,14 @@ output$t <- renderUI({
       
 })
   
-###tabella Dipartimento/Reparto####
+##tabella Dipartimento/Reparto####
 
  
 output$tr <- renderUI({
   border <- officer::fp_border()
   flextable(tdiprep(), 
             
-            col_keys = c("Dipartimento", "ANALISI", "VALORE", "VP", "AI", "COSTI", "RT", "R-FTE", "C-FTE", "Pubblicazioni", "Progetti di Ricerca")
+            col_keys = c("Reparto", "ANALISI", "VALORE", "VP", "AI", "RT",  "COSTI", "ROI", "FTE_T",  "R-FTE", "C-FTE", "Pubblicazioni", "Progetti di Ricerca")
   ) %>%  
     theme_booktabs() %>% 
     color(i = 1, color = "blue", part = "header") %>%

@@ -52,12 +52,13 @@ tizsler <-  tabIZSLER %>%
          FTE_T = round((FTED+FTED),1)) %>%
   arrange(desc(ANALISI)) %>%
   mutate("R-FTE" = round(RT/FTE_T,0), 
-         "C-FTE" = round(COSTI/FTE_T, 0)) %>% 
+         "C-FTE" = round(COSTI/FTE_T, 0), 
+         "ROI" = round(RT/COSTI, 2)) %>% 
   select(-FTED, -FTEC)
 
 
 
-#TABELLA DIPARTIMENTO da aggregare per reparto e anno con FTE----
+ 
 
 
 
