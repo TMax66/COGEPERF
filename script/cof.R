@@ -1,3 +1,71 @@
+
+tdiprep <-  
+  tabIZSLER %>% 
+     filter(Anno == 2019 & Dipartimento == "Direzione Sanitaria") %>% 
+     rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
+             "COSTI" = costi) %>%
+     group_by(Reparto) %>%
+     summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+     mutate(RT = (VALORE+VP+AI),
+            FTE_T = round((FTED+FTED),1)) %>%
+     arrange(desc(ANALISI)) %>%
+     mutate("R-FTE" = round(RT/FTE_T,0), 
+            "C-FTE" = round(COSTI/FTE_T, 0), 
+            "ROI" = round(RT/COSTI, 2)) %>% 
+     select(-FTED, -FTEC)
+
+
+
+
+
+f1 <- function(dati, Variabile)
+          { dati %>% 
+    summarise(totes = sum(Variabile)) %>% 
+    select(totes)
+  }
+  
+f1(dati =tdiprep, Variabile = "ANALISI")
+
+
+ValueBOX <- function(Variabile, Titolo, colore, icona)
+{ valore <- sum(tdiprep[, Variabile])
+valueBox(prettyNum(valore, big.mark = "."), Titolo, icon = icon(icona), color = colore)
+}
+
+ 
+
+tabella %>% 
+  summarise(totale = sum(ANALISI)) %>% 
+  select(totale)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 IZSLER <- tizsler %>% 
   filter(Anno == 2019)  
 
@@ -54,7 +122,28 @@ tabIZSLER %>%
          FTE_T = round((FTED+FTED),1)) %>%
   arrange(desc(ANALISI)) %>%
   mutate("R-FTE" = round(RT/FTE_T,0), 
-         "C-FTE" = round(COSTI/FTE_T, 0)) %>% 
+ 
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+                 "C-FTE" = round(COSTI/FTE_T, 0)) %>% 
   select(-FTED, -FTEC)
 
 

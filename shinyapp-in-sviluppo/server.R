@@ -81,94 +81,50 @@ output$year <- renderText(input$anno)
 
 
 #value boxes######  
-es <- reactive(
-        IZSLER() %>%
-         summarise(totes = sum(ANALISI)) %>% 
-          select(totes))
-output$esami <- renderValueBox({
-    valueBox(prettyNum(es(), big.mark = "."), "N. Analisi",  icon = icon("flask"),
-      color = "blue"
-    )
-  })
+# es <- reactive(
+#         IZSLER() %>%
+#          summarise(totes = sum(ANALISI)) %>% 
+#           select(totes))
+# output$esami <- renderValueBox({
+#     valueBox(prettyNum(es(), big.mark = "."), "N. Analisi",  icon = icon("flask"),
+#       color = "blue"
+#     )
+#   })
 
 
-ric <- reactive(
-  IZSLER() %>%
-    summarise(totric = round(sum(VALORE), 0)) %>% 
-    select(totric))
-output$ricavi <- renderValueBox({
-  valueBox(prettyNum(ric(), big.mark = "." ), "Valorizzazioni da Tariffario",  icon = icon("euro"),
-           color = "blue"
-  )
-})
+output$esami <- renderValueBox(
+  ValueBOX(IZSLER(), "ANALISI", Titolo = "N.Analisi", colore = "blue", icona = "flask")
+)
+output$ricavi <- renderValueBox(
+  ValueBOX(IZSLER(), "VALORE", Titolo = "Valorizzazioni da Tariffario", colore = "blue", icona = "euro")
+)
+output$venprod <- renderValueBox(
+  ValueBOX(IZSLER(), "VP", Titolo = "Vendita Prodotti", colore = "blue", icona = "euro")
+)
 
-vp <- reactive(
-  IZSLER() %>%
-    summarise(totvp = round(sum(VP), 0)) %>% 
-    select(totvp))
-output$venprod <- renderValueBox({
-  valueBox(prettyNum(vp(), big.mark = "." ), "Vendita Prodotti",  icon = icon("euro"),
-           color = "blue"
-  )
-})
+output$attint <- renderValueBox(
+  ValueBOX(IZSLER(), "AI", Titolo = "Attività Interna", colore = "blue", icona = "euro")
+)
 
-ai <- reactive(
-  IZSLER() %>%
-    summarise(totai = round(sum(AI), 0))%>% 
-    select(totai))
-output$attint <- renderValueBox({
-  valueBox(prettyNum(ai(), big.mark = "." ), "Attività Interna",  icon = icon("euro"),
-           color = "blue"
-  )
-})
+output$rictot <- renderValueBox(
+  ValueBOX(IZSLER(), "RT", Titolo = "Ricavi Totali", colore = "blue", icona = "euro")
+)
 
-rt <- reactive(
-  IZSLER() %>%
-    summarise(rt = round(sum(RT), 0)) %>% 
-    select(rt))
-output$rictot <- renderValueBox({
-  valueBox(prettyNum(rt(), big.mark = "." ), "Ricavi Totali",  icon = icon("euro"),
-           color = "blue"
-  )
-})
+output$RFTE <- renderValueBox(
+  ValueBOX(IZSLER(), Variabile = "RT", Variabile2 = "FTE_T",  Titolo = "Ricavo per Full Time Equivalente", colore = "blue", icona = "euro")
+)
 
+output$Costi <- renderValueBox(
+  ValueBOX(IZSLER(), Variabile = "COSTI",   Titolo = "Costi complessivi", colore = "blue", icona = "euro")
+)
 
-rtfte <- reactive(
-  IZSLER() %>%
-    summarise(rtf = round((sum(RT)/sum(FTE_T)), 0)) %>% 
-    select(rtf))
-output$RFTE <- renderValueBox({
-  valueBox(prettyNum(rtfte(), big.mark = "." ), "Ricavo per Full Time Equivalente",  icon = icon("euro"),
-           color = "blue"
-  )
-})
-
-
-cst <- reactive(
-  IZSLER() %>%
-    summarise(costi = round((sum(COSTI)), 0)) %>% 
-    select(costi))
-output$Costi <- renderValueBox({
-  valueBox(prettyNum(cst(), big.mark = "." ), "Costi complessivi",  icon = icon("euro"),
-           color = "blue"
-  )
-})
-
-
-cstfte <- reactive(
-  IZSLER() %>%
-    summarise(costifte = round((sum(COSTI)/ sum(FTE_T)), 0)) %>% 
-    select(costifte))
-output$costifte <- renderValueBox({
-  valueBox(prettyNum(cstfte(), big.mark = "." ), "Costi per Full Time Equivalente",  icon = icon("euro"),
-           color = "blue"
-  )
-})
-
+output$costifte <- renderValueBox(
+  ValueBOX(IZSLER(), Variabile = "COSTI", Variabile2 = "FTE_T",  Titolo = "Costi per Full Time Equivalente", colore = "blue", icona = "euro")
+)
 
 roit <- reactive(
   IZSLER() %>%
-    summarise(roi = round((sum(RT)/sum(COSTI)), 2)) %>% 
+    summarise(roi = round((sum(RT)/sum(COSTI)), 2)) %>%
     select(roi))
 output$roi <- renderValueBox({
   valueBox(prettyNum(roit(), big.mark = "." , decimal.mark = ","), "ROI",
@@ -176,16 +132,12 @@ output$roi <- renderValueBox({
   )
 })
 
-
-
-
 output$PR <- renderValueBox({
   valueBox(
     (  pr() %>% 
          summarise(n = nlevels(factor(Codice)))
     ), "Progetti di ricerca in corso ", icon = icon("user-graduate"), color = "light-blue")
 })
-
 
 output$IF <- renderValueBox({
     valueBox(
@@ -196,7 +148,6 @@ output$IF <- renderValueBox({
          select(NR) %>%
          nrow()),  "Articoli pubblicati su riviste peer-review con IF", icon = icon("book"), color = "light-blue")
   })
-
 
 output$Int <- renderValueBox({
       valueBox(
