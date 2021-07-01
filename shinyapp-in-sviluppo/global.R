@@ -35,13 +35,6 @@ ValueBOX <- function(dt, Variabile, Variabile2 = NULL, Titolo, colore, icona){
 }
 
 
-
-
- 
-# 
-# ###IZSLER######_________________________________________________________________
-# 
-
 #TABELLA IZSLER aggregato per dipartimenti con FTE----
 tizsler <-  tabIZSLER %>%  
   rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
@@ -55,16 +48,6 @@ tizsler <-  tabIZSLER %>%
          "C-FTE" = round(COSTI/FTE_T, 0), 
          "ROI" = round(RT/COSTI, 2)) %>% 
   select(-FTED, -FTEC)
-
-
-
- 
-
-
-
-
-
-
 
 
 #Tabella pubblicazioni----
