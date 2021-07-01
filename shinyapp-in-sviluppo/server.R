@@ -78,20 +78,7 @@ tdiprep <- reactive(
 
 output$year <- renderText(input$anno)
 
-
-
-#value boxes######  
-# es <- reactive(
-#         IZSLER() %>%
-#          summarise(totes = sum(ANALISI)) %>% 
-#           select(totes))
-# output$esami <- renderValueBox({
-#     valueBox(prettyNum(es(), big.mark = "."), "N. Analisi",  icon = icon("flask"),
-#       color = "blue"
-#     )
-#   })
-
-
+#ValueBoxDipartimenti----
 output$esami <- renderValueBox(
   ValueBOX(IZSLER(), "ANALISI", Titolo = "N.Analisi", colore = "blue", icona = "flask")
 )
@@ -180,7 +167,87 @@ output$t <- renderUI({
       htmltools_value() 
       
 })
-  
+
+
+##ValueBOX Diaprtimento/Reparto----
+
+
+output$esamidip <- renderValueBox(
+  ValueBOX(tdiprep(), "ANALISI", Titolo = "N.Analisi", colore = "blue", icona = "flask")
+)
+
+output$ricavidip <- renderValueBox(
+  ValueBOX(tdiprep(), "VALORE", Titolo = "Valorizzazioni da Tariffario", colore = "blue", icona = "euro")
+)
+output$venproddip <- renderValueBox(
+  ValueBOX(tdiprep(), "VP", Titolo = "Vendita Prodotti", colore = "blue", icona = "euro")
+)
+
+output$attintdip <- renderValueBox(
+  ValueBOX(tdiprep(), "AI", Titolo = "Attività Interna", colore = "blue", icona = "euro")
+)
+
+output$rictotdip <- renderValueBox(
+  ValueBOX(tdiprep(), "RT", Titolo = "Ricavi Totali", colore = "blue", icona = "euro")
+)
+
+output$RFTEdip <- renderValueBox(
+  ValueBOX(tdiprep(), Variabile = "RT", Variabile2 = "FTE_T",  Titolo = "Ricavo per Full Time Equivalente", colore = "blue", icona = "euro")
+)
+
+output$Costidip <- renderValueBox(
+  ValueBOX(tdiprep(), Variabile = "COSTI",   Titolo = "Costi complessivi", colore = "blue", icona = "euro")
+)
+
+output$costiftedip <- renderValueBox(
+  ValueBOX(tdiprep(), Variabile = "COSTI", Variabile2 = "FTE_T",  Titolo = "Costi per Full Time Equivalente", colore = "blue", icona = "euro")
+)
+
+roitdip <- reactive(
+  tdiprep() %>%
+    summarise(roi = round((sum(RT)/sum(COSTI)), 2)) %>%
+    select(roi))
+output$roidip <- renderValueBox({
+  valueBox(prettyNum(roitdip(), big.mark = "." , decimal.mark = ","), "ROI",
+           color = ifelse(roitdip() >= 1, "green", "red")
+  )
+})
+
+output$PRdip <- renderValueBox({
+  valueBox(
+    (  prdip() %>% 
+         summarise(n = nlevels(factor(Codice)))
+    ), "Progetti di ricerca in corso ", icon = icon("user-graduate"), color = "light-blue")
+})
+
+output$IFdip <- renderValueBox({
+  valueBox(
+    (pubsdip() %>%
+       filter(articoliif == "IF") %>%
+       group_by(NR) %>%
+       count(NR) %>%
+       select(NR) %>%
+       nrow()),  "Articoli pubblicati su riviste peer-review con IF", icon = icon("book"), color = "light-blue")
+})
+
+output$Intdip <- renderValueBox({
+  valueBox(
+    (pubsdip() %>%
+       filter(articoliif == "Int") %>%
+       group_by(NR) %>%
+       count(NR) %>%
+       select(NR) %>%
+       nrow()
+    ), "Lavori presentati a convegni internazionali", icon = icon("book"), color = "light-blue")
+})
+
+
+
+
+
+
+
+
 ##tabella Dipartimento/Reparto####
 
  

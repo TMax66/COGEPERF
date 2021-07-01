@@ -21,19 +21,19 @@ pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazi
 
 
 # #Carico funzioni----
-
 ValueBOX <- function(dt, Variabile, Variabile2 = NULL, Titolo, colore, icona){ 
   
   if(is.null(Variabile2)){    
-  
-   valore <- sum(dt[, Variabile])  
-  
+    
+    valore <- sum(dt[, Variabile])  
+    
   } else {
     valore <- round(sum(dt[, Variabile]/sum(dt[, Variabile2])),2)
   }
-     
-valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona), color = colore)
+  
+  valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona), color = colore)
 }
+
 
 
 

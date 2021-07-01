@@ -67,18 +67,52 @@ ui <- dashboardPage(
                                        choices = unique(factor(tabIZSLER$Dipartimento)), inline=T)
              ), 
              hr(), 
-             fluidRow(), 
+             fluidRow(
+               column(12,
+                      box(title = "KPI-Dipartimenti", solidHeader = TRUE,collapsible = TRUE,  status = "primary", width = 12,
+                          valueBoxOutput("esamidip"),
+                          valueBoxOutput("ricavidip"),
+                          valueBoxOutput("venproddip"),
+                          valueBoxOutput("attintdip"),
+                          valueBoxOutput("rictotdip"),
+                          valueBoxOutput("RFTEdip"),
+                          valueBoxOutput("Costidip"),
+                          valueBoxOutput("costiftedip"),
+                          valueBoxOutput("roidip"),
+
+                         # div(id='clickdiv3',
+                              valueBoxOutput("IFdip"), #),
+                          #bsModal("P1", "Pubblicazioni IF", "clickdiv3",dataTableOutput("articoli"), size = "large"),
+
+                          #div(id='clickdiv4',
+                              valueBoxOutput("Intdip"), #),
+                          #bsModal("CI1", "Partecipazione a convegni internazionali", "clickdiv4", dataTableOutput("convegni"), size = "large"),
+
+                          #div(id='clickdiv5',
+                              valueBoxOutput("PRdip")#),
+                         # bsModal("Prj1", "Progetti di ricerca in corso", "clickdiv5", dataTableOutput("projr"), size = "large"))
+               )
+               
+               
+               
+               
+             )), 
              
-              fluidRow(
-                tableOutput("tr")
-              )
+             fluidRow(
+                 
+                column(12,
+                box(title = "",  solidHeader = TRUE, collapsible = TRUE,status = "primary", width = 12, 
+                    tableOutput("tr"))
+                )) 
+               )
+             )
             )
           )
           
           
         )
-)
-)
+ 
+ 
 
  
  

@@ -1,10 +1,31 @@
 library(shiny)
+library(shinydashboard)
 
 tabIZSLER <- readRDS(file = here( "data", "processed", "TABELLA.rds"))
 
-ValueBOX <- function(dt, Variabile, Titolo, colore, icona)
-{ valore <- sum(dt[, Variabile])
-valueBox(prettyNum(valore, big.mark = "."), Titolo, icon = icon(icona), color = colore)
+ValueBOX <- function(dt, Variabile, Variabile2 = NULL, Titolo, colore, colcond, icona ){ 
+  
+  if(is.null(Variabile2)){    
+    
+    valore <- sum(dt[, Variabile])  
+    
+  } else {
+    valore <- round(sum(dt[, Variabile]/sum(dt[, Variabile2])),2)
+  }
+  
+  if( colcond == "NO"){ 
+    
+    valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona), color = colore)
+    
+  } else {
+      
+    valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona), 
+             color = ifelse(valore() >= 1, "green", "red"))
+    
+    }
+    
+  
+  
 }
 
 
@@ -43,7 +64,7 @@ tdiprep <- reactive(
 
 
 output$esami <- renderValueBox(
-  ValueBOX(tdiprep(), "ANALISI", Titolo = "N.Analisi", colore = "red", icona = "flask")
+  ValueBOX(tdiprep(), "RT", Variabile2 ="COSTI",   Titolo = "roi", colore = "red", colcond = "NO",  icona = "flask")
 )
   
 }
