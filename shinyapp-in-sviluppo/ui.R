@@ -1,12 +1,23 @@
 ui <- dashboardPage(
       dashboardHeader(title = "Controllo di gestione e performances", titleWidth = 400),
-      
+#Sidebar
       dashboardSidebar(
         width = 300,
-            sidebarMenu( 
+            sidebarMenu(id = "menu", 
             menuItem("Quadro Generale Dipartimenti", tabName = "izsler", icon = icon("globe")), 
-            menuItem("Dipartimenti", tabName = "dipartimenti", icon = icon("sitemap")))
-        ),
+            menuItem("Dipartimenti", tabName = "dipartimenti", icon = icon("sitemap")
+                     )), 
+            
+            conditionalPanel(
+              condition = "input.menu == 'dipartimenti' ", 
+              
+              radioButtons("dip", "Seleziona il Dipartimento",
+                           choices = unique(factor(tabIZSLER$Dipartimento))))
+            )
+            
+            
+            
+        ,
       
       dashboardBody(
               tags$head(tags$style(type='text/css', ".irs-grid-text { font-size: 12pt; }")), 
@@ -15,6 +26,8 @@ ui <- dashboardPage(
                                 width: 1500px;
                                 }
                               '))),
+            
+#Quadro Generale----
         tabItems(
           tabItem( 
           tabName = "izsler",
@@ -57,19 +70,14 @@ ui <- dashboardPage(
              )
           )
           ), 
-         
+#Dipartimenti----
         tabItem(
           tabName = "dipartimenti", 
-             fluidRow(
-               column(2, sliderInput("anno2", "Seleziona l'Anno", min=2019, max = 2021, value = 2021)), 
-              
-               column(10,  radioButtons("dip", "Seleziona il Dipartimento",
-                                       choices = unique(factor(tabIZSLER$Dipartimento)), inline=T)
-             ), 
+             
              hr(), 
              fluidRow(
                column(12,
-                      box(title = "KPI-Dipartimenti", solidHeader = TRUE,collapsible = TRUE,  status = "primary", width = 12,
+                      box(title = h2(textOutput("dipa")), solidHeader = TRUE,collapsible = TRUE,  status = "primary", width = 12,
                           valueBoxOutput("esamidip"),
                           valueBoxOutput("ricavidip"),
                           valueBoxOutput("venproddip"),
@@ -96,12 +104,17 @@ ui <- dashboardPage(
                
                
                
-             )), 
+             )),
+fluidRow(
+  column(4), 
+  column(4, 
+         sliderInput("anno2", h2("Seleziona l'Anno"), min=2019, max = 2021, value = 2021)), 
+  column(4)),
              
              fluidRow(
                  
                 column(12,
-                box(title = "",  solidHeader = TRUE, collapsible = TRUE,status = "primary", width = 12, 
+                box(title = h2(textOutput("dipa2")),  solidHeader = TRUE, collapsible = TRUE,status = "primary", width = 12, 
                     tableOutput("tr"))
                 )) 
                )
@@ -110,7 +123,7 @@ ui <- dashboardPage(
           )
           
           
-        )
+   
  
  
 
@@ -186,7 +199,55 @@ ui <- dashboardPage(
 #                         }
 #                       '))),
 # tabItems(
-# #####IZSLER#####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# #####IZSLER
 #   tabItem( tabName = "izsler",
 #    fluidRow(
 #      valueBoxOutput("esami"),

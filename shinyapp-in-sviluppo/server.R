@@ -77,6 +77,8 @@ tdiprep <- reactive(
 
 
 output$year <- renderText(input$anno)
+output$dipa <- renderText(input$dip)
+output$dipa2 <- renderText(input$dip)
 
 #ValueBoxDipartimenti----
 output$esami <- renderValueBox(
