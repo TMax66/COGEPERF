@@ -1,35 +1,5 @@
-library(shiny)
-library(shinydashboard)
 
-tabIZSLER <- readRDS(file = here( "data", "processed", "TABELLA.rds"))
-
-ValueBOX <- function(dt, Variabile, Variabile2 = NULL, Titolo, colore, colcond, icona ){ 
-  
-  if(is.null(Variabile2)){    
-    
-    valore <- sum(dt[, Variabile])  
-    
-  } else {
-    valore <- round(sum(dt[, Variabile]/sum(dt[, Variabile2])),2)
-  }
-  
-  if( colcond == "NO"){ 
-    
-    valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona), color = colore)
-    
-  } else {
-      
-    valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona), 
-             color = ifelse(valore() >= 1, "green", "red"))
-    
-    }
-    
-  
-  
-}
-
-
-
+##Prova ValueBox----
 ui <- fluidPage(
   
   sliderInput("Anno", "anno", min = 2019, max = 2021, value=2021), 
@@ -71,3 +41,26 @@ output$esami <- renderValueBox(
 
 
 shinyApp(ui, server)
+
+
+##grafico RFT/CFT
+
+tabIZSLER %>% 
+  mutate(FT = FTED+FTEC) %>% 
+  select(Anno, Dipartimento, Reparto, Laboratorio, FT, totricavi, costi) %>%
+  
+  ggplot(aes(x = FT, y = costi))+
+  geom_point()+
+  facet_wrap(Dipartimento~Anno)
+
+
+tabIZSLER %>% 
+  mutate(RFT = totricavi/(FTED+FTEC), 
+         CFT = costi/(FTED+FTEC), 
+         FT = FTED+FTEC) %>% 
+  select(Anno, Dipartimento, Reparto, Laboratorio, FT, RFT, CFT) %>% 
+  pivot_longer(cols = 6:7, values_to = "valore", names_to = "metrica" ) %>%
+  
+  ggplot(aes(x = FT, y = valore, col = metrica))+
+  geom_point()+
+  facet_wrap(Dipartimento~Anno)
