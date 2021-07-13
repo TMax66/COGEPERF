@@ -104,7 +104,7 @@ output$RFTE <- renderValueBox(
 )
 
 output$Costi <- renderValueBox(
-  ValueBOX(IZSLER(), Variabile = "COSTI",   Titolo = "Costi complessivi", colore = "blue", icona = "euro")
+  ValueBOX(IZSLER(), Variabile = "COSTI",   Titolo = "Costi totali", colore = "blue", icona = "euro")
 )
 
 output$costifte <- renderValueBox(
@@ -198,7 +198,7 @@ output$RFTEdip <- renderValueBox(
 )
 
 output$Costidip <- renderValueBox(
-  ValueBOX(tdiprep(), Variabile = "COSTI",   Titolo = "Costi complessivi", colore = "blue", icona = "euro")
+  ValueBOX(tdiprep(), Variabile = "COSTI",   Titolo = "Costi totali", colore = "blue", icona = "euro")
 )
 
 output$costiftedip <- renderValueBox(

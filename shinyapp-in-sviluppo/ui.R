@@ -36,7 +36,7 @@ ui <- dashboardPage(
            
            fluidRow(  
              column(12, 
-               box(title = "KPI", solidHeader = TRUE,collapsible = TRUE,  status = "primary", width = 12, 
+               box(title = "Quadro Generale Dipartimenti", solidHeader = TRUE,collapsible = TRUE,  status = "primary", width = 12, 
                  valueBoxOutput("esami"),
                  valueBoxOutput("ricavi"),
                  valueBoxOutput("venprod"),

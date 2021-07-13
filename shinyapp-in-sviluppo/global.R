@@ -12,6 +12,8 @@ library("officer")
 library("DT")
 library("lubridate")
 library("fmsb")
+library("summaryBox")
+# library("dashboardthemes")
 
 
 #Carico i dati----
@@ -33,6 +35,11 @@ ValueBOX <- function(dt, Variabile, Variabile2 = NULL, Titolo, colore, icona){
   
   valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona), color = colore)
 }
+
+
+
+
+
 
 
 #TABELLA IZSLER aggregato per dipartimenti con FTE----

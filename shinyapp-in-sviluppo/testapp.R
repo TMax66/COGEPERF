@@ -1,12 +1,45 @@
 
-##Prova ValueBox----
+
+
+## Prova SumBOx----
+
+SumBOX <- function(dt, Variabile, Variabile2 = NULL){ 
+  
+  if(is.null(Variabile2)){    
+    
+    valore <- sum(dt[, Variabile])  
+    
+  } else {
+    valore <- round(sum(dt[, Variabile]/sum(dt[, Variabile2])),2)
+  }
+  
+}
+
+
+tizsler <-  tabIZSLER %>%  
+  rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
+          "COSTI" = costi) %>%
+  group_by(Anno, Dipartimento) %>%
+  summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+  mutate(RT = (VALORE+VP+AI),
+         FTE_T = round((FTED+FTED),1)) %>%
+  arrange(desc(ANALISI)) %>%
+  mutate("R-FTE" = round(RT/FTE_T,0), 
+         "C-FTE" = round(COSTI/FTE_T, 0), 
+         "ROI" = round(RT/COSTI, 2)) %>% 
+  select(-FTED, -FTEC)
+
+theme <- bslib::bs_theme(version = 4)
+
 ui <- fluidPage(
   
+  theme = theme, 
+  br(),
   sliderInput("Anno", "anno", min = 2019, max = 2021, value=2021), 
   
-  selectInput("dip", "Dipartimento", choices = c("Direzione Sanitaria", "Dipartimento tutela e salute animale")), 
+  
   hr(), 
-  valueBoxOutput("esami"), 
+  uiOutput("sumbox"), 
  
   
   
@@ -16,32 +49,25 @@ ui <- fluidPage(
 server <- function(input, output, session)
 {
 
-tdiprep <- reactive(
-    (tabIZSLER %>% 
-       filter(Anno == input$Anno & Dipartimento == input$dip) %>% 
-       rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
-               "COSTI" = costi) %>%
-       group_by(Reparto) %>%
-       summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
-       mutate(RT = (VALORE+VP+AI),
-              FTE_T = round((FTED+FTED),1)) %>%
-       arrange(desc(ANALISI)) %>%
-       mutate("R-FTE" = round(RT/FTE_T,0), 
-              "C-FTE" = round(COSTI/FTE_T, 0), 
-              "ROI" = round(RT/COSTI, 2)) %>% 
-       select(-FTED, -FTEC)))
-
-
-
-output$esami <- renderValueBox(
-  ValueBOX(tdiprep(), "RT", Variabile2 ="COSTI",   Titolo = "roi", colore = "red", colcond = "NO",  icona = "flask")
-)
+IZSLER <- reactive( tizsler %>% 
+                        filter(Anno == 2019))
   
+output$sumbox <- renderUI({
+  
+  fluidRow(
+    box(
+    summaryBox("N.analisi", prettyNum(SumBOX(IZSLER(), "ANALISI"), big.mark = ".", decimal.mark = ","), style= "info" ), 
+    summaryBox("Valorizzazione da tariffario", prettyNum(SumBOX(IZSLER(), "VALORE"), big.mark = ".", decimal.mark = ","), style= "info" )
+  )
+  )
+  
+})
+  
+
 }
 
 
 shinyApp(ui, server)
-
 
 ##grafico RFT/CFT
 
