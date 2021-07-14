@@ -1,4 +1,5 @@
 ui <- dashboardPage(
+  
       dashboardHeader(title = "Controllo di gestione e performances", titleWidth = 400),
 #Sidebar
       dashboardSidebar(
@@ -26,6 +27,9 @@ ui <- dashboardPage(
                                 width: 1500px;
                                 }
                               '))),
+            tags$head( 
+              tags$style(HTML(".main-sidebar { font-size: 20px; }")) #change the font size to 20
+            ),
             
 #Quadro Generale----
         tabItems(
@@ -96,15 +100,15 @@ ui <- dashboardPage(
                               valueBoxOutput("Intdip"), #),
                           #bsModal("CI1", "Partecipazione a convegni internazionali", "clickdiv4", dataTableOutput("convegni"), size = "large"),
 
-                          #div(id='clickdiv5',
-                              valueBoxOutput("PRdip")#),
-                         # bsModal("Prj1", "Progetti di ricerca in corso", "clickdiv5", dataTableOutput("projr"), size = "large"))
+                          div(id='clickdiv5',
+                              valueBoxOutput("PRdip")),
+                          bsModal("Prj1", "Progetti di ricerca in corso", "clickdiv5", dataTableOutput("projrep"), size = "large"))
                )
                
                
                
                
-             )),
+             ),
 fluidRow(
   column(4), 
   column(4, 

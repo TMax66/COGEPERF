@@ -36,12 +36,6 @@ ValueBOX <- function(dt, Variabile, Variabile2 = NULL, Titolo, colore, icona){
   valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona), color = colore)
 }
 
-
-
-
-
-
-
 #TABELLA IZSLER aggregato per dipartimenti con FTE----
 tizsler <-  tabIZSLER %>%  
   rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 

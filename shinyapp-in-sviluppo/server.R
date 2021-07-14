@@ -164,8 +164,14 @@ output$t <- renderUI({
       fontsize(part = "header", size = 15) %>%
       line_spacing(space = 2.5) %>% 
       autofit() %>%
-      colformat_num(j = c( "VALORE", "VP", "AI", "COSTI",  "RT", "R-FTE", "C-FTE"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
-      colformat_num(j= c("ANALISI", "FTE_T"), big.mark = ".", decimal.mark = "," ) %>% 
+      colformat_double(j = c( "VALORE", "VP", "AI", "COSTI",  "RT", "R-FTE", "C-FTE"), big.mark = ".", decimal.mark = ",", prefix = "€", digits = 0) %>%
+      colformat_double(j= c("ANALISI", "FTE_T"), big.mark = ".", decimal.mark = "," ,  digits = 0) %>% 
+     bg( i = ~ ROI >= 1, 
+        j = ~ ROI, 
+        bg="green") %>% 
+     bg( i = ~ ROI < 1, 
+         j = ~ ROI, 
+         bg="red") %>% 
       htmltools_value() 
       
 })
@@ -268,10 +274,68 @@ output$tr <- renderUI({
     autofit() %>%
     colformat_num(j = c( "VALORE", "VP", "AI", "COSTI",  "RT", "R-FTE", "C-FTE"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
     colformat_num(j= c("ANALISI"), big.mark = ".", decimal.mark = "," ) %>% 
+    bg( i = ~ ROI >= 1, 
+        j = ~ ROI, 
+        bg="green") %>% 
+    bg( i = ~ ROI < 1, 
+        j = ~ ROI, 
+        bg="red") %>% 
     htmltools_value() 
             
 
 })
+
+##tabelle modali DIPA------ 
+Prj <- reactive({
+  pr() %>%
+    group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient) %>%
+    summarise(Budget = sum(Budget), nUO = n()) #%>%
+#   ungroup() %>%
+#     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient, Budget, nUO) %>% 
+#    # summarise(Durata = as.numeric(DataFine-DataInizio), 
+#              # R = as.numeric(date("2019-12-31")-date(DataInizio)), 
+#               #Realizzazione = ifelse(R>Durata, 100, 100*(R/Durata)),
+#               #Realizzazione = paste(round(Realizzazione, 0), "%") )%>% 
+#     mutate(DataInizio = as.character(DataInizio), 
+#            DataFine = as.character(DataFine)) #%>% 
+#     #arrange(Realizzazione) %>% 
+#    # select(-R, -Durata)
+#   
+})
+
+output$projr <- renderDataTable(Prj(), server = FALSE, class = 'cell-border stripe', rownames=FALSE,
+                              extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
+                                                                  paging = TRUE,autoWidth = TRUE,
+                                                              buttons = c('excel')))
+
+
+
+##tabelle modali DIPA/REP----
+
+Prjdip <- reactive({
+  prdip() %>%
+    group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient) %>%
+    summarise(Budget = sum(Budget), nUO = n()) #%>%
+  #   ungroup() %>%
+  #     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient, Budget, nUO) %>% 
+  #    # summarise(Durata = as.numeric(DataFine-DataInizio), 
+  #              # R = as.numeric(date("2019-12-31")-date(DataInizio)), 
+  #               #Realizzazione = ifelse(R>Durata, 100, 100*(R/Durata)),
+  #               #Realizzazione = paste(round(Realizzazione, 0), "%") )%>% 
+  #     mutate(DataInizio = as.character(DataInizio), 
+  #            DataFine = as.character(DataFine)) #%>% 
+  #     #arrange(Realizzazione) %>% 
+  #    # select(-R, -Durata)
+  #   
+})
+
+output$projrep <- renderDataTable(Prjdip(), server = FALSE, class = 'cell-border stripe', rownames=FALSE,
+                                extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
+                                                                      paging = TRUE,autoWidth = TRUE,
+                                                                      buttons = c('excel')))
+
+
+
 }
      
       
