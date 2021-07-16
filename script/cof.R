@@ -3,11 +3,11 @@
 tab <- tizsler %>% 
   left_join(
     (pub %>%
-       filter(articoliif == "IF") %>%
-       count(Dipartimento, NR) %>%
-       group_by(Dipartimento) %>%  
-       count(NR) %>%
-       summarise("Pubblicazioni" = sum(n))), by = "Dipartimento") %>%    
+       filter(articoliif == "IF"  ) %>%  
+       # count(Dipartimento, NR) %>%
+       group_by(OA, Dipartimento) %>%  
+       # count(NR) %>%  
+       summarise("Pubblicazioni" = nlevels(factor(NR)))), by = "Dipartimento") %>%    
   left_join(
     (prj %>%
        group_by(Dipartimento) %>%

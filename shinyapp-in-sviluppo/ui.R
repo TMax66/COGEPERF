@@ -1,35 +1,72 @@
 ui <- dashboardPage(
   
-      dashboardHeader(title = "Controllo di gestione e performances", titleWidth = 400),
+      dashboardHeader(title = "Controllo di gestione e performances", titleWidth = 500),
 #Sidebar
       dashboardSidebar(
-        width = 300,
+        width = 500,
             sidebarMenu(id = "menu", 
             menuItem("Quadro Generale Dipartimenti", tabName = "izsler", icon = icon("globe")), 
-            menuItem("Dipartimenti", tabName = "dipartimenti", icon = icon("sitemap")
-                     )), 
-            
+            conditionalPanel(
+              condition = "input.menu == 'izsler' ", 
+              sliderInput("anno", h3("Seleziona l'Anno"), min=2019, max = 2021, value = 2021)), 
+           
+            menuItem("Dipartimenti", tabName = "dipartimenti", icon = icon("sitemap")), 
             conditionalPanel(
               condition = "input.menu == 'dipartimenti' ", 
-              
               radioButtons("dip", "Seleziona il Dipartimento",
-                           choices = unique(factor(tabIZSLER$Dipartimento))))
-            )
-            
-            
-            
-        ,
+                           choices = unique(factor(tabIZSLER$Dipartimento))), 
+              br(), 
+              sliderInput("anno2", h3("Seleziona l'Anno"), min=2019, max = 2021, value = 2021))
+            )),
       
       dashboardBody(
-              tags$head(tags$style(type='text/css', ".irs-grid-text { font-size: 12pt; }")), 
-            tags$head(tags$style(HTML('
-                                .modal-lg {
-                                width: 1500px;
-                                }
-                              '))),
-            tags$head( 
-              tags$style(HTML(".main-sidebar { font-size: 20px; }")) #change the font size to 20
-            ),
+            tags$head(tags$style(type='text/css', ".irs-grid-text { font-size: 10pt; }")), 
+            tags$head(tags$style(HTML('.modal-lg {width: 1500px;}'))),
+            tags$head(tags$style(HTML(".main-sidebar { font-size: 25px; }"))), #change the font size to 20
+
+            
+        #     tags$head(tags$style(HTML('
+        # # /* logo */
+        # # .skin-blue .main-header .logo {
+        # #                       background-color: #f4b943;
+        # #                       }
+        # # 
+        # # /* logo when hovered */
+        # # .skin-blue .main-header .logo:hover {
+        # #                       background-color: #f4b943;
+        # #                       }
+        # # 
+        # # /* navbar (rest of the header) */
+        # # .skin-blue .main-header .navbar {
+        # #                       background-color: #f4b943;
+        # #                       }        
+        # 
+        # /* main sidebar */
+        # .skin-blue .main-sidebar {
+        #                       background-color: #f4b943;
+        #                       }
+        # 
+        # /* active selected tab in the sidebarmenu */
+        # .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
+        #                       background-color: #ff0000;
+        #                       }
+        # 
+        # /* other links in the sidebarmenu */
+        # .skin-blue .main-sidebar .sidebar .sidebar-menu a{
+        #                       background-color: #00ff00;
+        #                       color: #000000;
+        #                       }
+        # 
+        # /* other links in the sidebarmenu when hovered */
+        #  .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
+        #                       background-color: #ff69b4;
+        #                       }
+        # /* toggle button when hovered  */                    
+        #  .skin-blue .main-header .navbar .sidebar-toggle:hover{
+        #                       background-color: #ff69b4;
+        #                       }
+        #                       '))), 
+
             
 #Quadro Generale----
         tabItems(
@@ -64,11 +101,6 @@ ui <- dashboardPage(
                )), 
          
           fluidRow(
-            column(4), 
-            column(4, 
-                   sliderInput("anno", h2("Seleziona l'Anno"), min=2019, max = 2021, value = 2021)), 
-            column(4)),
-          fluidRow(
              box(title = textOutput("year"),  solidHeader = TRUE, collapsible = TRUE,status = "primary", width = 12,
             tableOutput("t")
              )
@@ -81,7 +113,7 @@ ui <- dashboardPage(
              hr(), 
              fluidRow(
                column(12,
-                      box(title = h2(textOutput("dipa")), solidHeader = TRUE,collapsible = TRUE,  status = "primary", width = 12,
+                      box(title = h3(textOutput("dipa")), solidHeader = TRUE,collapsible = TRUE,  status = "primary", width = 12,
                           valueBoxOutput("esamidip"),
                           valueBoxOutput("ricavidip"),
                           valueBoxOutput("venproddip"),
@@ -109,22 +141,19 @@ ui <- dashboardPage(
                
                
              ),
-fluidRow(
-  column(4), 
-  column(4, 
-         sliderInput("anno2", h2("Seleziona l'Anno"), min=2019, max = 2021, value = 2021)), 
-  column(4)),
+
              
              fluidRow(
                  
                 column(12,
-                box(title = h2(textOutput("dipa2")),  solidHeader = TRUE, collapsible = TRUE,status = "primary", width = 12, 
+                box(title = h3(textOutput("dipa2")),  solidHeader = TRUE, collapsible = TRUE,status = "primary", width = 12, 
                     tableOutput("tr"))
                 )) 
                )
              )
             )
           )
+
           
           
    
