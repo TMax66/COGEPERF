@@ -178,15 +178,11 @@ pubblicazioni %>% filter(OA >= 2019) %>%
 
 
 
-
 #DATI DA DBASE PERFORMANCE (OBIETTIVI, INDICATORI, TARGET, RISULTATO, FTEQ PROGRAMMATI)####
 
 
-
-
-
-
-
+##Programmazione 2021 FTE----
+source(here("R",  "FTEPROGRAMMATI.R"))
 
 
 
