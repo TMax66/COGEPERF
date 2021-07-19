@@ -4,7 +4,7 @@ analisi <- read_excel(sheet = "Report 1", here(  "data", "raw",  "newanalisi1921
 
 names(analisi)[1:4] <- c("Dipartimento", "Reparto", "Laboratorio", "Centro di Costo")
 
-analisi %>% 
+dtanalisi <- analisi %>% 
   mutate(ClassAnalisi = recode(`Cod. classificazione`, 
                                `-1` = "Ufficiale a Pagamento", 
                                `-3` = "Ufficiale a Pagamento", 
@@ -16,8 +16,53 @@ analisi %>%
                                `-11` = "Ufficiale Gratuito", 
                                `-6`  = "Non Ufficiale Gratuito", 
                                `-10` = "Non Ufficiale Gratuito", 
-                               `-13` = "NonUfficiale Gratuito" 
-                               )) %>% View()
+                               `-13` = "Non Ufficiale Gratuito" 
+                               ), 
+         Pagamento = recode(`Cod. classificazione`, 
+                            `-1` = "Pagamento", 
+                            `-3` = "Pagamento", 
+                            `-8` = "Pagamento", 
+                            `-9` = "Pagamento", 
+                            `-4` = "Gratuito", 
+                            `-5` = "Gratuito", 
+                            `-7` = "Gratuito", 
+                            `-11` = "Gratuito", 
+                            `-6`  = "Gratuito", 
+                            `-10` = "Gratuito", 
+                            `-13` = "Gratuito" 
+         ), 
+         
+         
+         Quarter = factor(paste(Anno, ".",`N. Trimestre` )))
+
+
+dt <- dtanalisi %>% 
+  group_by(`Centro di Costo`, Pagamento, ClassAnalisi, Quarter) %>% 
+  summarise(Valorizzato = sum(`A Tariffario`, na.rm = TRUE), 
+            Fatturato = sum(Fatturato, na.rm = TRUE)) %>% 
+  mutate(var_change = round((Valorizzato/lag(Valorizzato) - 1) * 100, 2 ))
+  
+  
+library(hrbrthemes)
+dt %>%
+  filter(`Centro di Costo` == "SEDE TERRITORIALE DI BERGAMO" & Pagamento == "Gratuito") %>% 
+  ggplot(
+    aes(y = var_change, x = Quarter,  label=var_change))+
+   geom_line(aes(group = ClassAnalisi), size= 1.1, col = "darkgrey")+ 
+  geom_label(size = 4, col = "blue")+
+  facet_wrap(.~ClassAnalisi, ncol = 1)+
+  geom_hline(yintercept = 0, size = 0.5)+
+  labs(y = "Variazione %", x = "Anno.Trimestre")+
+  theme_ipsum_rc()+
+  theme()
+  
+  
+#   facet_wrap(.~ClassAnalisi)
+
+
+
+
+
 
 
 
