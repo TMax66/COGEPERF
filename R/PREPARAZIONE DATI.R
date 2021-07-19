@@ -65,15 +65,33 @@ ore1 <- ore %>%
 #DATI DA CONTROLLO DI GESTIONE####
 
 ##ANALISI e Ricavi####
-analisi <- read_excel(sheet = "Report 1", here(  "data", "raw",  "analisi1921.xls"))
+#analisi <- read_excel(sheet = "Report 1", here(  "data", "raw",  "analisi1921.xls"))
 # il file analisi1921.xls deriva da una query eseguita in business object in sai-manager##
 
-analisi <- analisi %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
-  select(-Reparto) %>% 
-  left_join(strutture, by = c("CENTRO_DI_COSTO"))
-  #saveRDS(., file = here(  "data", "processed",  "analisi.rds"))
-  
 
+analisi <- read_excel(sheet = "Report 1", here(  "data", "raw",  "newanalisi1921.xls"))
+
+# analisi <- analisi %>% rename("CENTRO_DI_COSTO" =`Centro Di Costo`) %>% 
+#   select(-Reparto) %>% 
+#   left_join(strutture, by = c("CENTRO_DI_COSTO"))
+#   #saveRDS(., file = here(  "data", "processed",  "analisi.rds"))
+  
+names(analisi)[1:4] <- c("Dipartimento", "Reparto", "Laboratorio", "Centro di Costo")
+
+analisi %>% 
+  mutate(ClassAnalisi = recode(`Cod. classificazione`, 
+                               `-1` = "Ufficiale a Pagamento", 
+                               `-3` = "Ufficiale a Pagamento", 
+                               `-8` = "Non Ufficiale a Pagamento", 
+                               `-9` = "Non Ufficiale a Pagamento", 
+                               `-4` = "Ufficiale Gratuito", 
+                               `-5` = "Ufficiale Gratuito", 
+                               `-7` = "Ufficiale Gratuito", 
+                               `-11` = "Ufficiale Gratuito", 
+                               `-6`  = "Non Ufficiale Gratuito", 
+                               `-10` = "Non Ufficiale Gratuito", 
+                               `-13` = "NonUfficiale Gratuito" 
+  ))  
 
 ##COSTI####
 
