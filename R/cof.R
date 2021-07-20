@@ -1,5 +1,6 @@
 #codifica strutture e attività del file newanalisi1921
 
+
 analisi <- read_excel(sheet = "Report 1", here(  "data", "raw",  "newanalisi1921.xls"))
 
 names(analisi)[1:4] <- c("Dipartimento", "Reparto", "Laboratorio", "Centro di Costo")
@@ -54,7 +55,8 @@ dt %>%
   geom_hline(yintercept = 0, size = 0.5)+
   labs(y = "Variazione %", x = "Anno.Trimestre")+
   theme_ipsum_rc()+
-  theme()
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
   
   
 #   facet_wrap(.~ClassAnalisi)
