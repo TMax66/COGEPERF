@@ -4,6 +4,9 @@ library(readxl)
 library(lubridate)
 library(shinythemes)
 library(DT)
+library(here)
+library(hrbrthemes)
+library(patchwork)
 
 
 analisi <- read_excel(sheet = "Report 1", here(  "data", "raw",  "newanalisi1921.xls"))
@@ -40,3 +43,11 @@ dtanalisi <- analisi %>%
   
   
   Quarter = factor(paste(Anno, ".",`N. Trimestre` )))
+
+#funzioni----
+
+to_be <- function(df, Pagamento){
+  if(Pagamento == "Pagamento")
+    dplyr::filter(df, Parametro %in% c("Fatturato","VarFatt"))
+  else filter(df, Parametro %in% c("Valorizzato","VarVal"))
+}

@@ -6,11 +6,9 @@ ui<-navbarPage("CENTRI DI COSTO",
                sidebarPanel(
                    
                    selectInput("CC", "Seleziona il Centro di Costo", 
-                               choices = unique(factor(dt$`Centro di Costo`))), 
+                               choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`))))), 
                    selectInput("paga", "Tipologia Attività", 
-                               choices = unique(factor(dt$Pagamento))), 
-                   selectInput("par", "Seleziona il Parametro", 
-                               choices = c("Valorizzato", "Fatturato", "Variazione"))
+                               choices = c("", as.character(unique(factor(dtanalisi$Pagamento))))), 
                ),
                mainPanel(
                    fluidRow(
