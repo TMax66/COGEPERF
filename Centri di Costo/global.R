@@ -40,6 +40,18 @@ dtanalisi <- analisi %>%
                      `-10` = "Gratuito", 
                      `-13` = "Gratuito" 
   ), 
+  Uff = recode (`Cod. classificazione`, 
+                `-1` = "Ufficiale", 
+                `-3` = "Ufficiale", 
+                `-8` = "Non Ufficiale", 
+                `-9` = "Non Ufficiale", 
+                `-4` = "Ufficiale", 
+                `-5` = "Ufficiale", 
+                `-7` = "Ufficiale", 
+                `-11` = "Ufficiale", 
+                `-6`  = "Non Ufficiale", 
+                `-10` = "Non Ufficiale", 
+                `-13` = "Non Ufficiale" ), 
   
   
   Quarter = factor(paste(`N. Trimestre`,"-", "Trim")))

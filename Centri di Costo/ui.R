@@ -8,11 +8,13 @@ ui<-navbarPage("CENTRI DI COSTO",
                    selectInput("CC", "Seleziona il Centro di Costo", 
                                choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`))))), 
                    selectInput("paga", "Tipologia Attività", 
-                               choices = c("", as.character(unique(factor(dtanalisi$Pagamento))))), 
+                               choices = c("", as.character(unique(factor(dtanalisi$Pagamento))))),
+                   radioButtons("uff", "", choices = c("Ufficiale", "Non Ufficiale")) 
                ),
                mainPanel(
                    fluidRow(
-                       plotOutput("varchange")
+                       h2(textOutput("Titolo")), 
+                       plotOutput("plot1", height="800px")
                    )
                )
              )
