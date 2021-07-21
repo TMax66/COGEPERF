@@ -42,7 +42,7 @@ dtanalisi <- analisi %>%
   ), 
   
   
-  Quarter = factor(paste(Anno, ".",`N. Trimestre` )))
+  Quarter = factor(paste(`N. Trimestre`,"-", "Trim")))
 
 #funzioni----
 
