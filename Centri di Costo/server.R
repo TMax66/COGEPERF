@@ -15,10 +15,12 @@ server<-function(input, output) {
   )
   
  titolo <- reactive(
-   paste(input$paga, input$uff)
+   paste(input$uff,input$paga)
  )
   
- output$Titolo <- renderText(titolo())
+ output$Titolo <- renderText({
+   req(input$uff, input$paga)
+   titolo()})
  
   output$plot1 <- renderPlot({
     req(input$CC, input$paga, input$uff)

@@ -14,11 +14,12 @@ ui<-navbarPage("CENTRI DI COSTO",
                mainPanel(
                    fluidRow(
                        h2(textOutput("Titolo")), 
-                       plotOutput("plot1", height="800px")
-                   )
+                       column(8, offset = -4, 
+                       plotOutput("plot1", height="1000px"))
+                   ))
                )
-             )
-    ),
+             ), 
+ 
     
     tabPanel("Costi",
              sidebarLayout(
