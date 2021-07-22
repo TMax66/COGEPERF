@@ -1,4 +1,4 @@
-ui<-navbarPage("CENTRI DI COSTO",
+ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
     theme = shinytheme("cerulean"),
            
     tabPanel("Attività Analitica e Produzione",
@@ -14,8 +14,8 @@ ui<-navbarPage("CENTRI DI COSTO",
                mainPanel(
                    fluidRow(
                        h2(textOutput("Titolo")), 
-                       column(8, offset = -4, 
-                       plotOutput("plot1", height="1000px"))
+                       column(9, offset = -4, 
+                       plotOutput("plot1", height="800px"))
                    ))
                )
              ), 
