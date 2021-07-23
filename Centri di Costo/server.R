@@ -2,9 +2,9 @@ server<-function(input, output) {
   
   dt <- reactive(dtanalisi %>% 
                    group_by(`Centro di Costo`, Pagamento, ClassAnalisi,Uff, Anno,  Quarter) %>% 
-                   summarise(Valorizzato = round(sum(`A Tariffario`, na.rm = TRUE), 0), 
+                   summarise(Tariffato = round(sum(`A Tariffario`, na.rm = TRUE), 0), 
                              Fatturato = round(sum(Fatturato, na.rm = TRUE), 0)) %>% 
-                   mutate(VarVal = round((Valorizzato/lag(Valorizzato) - 1) * 100, 2 ), 
+                   mutate(VarVal = round((Tariffato/lag(Tariffato) - 1) * 100, 2 ), 
                           VarFatt= round((Fatturato/lag(Fatturato)-1)*100, 2)) %>% 
                    filter(`Centro di Costo` == input$CC) %>% 
                    pivot_longer(cols = 7:10, names_to = "Parametro", values_to = "metrica") %>% 
