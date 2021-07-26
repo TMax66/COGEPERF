@@ -1,16 +1,42 @@
 ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
     theme = shinytheme("cerulean"),
-           
+
+    # tabPanel("Situazione Generale",
+    #          sidebarLayout(
+    #              sidebarPanel(
+    #                  h4(textOutput("struttura")),
+    # 
+    #                  selectInput("CCx", "Seleziona il Centro di Costo",
+    #                              choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`)))))
+    # 
+    #              ),
+    #         mainPanel(
+    # 
+    #         )
+    #          )
+    # 
+    # 
+    # 
+    #          ),
+
+
+    
+    
+    
+    
     tabPanel("Attività Analitica e Produzione",
              sidebarLayout(
-               sidebarPanel(
-                   
-                   selectInput("CC", "Seleziona il Centro di Costo", 
-                               choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`))))), 
-                   selectInput("paga", "Tipologia Attività", 
-                               choices = c("", as.character(unique(factor(dtanalisi$Pagamento))))),
-                   radioButtons("uff", "", choices = c("Ufficiale", "Non Ufficiale")) 
-               ),
+                 sidebarPanel(
+                     h4(textOutput("struttura")),
+                     
+                     selectInput("CC", "Seleziona il Centro di Costo", 
+                                 choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`))))),
+                     selectInput("uff", "Ufficiale/Non Ufficiale", 
+                                 choices = c("","Ufficiale", "Non Ufficiale")), 
+                     selectInput("paga", "Gratuito/Pagamento", 
+                                 choices = c("", "Gratuito", "Pagamento"))
+                     
+                 ),
                mainPanel(
                    fluidRow(
                        h2(textOutput("Titolo")), 

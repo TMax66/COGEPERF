@@ -9,9 +9,9 @@ library(hrbrthemes)
 library(patchwork)
 
 
-analisi <- read_excel(sheet = "Report 1", here(  "data", "raw",  "newanalisi1921.xls"))
+analisi <- read_excel(sheet = "Report 1", here(  "data", "raw",  "analisi1921.xls"))
 
-names(analisi)[1:4] <- c("Dipartimento", "Reparto", "Laboratorio", "Centro di Costo")
+names(analisi)[1:4] <- c("Dipartimento", "Reparto", "Laboratorio", "Centro di Costo", "CodCC")
 
 dtanalisi <- analisi %>% 
   mutate(ClassAnalisi = recode(`Cod. classificazione`, 
@@ -54,7 +54,13 @@ dtanalisi <- analisi %>%
                 `-13` = "Non Ufficiale" ), 
   
   
-  Quarter = factor(paste(`N. Trimestre`,"-", "Trim")))
+  Quarter = factor(paste(`N. Trimestre`,"-", "Trim")), 
+  TUff = ifelse(ClassAnalisi == "Ufficiale a Pagamento", Fatturato, 
+                       ifelse(ClassAnalisi == "Ufficiale Gratuito", `A Tariffario`, 0)), 
+  TNonUff = ifelse(ClassAnalisi == "Non Ufficiale a Pagamento", Fatturato, 
+                          ifelse(ClassAnalisi == "Non Ufficiale Gratuito", `A Tariffario`, 0)), 
+  TGratuito = ifelse(Pagamento == "Pagamento", Fatturato, 
+                     ifelse(Pagamento == "Gratuito",`A Tariffario`, 0 )))  
 
 #funzioni----
 

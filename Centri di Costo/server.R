@@ -14,6 +14,20 @@ server<-function(input, output) {
                    data.frame()
   )
   
+  
+  
+  lab <- reactive(   
+    analisi %>% 
+      filter(`Centro di Costo`== input$CC) %>% 
+      select(Laboratorio, `Codice Livello 3 Centro di Costo` ) %>% 
+      data.frame())
+  
+  
+  output$struttura <- renderText({
+    req(input$CC)
+    paste(lab()[1,1], "-", lab()[1,2])
+  })
+  
  titolo <- reactive(
    paste(input$uff,input$paga)
  )
