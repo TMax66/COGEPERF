@@ -1,8 +1,9 @@
-
+library(tidyverse)
 
 #importazione accettazione----- da query esportata da SQLServer ( vedi sotto)
 
 library(readr)
+
 acc <- read_delim("Accettazione/postazioni.txt", 
                          "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 
@@ -10,6 +11,12 @@ names(acc) <- c("nconf", "strpropr", "settore", "finalità", "pagamento",
                 "dtprel", "dtreg", "dtacc", "dtrdp", "IstRDP",  "pc", "gruppoprova")
 
 View(acc)
+
+#preparazione dati-----
+acc %>% 
+  group_by(dtreg, nconf, pc, settore, gruppoprova ) %>% 
+  pivot_wider(names_from = "gruppoprova", values_from = "gruppoprova") %>% View()
+  
 
 # SELECT
 # dbo.Conferimenti.Numero,
