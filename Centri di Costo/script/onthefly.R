@@ -1,186 +1,111 @@
-library(shiny)
-library(tidyverse)
-library(readxl)
-library(lubridate)
-library(shinythemes)
-library(DT)
-library(here)
-library(hrbrthemes)
-library(patchwork)
+ dtanalisi %>% filter(`Centro di Costo`== "LABORATORIO BENESSERE ANIMALE, BIOCHIMICA CLINICA, IMMUNOLOGIA VETERINARIA E STABULARI" & `Costo o Ricavo`=="Ricavo") %>% 
+            group_by(`Centro di Costo`,  Anno,  Quarter) %>% 
+            summarise(N.Esami = sum(Determinazioni, na.rm = TRUE), 
+                      Ufficiali = sum(AttUff, na.rm = TRUE), 
+                      "Non Ufficiali" =sum(AttNUff, na.rm = TRUE), 
+                      "Esami A Pagamento" = sum(AttPag, na.rm = TRUE), 
+                      "Esami Gratuiti" = sum(AttGrat, na.rm = TRUE), 
+                      "Produzione Interna" = sum(AI , na.rm = TRUE), 
+                      N.Prodotti = sum(VP, na.rm = TRUE))
 
-library(readr)
-cc <- read_delim("data/raw/coge1921.txt", 
-                       "\t", escape_double = FALSE, trim_ws = TRUE)
 
-names(cc)[5:9] <- c("Dipartimento", "Reparto", "Laboratorio", "Centro di Costo", "CodCC")
+
+   dtanalisi %>% 
+   filter(`Centro di Costo`== "LABORATORIO BENESSERE ANIMALE, BIOCHIMICA CLINICA, IMMUNOLOGIA VETERINARIA E STABULARI" & `Costo o Ricavo`=="Ricavo") %>% 
+   group_by(`Centro di Costo`,  Anno,  Quarter) %>% 
+   summarise(N.Esami = sum(Determinazioni, na.rm = TRUE), 
+             EUff = sum(AttUff, na.rm = TRUE), 
+             ENUff =sum(AttNUff, na.rm = TRUE), 
+             EPag = sum(AttPag, na.rm = TRUE), 
+             Egrat = sum(AttGrat, na.rm = TRUE), 
+             PI = sum(AI , na.rm = TRUE), 
+             Prodv = sum(VP, na.rm = TRUE)) %>% 
+   ungroup() %>% 
+   mutate(VarEsami = round((N.Esami/lag(N.Esami)-1)*100, 2), 
+          VarEUff = round((EUff/lag(EUff)-1)*100, 2), 
+          VarENUff = round((ENUff/lag(ENUff)-1)*100, 2), 
+          VarEPag = round((EPag/lag(EPag)-1)*100, 2),
+          VarEgrat = round((Egrat/lag(Egrat)-1)*100, 2),
+          VarPI = round((PI/lag(PI)-1)*100, 2), 
+          VarProdv = round((Prodv/lag(Prodv)-1)*100, 2), 
+   ) %>% View()
+
+
+
+
+
+
+
+
+
+
+
+
+dtT <-  dtanalisi %>% filter(`Centro di Costo`== "SEDE TERRITORIALE DI BERGAMO" & `Costo o Ricavo`=="Ricavo") %>% 
+                   group_by(`Centro di Costo`,  Anno,  Quarter) %>% 
+                   summarise(Ufficiali = sum(TUff, na.rm = T), 
+                             NonUfficiali = sum(TNonUff, na.rm = T), 
+                             Gratuiti = sum(TGratuito, na.rm = T),
+                             Pagamento = sum(TPagamento, na.rm = T)) %>% ungroup() %>% 
+                   mutate(VarUff = round((Ufficiali/lag(Ufficiali)-1)*100, 2), 
+                          VarNUff = round((NonUfficiali/lag(NonUfficiali)-1)*100, 2), 
+                          VarGrat = round((Gratuiti/lag(Gratuiti)-1)*100, 2), 
+                          VarPag = round((Pagamento/lag(Pagamento)-1)*100, 2)) %>% 
+                   rowwise() %>% 
+                   mutate(TotRic = sum(Ufficiali, NonUfficiali, na.rm = T)) %>% ungroup() %>% 
+                   mutate(VarTot = round((TotRic/lag(TotRic)-1)*100, 2)) %>%   
+                   group_by(`Centro di Costo`,  Anno,  Quarter)
  
 
-dtanalisi <- cc %>% 
-  mutate(ClassAnalisi = recode(`Cod. classificazione`, 
-                               `-1` = "Ufficiale a Pagamento", 
-                               `-3` = "Ufficiale a Pagamento", 
-                               `-8` = "Non Ufficiale a Pagamento", 
-                               `-9` = "Non Ufficiale a Pagamento", 
-                               `-4` = "Ufficiale Gratuito", 
-                               `-5` = "Ufficiale Gratuito", 
-                               `-7` = "Ufficiale Gratuito", 
-                               `-11` = "Ufficiale Gratuito", 
-                               `-6`  = "Non Ufficiale Gratuito", 
-                               `-10` = "Non Ufficiale Gratuito", 
-                               `-13` = "Non Ufficiale Gratuito" ,  .default = NA_character_),
-         Pagamento = recode(`Cod. classificazione`, 
-                     `-1` = "Pagamento", 
-                     `-3` = "Pagamento", 
-                     `-8` = "Pagamento", 
-                     `-9` = "Pagamento", 
-                     `-4` = "Gratuito", 
-                     `-5` = "Gratuito", 
-                     `-7` = "Gratuito", 
-                     `-11` = "Gratuito", 
-                     `-6`  = "Gratuito", 
-                     `-10` = "Gratuito", 
-                     `-13` = "Gratuito" ,  .default = NA_character_), 
-         Uff = recode (`Cod. classificazione`, 
-                `-1` = "Ufficiale", 
-                `-3` = "Ufficiale", 
-                `-8` = "Non Ufficiale", 
-                `-9` = "Non Ufficiale", 
-                `-4` = "Ufficiale", 
-                `-5` = "Ufficiale", 
-                `-7` = "Ufficiale", 
-                `-11` = "Ufficiale", 
-                `-6`  = "Non Ufficiale", 
-                `-10` = "Non Ufficiale", 
-                `-13` = "Non Ufficiale", .default = NA_character_), 
+
+Tplot <- function(df, y_par, y_par2)
+{    
+  p1 <- ggplot(df)+ 
+         aes(
+           y = .data[[y_par]],
+           x = .data[["Quarter"]],  
+           label=paste(as.character(.data[[y_par]]), "€"))+
+  geom_line(group = 1, aes(color = Anno ==max(Anno)), size= 1.1,  )+
+  geom_label(size = 4.5, aes(color = Anno == max(Anno)))+
+  scale_color_manual(values = c("grey", "blue"), guide = "none") +
+  facet_grid(~Anno, switch = "x", scales = "free")+
+  geom_hline(yintercept = 0, size = 0.5)+
+  labs(y = "", x = " ",
+       title = "")+
+  theme_ipsum_rc()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
         
-        Quarter = factor(paste(`N. Trimestre`,"-", "Trim")),
-  TUff = ifelse(ClassAnalisi == "Ufficiale a Pagamento", Fatturato,
-                ifelse(ClassAnalisi == "Ufficiale Gratuito", `A Tariffario`, 0)),
-  TNonUff = ifelse(ClassAnalisi == "Non Ufficiale a Pagamento", Fatturato,
-                   ifelse(ClassAnalisi == "Non Ufficiale Gratuito", `A Tariffario`, 0)),
-  TGratuito = ifelse(Pagamento == "Pagamento", Fatturato,
-                     ifelse(Pagamento == "Gratuito",`A Tariffario`, 0 )))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-cc %>% 
-  mutate(TUff = ifelse(ClassAnalisi == "Ufficiale a Pagamento", Fatturato, 
-                       ifelse(ClassAnalisi == "Ufficiale Gratuito", `A Tariffario`, 0)), 
-         TNonUff = ifelse(ClassAnalisi == "Non Ufficiale a Pagamento", Fatturato, 
-                          ifelse(ClassAnalisi == "Non Ufficiale Gratuito", `A Tariffario`, 0))) %>% View()
+        axis.text.y = element_blank(),
+        axis.text.x = element_text(size = 15),
+        
+        strip.text.x = element_text(size = 18))
   
-  
-  
-  
-                 summarise(Tariffato = round(sum(`A Tariffario`, na.rm = TRUE), 0), 
-                           Fatturato = round(sum(Fatturato, na.rm = TRUE), 0)) %>% View()
-                 mutate(VarVal = round((Tariffato/lag(Tariffato) - 1) * 100, 2 ), 
-                        VarFatt= round((Fatturato/lag(Fatturato)-1)*100, 2)) %>% 
-                 filter(`Centro di Costo` == input$CC) %>% 
-                 pivot_longer(cols = 7:10, names_to = "Parametro", values_to = "metrica") %>% 
-                 to_be(Pagamento = input$paga) %>%  
-                 filter(Pagamento == input$paga & Uff == input$uff) %>%  
-                 pivot_wider(names_from = "Parametro", values_from = "metrica") %>% 
-                 data.frame()
-
-
-
-
-
-
-                 lab <- reactive(   
-                   analisi %>% 
-                     filter(`Centro di Costo`== input$CC) %>% 
-                     select(Laboratorio, `Codice Livello 3 Centro di Costo` ) %>% 
-                     data.frame())
-
-
-                 sidebarPanel(
-                   h4(textOutput("struttura")),
-                   
-                   selectInput("CC", "Seleziona il Centro di Costo", 
-                               choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`))))),
-                   selectInput("uff", "Ufficiale/Non Ufficiale", 
-                               choices = c("","Ufficiale", "Non Ufficiale")), 
-                   selectInput("paga", "Gratuita/Pagamento", 
-                               choices = c("", "Gratuita", "Pagamento"))
-                   
-                 ),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-dt <- dtanalisi %>% 
-                   filter(`Costo o Ricavo`=="Ricavo") %>%  
-  group_by(`Centro di Costo`, Pagamento, ClassAnalisi,Uff, Anno,  Quarter) %>% 
-                   summarise(Tariffato = round(sum(`A Tariffario`, na.rm = TRUE), 0), 
-                             Fatturato = round(sum(Fatturato, na.rm = TRUE), 0)) %>% 
-                   mutate(VarVal = round((Tariffato/lag(Tariffato) - 1) * 100, 2 ), 
-                          VarFatt= round((Fatturato/lag(Fatturato)-1)*100, 2)) %>% 
-  filter(`Centro di Costo` == "SEDE TERRITORIALE DI BERGAMO") %>%
-  pivot_longer(cols = 7:10, names_to = "Parametro", values_to = "metrica") %>%  View()
-  to_be(Pagamento = "Pagamento") %>%  
-  filter(Pagamento == "Pagamento" & Uff == "Ufficiale") %>%  
-  pivot_wider(names_from = "Parametro", values_from = "metrica") %>% 
-  data.frame()  
-
-
-  ggplot(dt, 
-         aes(y = dt[,7], x = Quarter,  label=as.character(dt[,7])))+
-    geom_line(aes(group = ClassAnalisi, color = Anno ==max(Anno)), size= 1.1,  )+ 
-    geom_label(size = 4, aes(color = Anno == max(Anno)))+
+  p2 <- ggplot(df)+ 
+    aes(
+      y = .data[[y_par2]],
+      x = .data[["Quarter"]],  
+      label=paste(as.character(.data[[y_par2]]), "€"))+
+    geom_line(group = 1, aes(color = Anno ==max(Anno)), size= 1.1,  )+
+    geom_label(size = 4.5, aes(color = Anno == max(Anno)))+
     scale_color_manual(values = c("grey", "blue"), guide = "none") +
-    
     facet_grid(~Anno, switch = "x", scales = "free")+
-     
-    
     geom_hline(yintercept = 0, size = 0.5)+
-    labs(y = "", x = " ", 
-         title = paste( "Andamento trimestrale del", names(dt[7]), "in €"
-         ))+
+    labs(y = "", x = " ",
+         title = "")+
     theme_ipsum_rc()+
     theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(), 
+          panel.grid.minor = element_blank(),
           
           axis.text.y = element_blank(),
-          axis.text.x = element_text(size = 15), 
+          axis.text.x = element_text(size = 15),
           
           strip.text.x = element_text(size = 18))
-
   
-  l <- analisi %>% 
-    filter(`Centro di Costo`== "LABORATORIO LATTE") %>% 
-    select(Laboratorio) %>% data.frame()   
-    
-    
-    
- 
-   
-
- 
-
+  p1|p2
   
+  
+}
+
+
+  Tplot(dtT,  "TotRic", "VarTot" )

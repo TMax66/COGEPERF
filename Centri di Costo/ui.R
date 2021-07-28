@@ -1,29 +1,6 @@
 ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
     theme = shinytheme("cerulean"),
 
-    # tabPanel("Situazione Generale",
-    #          sidebarLayout(
-    #              sidebarPanel(
-    #                  h4(textOutput("struttura")),
-    # 
-    #                  selectInput("CCx", "Seleziona il Centro di Costo",
-    #                              choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`)))))
-    # 
-    #              ),
-    #         mainPanel(
-    # 
-    #         )
-    #          )
-    # 
-    # 
-    # 
-    #          ),
-
-
-    
-    
-    
-    
     tabPanel("Attività Analitica e Produzione",
              sidebarLayout(
                  sidebarPanel(
@@ -31,20 +8,45 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                      
                      selectInput("CC", "Seleziona il Centro di Costo", 
                                  choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`))))),
-                     selectInput("uff", "Ufficiale/Non Ufficiale", 
-                                 choices = c("","Ufficiale", "Non Ufficiale")), 
-                     selectInput("paga", "Gratuito/Pagamento", 
-                                 choices = c("", "Gratuito", "Pagamento"))
-                     
+                     uiOutput("sel1"),
+                     uiOutput("sel2")
                  ),
                mainPanel(
-                   fluidRow(
-                       h2(textOutput("Titolo")), 
-                       column(9, offset = -4, 
-                       plotOutput("plot1", height="800px"))
-                   ))
+                   tabsetPanel(
+                       tabPanel("Attività", 
+                                fluidRow(
+                                    column(12,
+                                      plotOutput("plotEs", height = "400px"))
+                                ), 
+                                hr(),
+                                fluidRow(
+                                    uiOutput("butt1")
+                                    
+                                ), 
+                                
+                                
+                                
+                                
+                                
+                                ), 
+                       tabPanel("Ricavi", 
+                                fluidRow(
+                                    
+                                    column(12,  
+                                    plotOutput("plotT", height="400px"), 
+                                    plotOutput("plotUf", height="400px"), 
+                                    plotOutput("plotNuf", height="400px"), 
+                                    plotOutput("plotpag", height="400px"), 
+                                    plotOutput("plotgrat", height="400px"),
+                                    h2(textOutput("Titolo")),
+                                    plotOutput("plot1", height="400px"))
+                                )
+                   )
+
+                   )
                )
-             ), 
+               )),
+              
  
     
     tabPanel("Costi",
@@ -67,6 +69,6 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                  mainPanel()
              )
     )     
-)         
-             
+)
+              
 

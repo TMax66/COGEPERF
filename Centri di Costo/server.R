@@ -1,6 +1,68 @@
 server<-function(input, output) {
   
-  dt <- reactive(dtanalisi %>% 
+#Controlli della UI----
+  output$sel1 <- renderUI({  
+    req(input$CC)
+    selectInput("uff", "Ufficiale/Non Ufficiale", 
+                choices = c("","Ufficiale", "Non Ufficiale"))  })
+  
+  output$sel2 <- renderUI({  
+    req(input$CC)
+  
+    selectInput("paga", "Gratuito/Pagamento", 
+                choices = c("", "Gratuito", "Pagamento"))
+  })
+  
+  
+  output$butt1 <- renderUI({
+    req(input$CC)
+    div( align = "center", 
+         downloadButton("down", "Scarica i dati in formato .tsv"))
+  })
+  
+#TABELLE REATTIVE----
+dtAtt <- reactive (dtanalisi %>% filter(`Centro di Costo`== input$CC & `Costo o Ricavo`=="Ricavo") %>% 
+         group_by(`Centro di Costo`,  Anno,  Quarter) %>% 
+             summarise(N.Esami = sum(Determinazioni, na.rm = TRUE), 
+                     EUff = sum(AttUff, na.rm = TRUE), 
+                     ENUff =sum(AttNUff, na.rm = TRUE), 
+                     EPag = sum(AttPag, na.rm = TRUE), 
+                     Egrat = sum(AttGrat, na.rm = TRUE), 
+                     PI = sum(AI , na.rm = TRUE), 
+                     Prodv = sum(VP, na.rm = TRUE)) %>% 
+           ungroup() %>% 
+           mutate(VarEsami = round((N.Esami/lag(N.Esami)-1)*100, 2), 
+                  VarEUff = round((EUff/lag(EUff)-1)*100, 2), 
+                  VarENUff = round((ENUff/lag(ENUff)-1)*100, 2), 
+                  VarEPag = round((EPag/lag(EPag)-1)*100, 2),
+                  VarEgrat = round((Egrat/lag(Egrat)-1)*100, 2),
+                  VarPI = round((PI/lag(PI)-1)*100, 2), 
+                  VarProdv = round((Prodv/lag(Prodv)-1)*100, 2), 
+                  )
+           
+)
+                    
+  
+  
+  
+ dtT <- reactive (dtanalisi %>% filter(`Centro di Costo`== input$CC & `Costo o Ricavo`=="Ricavo") %>% 
+    group_by(`Centro di Costo`,  Anno,  Quarter) %>% 
+    summarise(Ufficiali = sum(TUff, na.rm = T), 
+              NonUfficiali = sum(TNonUff, na.rm = T), 
+              Gratuiti = sum(TGratuito, na.rm = T),
+              Pagamento = sum(TPagamento, na.rm = T)) %>% ungroup() %>% 
+    mutate(VarUff = round((Ufficiali/lag(Ufficiali)-1)*100, 2), 
+           VarNUff = round((NonUfficiali/lag(NonUfficiali)-1)*100, 2), 
+           VarGrat = round((Gratuiti/lag(Gratuiti)-1)*100, 2), 
+           VarPag = round((Pagamento/lag(Pagamento)-1)*100, 2)) %>% 
+    rowwise() %>% 
+    mutate(TotRic = sum(Ufficiali, NonUfficiali, na.rm = T)) %>% ungroup() %>% 
+    mutate(VarTot = round((TotRic/lag(TotRic)-1)*100, 2)) %>%   
+    group_by(`Centro di Costo`,  Anno,  Quarter)
+ )
+  
+  
+dt <- reactive(dtanalisi %>% 
                    group_by(`Centro di Costo`, Pagamento, ClassAnalisi,Uff, Anno,  Quarter) %>% 
                    summarise(Tariffato = round(sum(`A Tariffario`, na.rm = TRUE), 0), 
                              Fatturato = round(sum(Fatturato, na.rm = TRUE), 0)) %>% 
@@ -16,10 +78,11 @@ server<-function(input, output) {
   
   
   
+  
   lab <- reactive(   
-    analisi %>% 
+   cc %>% 
       filter(`Centro di Costo`== input$CC) %>% 
-      select(Laboratorio, `Codice Livello 3 Centro di Costo` ) %>% 
+      select(Laboratorio, CodCC ) %>% 
       data.frame())
   
   
@@ -31,10 +94,57 @@ server<-function(input, output) {
  titolo <- reactive(
    paste(input$uff,input$paga)
  )
-  
+
  output$Titolo <- renderText({
    req(input$uff, input$paga)
-   titolo()})
+   titolo()} 
+ )
+ 
+#GRAFICI----
+
+##Grafici attività analitica e produzione interna----
+
+output$plotEs <-  renderPlot({ req(input$CC)
+   Tplot(dtAtt(), "N.Esami", "VarEsami")})
+ 
+
+##Grafici ricavi---- 
+ 
+output$down <- downloadHandler(
+                       filename = function(){ 
+                       paste0(input$CC, "Totale Attività")}, 
+ 
+                       content = function(file){
+                         vroom::vroom_write(dtAtt(), file)
+                       })
+ 
+ output$plotT <-  renderPlot({ req(input$CC)
+  Tplot(dtT(), "TotRic", "VarTot")})
+
+ output$plotUf <-  renderPlot({ 
+   req(input$CC)
+   Tplot(dtT(), "Ufficiali", "VarUff")
+ } )
+
+ output$plotNuf <-  renderPlot({ 
+   req(input$CC)
+   Tplot(dtT(), "NonUfficiali", "VarNUff")
+ } )
+
+ output$plotpag <-  renderPlot({ 
+   req(input$CC)
+   Tplot(dtT(), "Pagamento", "VarPag")
+ } )
+ 
+ output$plotgrat <-  renderPlot({ 
+   req(input$CC)
+   Tplot(dtT(), "Gratuiti", "VarGrat")
+ } )
+ 
+ 
+ 
+ 
+ 
  
   output$plot1 <- renderPlot({
     req(input$CC, input$paga, input$uff)
