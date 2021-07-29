@@ -10,13 +10,29 @@ acc <- read_delim("Accettazione/postazioni.txt",
 names(acc) <- c("nconf", "strpropr", "settore", "finalità", "pagamento", 
                 "dtprel", "dtreg", "dtacc", "dtrdp", "IstRDP",  "pc", "gruppoprova")
 
-View(acc)
+
 
 #preparazione dati-----
-acc %>% 
-  group_by(dtreg, nconf, pc, settore, gruppoprova ) %>% 
-  pivot_wider(names_from = "gruppoprova", values_from = "gruppoprova") %>% View()
+acc %>% filter(gruppoprova!= "Parere Tecnico") %>% 
+  mutate(tipoprove = ifelse(gruppoprova=="Prova Chimica", "Prova Chimica", 
+                      ifelse(gruppoprova== "Prova Sierologica", "Prova Sierologica", "Prova Diagnostica/Alimenti"))) %>%  
+  group_by(dtreg, nconf, pc, settore ) %>% 
+  pivot_wider(names_from = "tipoprove", values_from = "tipoprove") %>% 
+  mutate(`Prova Chimica` = ifelse(`Prova Chimica`!= "NULL", 2.46, 0), 
+         `Prova Diagnostica/Alimenti` = ifelse(`Prova Diagnostica/Alimenti` != "NULL", 0.72, 0),
+         `Prova Sierologica` = ifelse(`Prova Sierologica` != "NULL", 0.20, 0)) %>% 
+  rowwise() %>% 
+  mutate(valore= sum(`Prova Chimica` ,`Prova Diagnostica/Alimenti`, `Prova Sierologica`), 
+         valore = 0.07*(valore)+valore) %>%  
+  ungroup() %>% 
+  group_by(dtreg) %>% 
   
+  summarise(n.conf = n(), 
+    sum(valore)) %>% View()
+
+
+
+
 
 # SELECT
 # dbo.Conferimenti.Numero,
