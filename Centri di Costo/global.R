@@ -78,13 +78,13 @@ to_be <- function(df, Pagamento){
   else filter(df, Parametro %in% c("Tariffato","VarVal"))
 }
 
-Tplot <- function(df, y_par, y_par2)
+Tplot <- function(df, y_par, y_par2, euro)
 {    
   p1 <- ggplot(df)+ 
     aes(
       y = .data[[y_par]],
       x = .data[["Quarter"]],  
-      label=paste(as.character(.data[[y_par]]), "€"))+
+      label=paste(as.character(.data[[y_par]]), euro))+
     geom_line(group = 1, aes(color = Anno ==max(Anno)), size= 1.1,  )+
     geom_label(size = 4.5, aes(color = Anno == max(Anno)))+
     scale_color_manual(values = c("grey", "blue"), guide = "none") +
