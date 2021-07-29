@@ -61,6 +61,8 @@ dtanalisi <- cc %>%
                           ifelse(ClassAnalisi == "Non Ufficiale Gratuito", `A Tariffario`, 0)),
          TGratuito = ifelse(Pagamento == "Gratuito", `A Tariffario`,0), 
          TPagamento = ifelse(Pagamento == "Pagamento", Fatturato,0), 
+         TVP = ifelse(Classe == "Vendite prodotti", Fatturato, 0), 
+         TAI = ifelse(Classe == "Ricavi da produzione interna", `A Tariffario`, 0), 
          AttUff = ifelse(Uff== "Ufficiale", Determinazioni, 0 ), 
          AttNUff = ifelse(Uff== "Non Ufficiale", Determinazioni, 0 ), 
          AttGrat = ifelse(Pagamento== "Gratuito", Determinazioni, 0 ), 
@@ -69,6 +71,14 @@ dtanalisi <- cc %>%
          AI = ifelse(Classe == "Ricavi da produzione interna", Numero, 0))
 
 
+
+#oggetto UI----
+
+# parametri <- tabsetPanel(
+#   id = "params", 
+#   type = "hidden"
+#   
+# )
 
 #funzioni----
 
@@ -126,4 +136,6 @@ Tplot <- function(df, y_par, y_par2, euro)
   
   
 }
+
+
  

@@ -9,14 +9,16 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                      selectInput("CC", "Seleziona il Centro di Costo", 
                                  choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`))))),
                      uiOutput("sel1"),
-                     uiOutput("sel2")
+                     uiOutput("sel2"), 
+                     uiOutput("parametri")
                  ),
                mainPanel(
                    tabsetPanel(
                        tabPanel("Attività", 
                                 fluidRow(
                                     column(12,
-                                      plotOutput("plotEs", height = "400px"))
+                                      h2(textOutput("titoloAtt")),
+                                      plotOutput("PLOT",height = "400px" ))
                                 ), 
                                 hr(),
                                 fluidRow(
@@ -33,14 +35,15 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                 fluidRow(
                                     
                                     column(12,  
-                                    plotOutput("plotT", height="400px"), 
-                                    plotOutput("plotUf", height="400px"), 
-                                    plotOutput("plotNuf", height="400px"), 
-                                    plotOutput("plotpag", height="400px"), 
-                                    plotOutput("plotgrat", height="400px"),
-                                    h2(textOutput("Titolo")),
-                                    plotOutput("plot1", height="400px"))
-                                )
+                                           h2(textOutput("titoloRic")),
+                                           plotOutput("PLOT2",height = "400px" ))
+                                     
+                                ),
+                                hr(),
+                                fluidRow(
+                                    uiOutput("butt2")
+                                    
+                                ), 
                    )
 
                    )
