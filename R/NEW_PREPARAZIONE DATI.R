@@ -1,15 +1,50 @@
 library(tidyverse)
 library(readr)
 library(here)
+library(DBI)
+library(odbc)
 
+
+#DATI ORE LAVORATE DA DBASE PERSONALE_COGE####
+con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02", 
+                      Database = "DW_COGE_DEV", Port = 1433)
+query <- "SELECT
+  dbo.IZS_Livello0.Livello0,
+  dbo.IZS_Dipartimenti.DIPARTIMENTO,
+  dbo.IZS_Reparti.REPARTO,
+  dbo.IZS_CDC.CENTRO_DI_COSTO,
+  dbo.Personale_V2020.CDC,
+  dbo.Personale_V2020.Anno,
+  dbo.Personale_V2020.Matricola,
+  dbo.Personale_V2020.Ore,
+  dbo.Personale_V2020.SmartWorking,
+  dbo.Personale_V2020.Dirigente,
+  dbo.Personale_V2020.Contratto,
+  dbo.Personale_V2020.Percentuale,
+  dbo.Personale_V2020.Mese,
+  dbo.Personale_V2020.FineRapporto,
+  dbo.Personale_V2020.Nome,
+  dbo.Personale_V2020.Cognome
+FROM
+  dbo.Personale_V2020 INNER JOIN dbo.IZS_CDC ON (dbo.Personale_V2020.CDC=dbo.IZS_CDC.CODICE_CDC)
+   INNER JOIN dbo.IZS_Reparti ON (dbo.IZS_CDC.CODICE_REPARTO=dbo.IZS_Reparti.CODICE_REPARTO)
+   INNER JOIN dbo.IZS_Dipartimenti ON (dbo.IZS_Reparti.CODICE_DIPARTIMENTO=dbo.IZS_Dipartimenti.CODICE_DIPARTIMENTO)
+   INNER JOIN dbo.IZS_Livello0 ON (dbo.IZS_Dipartimenti.Codice_Livello0=dbo.IZS_Livello0.CODICE_Livello0)
+  
+WHERE
+  dbo.Personale_V2020.Anno  >=  2019"
+ore <- con %>% tbl(sql(query)) %>% as_tibble()  
+
+
+#DATI DA COGE----
 cc <- read_delim(here("data", "raw", "coge1921.txt"), 
                  "\t", escape_double = FALSE, locale = locale(decimal_mark = ",", 
                                                               grouping_mark = "."), trim_ws = TRUE)
 
 names(cc)[5:9] <- c("Dipartimento", "Reparto", "Laboratorio", "Centro di Costo", "CodCC")
 
-
-T1 <- cc %>% 
+#PREPARAZIONE TABELLE-----
+T1 <- cc %>% #tabella con prestazioni (tariffato, fatturato) e costi
   group_by(Anno, Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
   summarise(Prestazioni = sum(Determinazioni, na.rm = TRUE), 
             Tariffato = sum(`A Tariffario`, na.rm=TRUE), 
@@ -20,7 +55,7 @@ T1 <- cc %>%
             TotCost = sum(Costi), 
             TotTariff = sum(Tariffato)) 
 
-T2 <- cc %>% filter(Classe== "Vendite prodotti") %>% 
+T2 <- cc %>% filter(Classe== "Vendite prodotti") %>% ###vendita prodotti
   group_by(Anno, Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
   mutate(Fatturato = ifelse(Fatturato == 0,`A Tariffario`, Fatturato )) %>% 
   summarise(NVP = sum(Numero, na.rm = TRUE), 
@@ -30,7 +65,7 @@ T2 <- cc %>% filter(Classe== "Vendite prodotti") %>%
             TotFattVP = sum(FattVP))
 
 
-T3 <- cc %>% filter(Classe== "Ricavi da produzione") %>% 
+T3 <- cc %>% filter(Classe== "Ricavi da produzione") %>% ###attività interna
   group_by(Anno, Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
   summarise(NumAI = sum(Numero, na.rm = TRUE), 
             TarAI = sum(`A Tariffario`, na.rm = TRUE)) %>% 
@@ -38,7 +73,7 @@ T3 <- cc %>% filter(Classe== "Ricavi da produzione") %>%
   summarise(TotNAI = sum(NumAI), 
             TAI = sum(TarAI)) 
 
-ore <- con %>% tbl(sql(query)) %>% as_tibble()  
+ore <- con %>% tbl(sql(query)) %>% as_tibble()  ### FTEq
 names(ore)[1:5] <- c("Dipartimento", "Reparto", "Laboratorio", "Centro di Costo", "CodCC")
 fte <- ore %>% 
   mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza")) %>% 
@@ -50,17 +85,16 @@ fte <- ore %>%
   pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE"))  %>% 
   select(-hworked_, -FTE_)  
 
- 
-
-
-T1 %>% 
+#TABELLA GENERALE----
+T1 %>% ##attività costi e fte
   left_join(T2, by=c("Anno", "Dipartimento", "Reparto", "Laboratorio")) %>%  
   left_join(T3, by=c("Anno", "Dipartimento", "Reparto", "Laboratorio")) %>% 
   left_join(fte,by=c("Anno", "Dipartimento", "Reparto", "Laboratorio")) %>% 
-saveRDS(., file = here("data", "processed",  "TabellaGenerale.rds"))
-   
+  saveRDS(., file = here("data", "processed",  "TabellaGenerale.rds"))
 
 
+
+#DATI DA PROGETTI DI RICERCA----
 
 prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2020.xlsx"))
 
@@ -73,9 +107,11 @@ prj %>%
   left_join(anag, by = c("MatrRSUO" = "Matricola")) %>% 
   mutate(annoinizio = year(DataInizio), 
          annofine = year(DataFine)) %>%  
-saveRDS(., file = here( "data", "processed",  "prj.rds"))
+  saveRDS(., file = here( "data", "processed",  "prj.rds"))
 
 
+
+#DATI DA PUBBLICAZIONI####
 
 pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
 pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
@@ -91,21 +127,11 @@ pubblicazioni %>% filter(OA >= 2019) %>%
 
 
 
+#DATI DA DBASE PERFORMANCE (OBIETTIVI, INDICATORI, TARGET, RISULTATO, FTEQ PROGRAMMATI)####
+
+
+##Programmazione 2021 FTE----
+source(here("R",  "FTEPROGRAMMATI.R"))
 
 
 
-
-
-
-
-
-
-# analisi <- read_excel(sheet = "Report 1", here(  "data", "raw",  "analisi1921.xls"))
-# 
-# analisi %>% 
-#   filter(Anno == 2019  & Determinazioni >0  ) %>%
-#   group_by( Livello0,  Classe, Area, Classificazione) %>% 
-#   summarise(Prestazioni = sum(Determinazioni, na.rm = TRUE)) %>%  
-#   group_by(Livello0) %>%  
-#   summarise(TotPrestazioni = sum(Prestazioni)) %>% 
-#   summarise(sum(TotPrestazioni))

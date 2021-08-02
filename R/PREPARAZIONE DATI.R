@@ -14,6 +14,7 @@ query <- "SELECT
   dbo.IZS_Dipartimenti.DIPARTIMENTO,
   dbo.IZS_Reparti.REPARTO,
   dbo.IZS_CDC.CENTRO_DI_COSTO,
+  dbo.Personale_V2020.CDC,
   dbo.Personale_V2020.Anno,
   dbo.Personale_V2020.Matricola,
   dbo.Personale_V2020.Ore,
@@ -33,6 +34,7 @@ FROM
   
 WHERE
   dbo.Personale_V2020.Anno  >=  2019
+
 
 
 
