@@ -92,10 +92,13 @@ pubblicazioni %>% filter(OA >= 2019) %>%
 
 
 
+x <- dtanalisi %>% 
+filter(Classe == "Prestazioni" & `Centro di Costo`== "SEDE TERRITORIALE DI BERGAMO") %>%  
+group_by(Anno, Area) %>% 
+  summarise("n.prestazioni" = sum(Determinazioni, na.rm=TRUE)) %>% View()
 
 
-
-
+ 
 
 
 
