@@ -20,7 +20,7 @@ library("summaryBox")
 #tabIZSLER <- readRDS(file = here( "data", "processed", "TABELLA.rds"))#-tabella complessiva izsler esami prodotti orelav##
 
 tabIZSLER <- readRDS(file = here( "data", "processed", "TabellaGenerale.rds"))#-tabella complessiva izsler esami prodotti orelav##
-
+GCR <- readRDS(file = here("data", "processed", "GCR.rds"))
 
 prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
 pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazioni

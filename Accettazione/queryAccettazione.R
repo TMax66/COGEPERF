@@ -3,8 +3,9 @@ library(tidyverse)
 #importazione accettazione----- da query esportata da SQLServer ( vedi sotto)
 
 library(readr)
+library(lubridate)
 
-acc <- read_delim("Accettazione/postazioni.txt", 
+acc <- read_delim("C:/Users/vito.tranquillo/Desktop/Git Projects/COGEPERF/Accettazione/postazioni.txt", 
                          "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 
 names(acc) <- c("nconf", "strpropr", "settore", "finalità", "pagamento", 
@@ -16,20 +17,27 @@ names(acc) <- c("nconf", "strpropr", "settore", "finalità", "pagamento",
 acc %>% filter(gruppoprova!= "Parere Tecnico") %>% 
   mutate(tipoprove = ifelse(gruppoprova=="Prova Chimica", "Prova Chimica", 
                       ifelse(gruppoprova== "Prova Sierologica", "Prova Sierologica", "Prova Diagnostica/Alimenti"))) %>%  
+  select(-gruppoprova) %>% 
   group_by(dtreg, nconf, pc, settore ) %>% 
   pivot_wider(names_from = "tipoprove", values_from = "tipoprove") %>% 
   mutate(`Prova Chimica` = ifelse(`Prova Chimica`!= "NULL", 2.46, 0), 
          `Prova Diagnostica/Alimenti` = ifelse(`Prova Diagnostica/Alimenti` != "NULL", 0.72, 0),
-         `Prova Sierologica` = ifelse(`Prova Sierologica` != "NULL", 0.20, 0)) %>% 
+         `Prova Sierologica` = ifelse(`Prova Sierologica` != "NULL", 0.20, 0)) %>%  
   rowwise() %>% 
   mutate(valore= sum(`Prova Chimica` ,`Prova Diagnostica/Alimenti`, `Prova Sierologica`), 
-         valore = 0.07*(valore)+valore) %>%  
-  ungroup() %>% 
-  group_by(dtreg) %>% 
-  
+         valore = 0.07*(valore)+valore) %>%
+  ungroup() %>%  
+  group_by(dtreg, pc) %>% 
   summarise(n.conf = n(), 
-    sum(valore)) %>% View()
-
+    valore = sum(valore)) %>% 
+  mutate(Anno = year(dtreg)) %>%  
+  group_by(Anno) %>% 
+  summarise(n.conf = sum(n.conf), 
+            valore = sum(valore)) %>% 
+  tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
+         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE") %>% 
+  saveRDS(here("data", "processed", "GCR.rds"))
+  
 
 
 
