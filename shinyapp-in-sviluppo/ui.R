@@ -10,13 +10,18 @@ ui <- dashboardPage(
               condition = "input.menu == 'izsler' ", 
               sliderInput("anno", h3("Seleziona l'Anno"), min=2019, max = 2021, value = 2021)), 
            
-            menuItem("Dipartimenti", tabName = "dipartimenti", icon = icon("sitemap")), 
-            conditionalPanel(
+             menuItem("Dipartimenti", tabName = "dipartimenti", icon = icon("sitemap")), 
+             conditionalPanel(
               condition = "input.menu == 'dipartimenti' ", 
               radioButtons("dip", "Seleziona il Dipartimento",
-                           choices = unique(factor(tabIZSLER$Dipartimento))), 
+                           choices =  c("Dipartimento tutela e salute animale", 
+                                        "Dipartimento sicurezza alimentare", 
+                                        "Dipartimento area territoriale Lombardia", 
+                                        "Dipartimento area territoriale Emilia Romagna", 
+                                        "Direzione Sanitaria")), 
               br(), 
-              sliderInput("anno2", h3("Seleziona l'Anno"), min=2019, max = 2021, value = 2021))
+              sliderInput("anno2", h3("Seleziona l'Anno"), min=2019, max = 2021, value = 2021)), 
+            menuItem("Report Costi-Ricavi per Centri di Costo", tabName = "Centri di Costo", icon = icon("euro"))
             )),
       
       dashboardBody(
@@ -149,7 +154,10 @@ ui <- dashboardPage(
                 box(title = h3(textOutput("dipa2")),  solidHeader = TRUE, collapsible = TRUE,status = "primary", width = 12, 
                     tableOutput("tr"))
                 )) 
-               )
+               ), 
+tabItem(
+  tabName = "Report Costi-Ricavi per Centri di Costo"
+)
              )
             )
           )
@@ -348,7 +356,7 @@ ui <- dashboardPage(
 # )
 # )
 # )#, 
-# ####Dipartimento Sicurezza Alimentare####
+# ####Dipartimento Sicurezza Alimentare# 
 #   # tabItem(tabName = "dsalim", 
 #      #  fluidRow(
 # #         valueBoxOutput("esami2"),
@@ -397,7 +405,7 @@ ui <- dashboardPage(
 # #       )
 # #)
 # # 
-# # ####Dipartimento Tutela Salute Animale#####
+# # ####Dipartimento Tutela Salute Animale 
 # #   tabItem(tabName = "dsa", 
 # #           fluidRow(
 # #             valueBoxOutput("esami3"),
@@ -452,7 +460,7 @@ ui <- dashboardPage(
 # #           )
 # #   ), 
 # #           
-# # ###Area Territoriale Lombardia####
+# # ###Area Territoriale Lombardia 
 # #   tabItem(tabName = "lomb", 
 # #                   fluidRow(
 # #                     valueBoxOutput("esami4"),
@@ -505,7 +513,7 @@ ui <- dashboardPage(
 # #           )
 # # 
 # #           ), 
-# # ###Area Territoriale Emilia Romagna#####
+# # ###Area Territoriale Emilia Romagna 
 # #   tabItem(tabName = "emil", 
 # #           fluidRow(
 # #             valueBoxOutput("esami5"),
@@ -558,12 +566,12 @@ ui <- dashboardPage(
 # # ) 
 # #  , 
 # # 
-# # ##Note#### 
+# # ##Note# 
 # # tabItem(tabName = "help",
 # #         includeHTML("note.html")
 # #         ), 
 # # 
-# # ##Programmazione#
+# # ##Programmazione 
 # # # tabItem(tabName = "progr", 
 # # #         
 # # #         wellPanel(
@@ -645,7 +653,7 @@ ui <- dashboardPage(
 # # #         dataTableOutput("progFTE")
 # # #         
 # # # )
-# # ####PROGRAMMAZIONE####
+# # ####PROGRAMMAZIONE## 
 # # tabItem(tabName = "pr21", 
 # #         fluidRow(
 # #           tabBox(
