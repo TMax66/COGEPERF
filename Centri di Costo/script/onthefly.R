@@ -42,10 +42,22 @@ x <- dtanalisi %>%
   group_by(Area) %>%
   summarise(spark = spk_chr(N, type= "line", options =
                               list(paging = FALSE)))
- ))      
+ ))
+
+formattable(x) %>% 
+  as.htmlwidget() %>% 
+  spk_add_deps()
  
 
-datatable(x, escape = FALSE)
+datatable(x, escape = FALSE, list(paging = FALSE, 
+                                  fnDrawCallback = htmlwidgets::JS(
+                                    '
+                                    
+                                    function(){
+                                      HTMWidgets.staticRender();
+                                    }
+                                    '
+                                  )))
   
   
    
