@@ -49,36 +49,28 @@ formattable  %>%
   spk_add_deps()
  
  
-                                    '
-                                    
-                                    function(){
-                                      HTMWidgets.staticRender();
-                                    }
-                                    '
-                                  )))
-  
-  
+      
    
   
-mutate(m=round(rowMeans(cbind( `2019_Q 1`, `2019_Q 2`, `2019_Q 3`, `2019_Q 4`, 
-                           `2020_Q 1`, `2020_Q 2`, `2020_Q 3`, `2020_Q 4`,
-                           `2021_Q 1`, `2021_Q 2`), na.rm = TRUE),2), 
-         trend = round((`2019_Q 1`- `2020_Q 4`)/`2019_Q 1`*100, 2) ) %>%
-  #select(Prestazione, 2:9, trend, 10:11) %>% 
-  formattable(list(trend = improvement_formatter)) %>% 
-  as.datatable()
-  
+# mutate(m=round(rowMeans(cbind( `2019_Q 1`, `2019_Q 2`, `2019_Q 3`, `2019_Q 4`, 
+#                            `2020_Q 1`, `2020_Q 2`, `2020_Q 3`, `2020_Q 4`,
+#                            `2021_Q 1`, `2021_Q 2`), na.rm = TRUE),2), 
+#          trend = round((`2019_Q 1`- `2020_Q 4`)/`2019_Q 1`*100, 2) ) %>%
+#   #select(Prestazione, 2:9, trend, 10:11) %>% 
+#   formattable(list(trend = improvement_formatter)) %>% 
+#   # as.datatable()
+#   
 
 
 
-customGreen0 = "#DeF7E9"
-customGreen = "#71CA97"
-customRed = "#ff7f7f"
-
-
-
-improvement_formatter <- formatter("span", 
-                                   style = x ~ style(font.weight = "bold", 
-                                                     color = ifelse(x > 0, customGreen, ifelse(x < 0, customRed, "black"))), 
-                                   x ~ icontext(ifelse(x>0, "arrow-up", "arrow-down"), x)
-)
+# customGreen0 = "#DeF7E9"
+# customGreen = "#71CA97"
+# customRed = "#ff7f7f"
+# 
+# 
+# 
+# improvement_formatter <- formatter("span", 
+#                                    style = x ~ style(font.weight = "bold", 
+#                                                      color = ifelse(x > 0, customGreen, ifelse(x < 0, customRed, "black"))), 
+#                                    x ~ icontext(ifelse(x>0, "arrow-up", "arrow-down"), x)
+# )
