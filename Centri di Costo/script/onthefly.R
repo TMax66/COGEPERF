@@ -9,7 +9,7 @@ library(DT)
 
 
 
-x <- dtanalisi %>% 
+dtanalisi %>% 
   filter(`Costo o Ricavo`== "Ricavo") %>% 
   group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
   filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
@@ -40,17 +40,15 @@ x <- dtanalisi %>%
   mutate(YQ = paste(Anno, "-", Quarter)) %>%
   select(-Anno, -Quarter) %>% 
   group_by(Area) %>%
-  summarise(spark = spk_chr(N, type= "line", options =
+  summarise(trend = spk_chr(N, type= "line", options =
                               list(paging = FALSE)))
- ))
+ )) %>% 
 
-formattable(x) %>% 
+formattable  %>% 
   as.htmlwidget() %>% 
   spk_add_deps()
  
-
-datatable(x, escape = FALSE, list(paging = FALSE, 
-                                  fnDrawCallback = htmlwidgets::JS(
+ 
                                     '
                                     
                                     function(){

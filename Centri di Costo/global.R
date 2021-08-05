@@ -82,11 +82,11 @@ dtanalisi <- cc %>%
 
 #funzioni----
 
-to_be <- function(df, Pagamento){
-  if(Pagamento == "Pagamento")
-    dplyr::filter(df, Parametro %in% c("Fatturato","VarFatt"))
-  else filter(df, Parametro %in% c("Tariffato","VarVal"))
-}
+# to_be <- function(df, Pagamento){
+#   if(Pagamento == "Pagamento")
+#     dplyr::filter(df, Parametro %in% c("Fatturato","VarFatt"))
+#   else filter(df, Parametro %in% c("Tariffato","VarVal"))
+# }
 
 Tplot <- function(df, y_par, y_par2, euro)
 {    
