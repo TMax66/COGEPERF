@@ -22,8 +22,7 @@ output$parametri <- renderUI({
                       
                     "Attività Complessiva", 
                     "Attività Ufficiale",
-                    "Attività Non Ufficiale", 
-                    "Produzione Interna"
+                    "Attività Non Ufficiale"
                   ))
     })
     
@@ -42,6 +41,35 @@ output$parametri <- renderUI({
     div( align = "center", 
          downloadButton("down", "Scarica i dati in formato .tsv"))
   })
+  
+  
+  # lab <- reactive(   
+  #   cc %>% 
+  #     filter(`Centro di Costo`== input$CC) %>% 
+  #     select(Laboratorio, CodCC ) %>% 
+  #     data.frame())
+  
+  
+  # output$struttura <- renderText({
+  #   req(input$CC)
+  #   paste(lab()[1,1], "-", lab()[1,2])
+  # })
+  
+  titolo <- reactive(
+    paste(input$CC,":",input$par)
+  )
+  
+  output$titoloAtt <- renderText({
+    req(input$par)
+    titolo()} 
+  )
+  
+  
+  
+  output$titoloRic <- renderText({
+    req(input$par)
+    paste(input$CC, ": Ricavi da", input$par)} 
+  )
   
 #TABELLE REATTIVE----
 dtAtt <- reactive (dtanalisi %>% filter(`Centro di Costo`== input$CC & `Costo o Ricavo`=="Ricavo") %>% 
@@ -64,11 +92,8 @@ dtAtt <- reactive (dtanalisi %>% filter(`Centro di Costo`== input$CC & `Costo o 
                   )
            
 )
-                    
-  
-  
-  
- dtT <- reactive (dtanalisi %>% filter(`Centro di Costo`== input$CC & `Costo o Ricavo`=="Ricavo") %>% 
+
+dtT <- reactive (dtanalisi %>% filter(`Centro di Costo`== input$CC & `Costo o Ricavo`=="Ricavo") %>% 
     group_by(`Centro di Costo`,  Anno,  Quarter) %>% 
     summarise(Ufficiali = sum(TUff, na.rm = T), 
               NonUfficiali = sum(TNonUff, na.rm = T), 
@@ -104,31 +129,7 @@ dtAtt <- reactive (dtanalisi %>% filter(`Centro di Costo`== input$CC & `Costo o 
 #                    data.frame()
 #   )
 
-lab <- reactive(   
-   cc %>% 
-      filter(`Centro di Costo`== input$CC) %>% 
-      select(Laboratorio, CodCC ) %>% 
-      data.frame())
-  
-  
-  output$struttura <- renderText({
-    req(input$CC)
-    paste(lab()[1,1], "-", lab()[1,2])
-  })
-  
- titolo <- reactive(
-  paste(input$CC,":",input$par)
- )
 
- output$titoloAtt <- renderText({
-   req(input$par)
-   titolo()} 
- )
- 
- output$titoloRic <- renderText({
-   req(input$par)
-   titolo()} 
- )
  
 #GRAFICI----
 
@@ -166,12 +167,12 @@ output$PLOT <- renderPlot({
             }
 
 
-          else
-
-            if(input$par == "Produzione Interna"){
-               Tplot(dtAtt(), "Prodv", "VarProdv", euro = "")
-
-            }
+          # else
+          # 
+          #   if(input$par == "Produzione Interna"){
+          #      Tplot(dtAtt(), "Prodv", "VarProdv", euro = "")
+          # 
+          #   }
             
           }
 
@@ -323,7 +324,176 @@ output$dtprestazioni <- renderUI({
   
 })
   
+##Tabella dettaglio ricavi da prestazioni----
+ 
+ 
+output$dtricprest <- renderUI({
+   req(input$par)
 
+  if (input$par == "Attività Complessiva") 
+  {
+    dtanalisi %>%  
+      filter(`Costo o Ricavo`== "Ricavo") %>% 
+      filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
+      rowwise() %>% 
+      mutate(TotRic = sum(TUff, TNonUff, na.rm = T)) %>% ungroup %>% 
+      group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
+      summarise(TRic= sum(TotRic, na.rm = TRUE)) %>% 
+      filter(`Centro di Costo`== input$CC & Classe == "Prestazioni") %>%  
+      group_by(Anno, Quarter, Area) %>% 
+      summarise(N = sum(TRic, na.rm=TRUE)) %>% 
+      mutate(YQ = paste(Anno, "-", Quarter)) %>% ungroup() %>% 
+      select(-Anno, -Quarter) %>% 
+      pivot_wider( names_from = YQ,  values_from = N, values_fill = 0) %>%   
+      #rename(., "Prestazione" = Area) %>% 
+      left_join(  
+        
+        (dtanalisi %>% 
+           filter(`Costo o Ricavo`== "Ricavo") %>% 
+           filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
+           rowwise() %>% 
+           mutate(TotRic = sum(TUff, TNonUff, na.rm = T)) %>% ungroup %>% 
+           group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
+           summarise(TRic= sum(TotRic, na.rm = TRUE)) %>% 
+           filter(`Centro di Costo`== input$CC & Classe == "Prestazioni") %>%  
+           group_by(Anno, Quarter, Area) %>% 
+           summarise(N = sum(TRic, na.rm=TRUE)) %>% 
+           mutate(YQ = paste(Anno, "-", Quarter)) %>%
+           select(-Anno, -Quarter) %>% 
+           group_by(Area) %>%
+           summarise(trend = spk_chr(N, type= "line", options =
+                                       list(paging = FALSE)))
+        )) %>% 
+      
+      rename("Prestazioni" = Area) %>% 
+      
+      format_table()  %>% 
+      htmltools::HTML() %>% 
+      div() %>% 
+      spk_add_deps()
+    
+    
+    
+  }
+   else
+     if (input$par == "Attività Ufficiale")
+  
+     {
+       dtanalisi %>%  
+         filter(`Costo o Ricavo`== "Ricavo") %>% 
+         filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
+         # rowwise() %>% 
+         # mutate(TotRic = sum(TUff, TNonUff, na.rm = T)) %>% ungroup %>% 
+         group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
+         summarise(TUff= sum(TUff, na.rm = TRUE)) %>% 
+         filter(`Centro di Costo`== input$CC & Classe == "Prestazioni") %>%  
+         group_by(Anno, Quarter, Area) %>% 
+         summarise(N = sum(TUff, na.rm=TRUE)) %>% 
+         mutate(YQ = paste(Anno, "-", Quarter)) %>% ungroup() %>% 
+         select(-Anno, -Quarter) %>% 
+         pivot_wider( names_from = YQ,  values_from = N, values_fill = 0) %>%   
+         #rename(., "Prestazione" = Area) %>% 
+         left_join(  
+           (dtanalisi %>%  
+            filter(`Costo o Ricavo`== "Ricavo") %>% 
+                  filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
+                  # rowwise() %>% 
+                  # mutate(TotRic = sum(TUff, TNonUff, na.rm = T)) %>% ungroup %>% 
+                  group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
+                  summarise(TUff= sum(TUff, na.rm = TRUE)) %>% 
+                  filter(`Centro di Costo`== input$CC & Classe == "Prestazioni") %>%  
+              group_by(Anno, Quarter, Area) %>% 
+              summarise(N = sum(TUff, na.rm=TRUE)) %>% 
+              mutate(YQ = paste(Anno, "-", Quarter)) %>%
+              select(-Anno, -Quarter) %>% 
+              group_by(Area) %>%
+              summarise(trend = spk_chr(N, type= "line", options =
+                                          list(paging = FALSE)))
+           )) %>% 
+         
+         rename("Prestazioni" = Area) %>% 
+         
+         format_table()  %>% 
+         htmltools::HTML() %>% 
+         div() %>% 
+         spk_add_deps()
+
+     }
+  else
+    
+    if (input$par == "Attività Non Ufficiale")
+      
+     
+    {
+      dtanalisi %>%  
+        filter(`Costo o Ricavo`== "Ricavo") %>% 
+        filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
+        # rowwise() %>% 
+        # mutate(TotRic = sum(TUff, TNonUff, na.rm = T)) %>% ungroup %>% 
+        group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
+        summarise(TNonUff= sum(TNonUff, na.rm = TRUE)) %>% 
+        filter(`Centro di Costo`== input$CC & Classe == "Prestazioni") %>%  
+        group_by(Anno, Quarter, Area) %>% 
+        summarise(N = sum(TNonUff, na.rm=TRUE)) %>% 
+        mutate(YQ = paste(Anno, "-", Quarter)) %>% ungroup() %>% 
+        select(-Anno, -Quarter) %>% 
+        pivot_wider( names_from = YQ,  values_from = N, values_fill = 0) %>%   
+        #rename(., "Prestazione" = Area) %>% 
+        left_join(  
+          (dtanalisi %>%  
+             filter(`Costo o Ricavo`== "Ricavo") %>% 
+             filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
+             # rowwise() %>% 
+             # mutate(TotRic = sum(TUff, TNonUff, na.rm = T)) %>% ungroup %>% 
+             group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
+             summarise(TNonUff= sum(TNonUff, na.rm = TRUE)) %>% 
+             filter(`Centro di Costo`== input$CC & Classe == "Prestazioni") %>%  
+             group_by(Anno, Quarter, Area) %>% 
+             summarise(N = sum(TNonUff, na.rm=TRUE)) %>% 
+             mutate(YQ = paste(Anno, "-", Quarter)) %>%
+             select(-Anno, -Quarter) %>% 
+             group_by(Area) %>%
+             summarise(trend = spk_chr(N, type= "line", options =
+                                         list(paging = FALSE)))
+          )) %>% 
+        
+        rename("Prestazioni" = Area) %>% 
+        
+        format_table()  %>% 
+        htmltools::HTML() %>% 
+        div() %>% 
+        spk_add_deps()
+      
+    }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+})
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
 
  

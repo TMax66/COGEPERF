@@ -4,7 +4,7 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
     tabPanel("Attività-Ricavi-Costi",
              sidebarLayout(
                  sidebarPanel(width = 3,
-                     h4(textOutput("struttura")),
+                    # h4(textOutput("struttura")),
                      
                      selectInput("CC", "Seleziona il Centro di Costo", 
                                  choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`))))),
@@ -40,7 +40,12 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                            h2(textOutput("titoloRic")),
                                            plotOutput("PLOT2",height = "400px" ))
                                      
-                                )
+                                ), 
+                                hr(), 
+                                fluidRow(
+                                    column(11, 
+                                    htmlOutput("dtricprest")
+                                ))
                                 # ,
                                 # hr(),
                                 # fluidRow(

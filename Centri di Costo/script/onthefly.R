@@ -8,17 +8,15 @@ library(sparkline)
 
 
 dtanalisi %>%  
-  filter(Uff == "Non Ufficiale") %>%
   filter(`Costo o Ricavo`== "Ricavo") %>% 
+  filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
+  rowwise() %>% 
+  mutate(TotRic = sum(TUff, TNonUff, na.rm = T)) %>% ungroup %>% 
   group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
-  filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
-  summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
-            N_Num = sum(Numero, na.rm = TRUE), 
-            S_Tariffa = sum(`A Tariffario`, na.rm = TRUE), 
-            S_Fatturato = sum(Fatturato, na.rm = TRUE))  %>% 
-  filter(`Centro di Costo`== "SEDE TERRITORIALE DI BERGAMO" & Classe == "Prestazioni") %>% 
+  summarise(TRic= sum(TotRic, na.rm = TRUE)) %>% 
+  filter(`Centro di Costo`== "SEDE TERRITORIALE DI BERGAMO" & Classe == "Prestazioni") %>%  
   group_by(Anno, Quarter, Area) %>% 
-  summarise(N = sum(N_Det, na.rm=TRUE)) %>% 
+  summarise(N = sum(TRic, na.rm=TRUE)) %>% 
   mutate(YQ = paste(Anno, "-", Quarter)) %>% ungroup() %>% 
   select(-Anno, -Quarter) %>% 
   pivot_wider( names_from = YQ,  values_from = N, values_fill = 0) %>%   
@@ -26,16 +24,15 @@ dtanalisi %>%
     left_join(  
 
  (dtanalisi %>% 
-  filter(`Costo o Ricavo`== "Ricavo") %>% 
-  group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
-  filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
-  summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
-            N_Num = sum(Numero, na.rm = TRUE), 
-            S_Tariffa = sum(`A Tariffario`, na.rm = TRUE), 
-            S_Fatturato = sum(Fatturato, na.rm = TRUE))  %>% 
-  filter(`Centro di Costo`== "SEDE TERRITORIALE DI BERGAMO" & Classe == "Prestazioni") %>% 
+    filter(`Costo o Ricavo`== "Ricavo") %>% 
+    filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
+    rowwise() %>% 
+    mutate(TotRic = sum(TUff, TNonUff, na.rm = T)) %>% ungroup %>% 
+    group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
+    summarise(TRic= sum(TotRic, na.rm = TRUE)) %>% 
+    filter(`Centro di Costo`== "SEDE TERRITORIALE DI BERGAMO" & Classe == "Prestazioni") %>%  
   group_by(Anno, Quarter, Area) %>% 
-  summarise(N = sum(N_Det, na.rm=TRUE)) %>% 
+  summarise(N = sum(TRic, na.rm=TRUE)) %>% 
   mutate(YQ = paste(Anno, "-", Quarter)) %>%
   select(-Anno, -Quarter) %>% 
   group_by(Area) %>%
