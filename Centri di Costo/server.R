@@ -15,7 +15,7 @@ server<-function(input, output) {
     
     
 
-    output$parametri <- renderUI({
+output$parametri <- renderUI({
       req(input$CC)
       selectInput("par", "Seleziona la categoria", 
                   choices = c(
@@ -117,7 +117,7 @@ lab <- reactive(
   })
   
  titolo <- reactive(
-  input$par
+  paste(input$CC,":",input$par)
  )
 
  output$titoloAtt <- renderText({
@@ -248,7 +248,7 @@ output$dtprestazioni <- renderUI({
         left_join(  
           
           (dtanalisi %>% 
-             filter(`Costo o Ricavo`== "Ricavo") %>% 
+             filter(Uff == "Ufficiale" & `Costo o Ricavo`== "Ricavo") %>% 
              group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
              filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
              summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
@@ -296,7 +296,7 @@ output$dtprestazioni <- renderUI({
         left_join(  
           
           (dtanalisi %>% 
-             filter(`Costo o Ricavo`== "Ricavo") %>% 
+             filter(Uff == "Non Ufficiale" & `Costo o Ricavo`== "Ricavo") %>% 
              group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
              filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
              summarise(N_Det = sum(Determinazioni, na.rm = TRUE),

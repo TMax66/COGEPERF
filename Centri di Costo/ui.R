@@ -1,9 +1,9 @@
 ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
     theme = shinytheme("cerulean"),
 
-    tabPanel("Attività Analitica e Produzione",
+    tabPanel("Attività-Ricavi-Costi",
              sidebarLayout(
-                 sidebarPanel(
+                 sidebarPanel(width = 3,
                      h4(textOutput("struttura")),
                      
                      selectInput("CC", "Seleziona il Centro di Costo", 
@@ -40,13 +40,15 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                            h2(textOutput("titoloRic")),
                                            plotOutput("PLOT2",height = "400px" ))
                                      
-                                ),
-                                hr(),
-                                fluidRow(
-                                    uiOutput("butt2")
-                                    
-                                ), 
-                   )
+                                )
+                                # ,
+                                # hr(),
+                                # fluidRow(
+                                #     uiOutput("butt2")
+                                #     
+                                # ), 
+                   ), 
+                   tabPanel("Costi")
 
                    )
                )
@@ -54,21 +56,21 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
               
  
     
-    tabPanel("Costi",
-             sidebarLayout(
-               sidebarPanel(),
-               mainPanel()
-             )
-    ), 
+    # tabPanel("Costi",
+    #          sidebarLayout(
+    #            sidebarPanel(),
+    #            mainPanel()
+    #          )
+    # ), 
                    
-    tabPanel("Indicatori",
-             sidebarLayout(
-               sidebarPanel(),
-               mainPanel()
-             )
-    ), 
+    # tabPanel("Indicatori",
+    #          sidebarLayout(
+    #            sidebarPanel(),
+    #            mainPanel()
+    #          )
+    # ), 
     
-    tabPanel("....",
+    tabPanel("Tools",
              sidebarLayout(
                  sidebarPanel(),
                  mainPanel()
