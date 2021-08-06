@@ -1,15 +1,14 @@
 library(tidyverse)
 library(readr)
 library(here)
-library(zoo)
+ 
 library(formattable)
 library(sparkline)
-library(DT)
+ 
 
 
-
-
-dtanalisi %>% 
+dtanalisi %>%  
+  filter(Uff == "Non Ufficiale") %>%
   filter(`Costo o Ricavo`== "Ricavo") %>% 
   group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
   filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
@@ -44,11 +43,11 @@ dtanalisi %>%
                               list(paging = FALSE)))
  )) %>% 
 
-formattable  %>% 
+formattable()  %>% 
   as.htmlwidget() %>% 
   spk_add_deps()
  
- 
+
       
    
   
