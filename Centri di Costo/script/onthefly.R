@@ -1,3 +1,35 @@
+dtanalisi %>% filter(`Centro di Costo`== "SEDE TERRITORIALE DI BERGAMO" & `Costo o Ricavo`=="Costo") %>% 
+  group_by(`Centro di Costo`,  Anno,  Quarter) %>% 
+  summarise(Costi = sum(Costo, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(VarCosti = round((Costi/lag(Costi)-1)*100,2)) %>% View()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 library(tidyverse)
 library(readr)
 library(here)

@@ -44,9 +44,20 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                 #     
                                 # ), 
                    ), 
-                   tabPanel("Costi", value = 3)
+                   tabPanel("Costi", value = 3,
+                            fluidRow(
+                                column(12,  
+                                       h2(textOutput("titoloRic")),
+                                       plotOutput("PLOT3",height = "400px" ))
+                                
+                            ), 
+                            hr(), 
+                            fluidRow(
+                                column(11, 
+                                       htmlOutput("dtricprest")
+                                ))
                )
-               ))
+               ) 
               
  
     
@@ -62,12 +73,12 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
     #            sidebarPanel(),
     #            mainPanel()
     #          )
-    ), 
+    )), 
     
-    tabPanel("Tools",
-             
-    )     
+    tabPanel("Tools")     
 )
+)
+ 
 
 
               
