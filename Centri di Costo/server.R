@@ -1,14 +1,11 @@
 server<-function(input, output) {
-  
-
-    
 
 output$parametri <- renderUI({
       req(input$CC)
-      if(input$tabs == 1 | input$tabs == 2){  
-      selectInput("par", "Seleziona la categoria", 
+      if(input$tabs == 1 | input$tabs == 2){
+      selectInput("par", "Seleziona la categoria",
                   choices = c(
-                    "Attività Complessiva", 
+                    "Attività Complessiva",
                     "Attività Ufficiale",
                     "Attività Non Ufficiale"
                   ))

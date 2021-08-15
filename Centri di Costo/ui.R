@@ -46,7 +46,7 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                    ), 
                    tabPanel("Costi", value = 3)
                )
-               )),
+               ))
               
  
     
@@ -62,15 +62,13 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
     #            sidebarPanel(),
     #            mainPanel()
     #          )
-    # ), 
+    ), 
     
     tabPanel("Tools",
-             sidebarLayout(
-                 sidebarPanel(),
-                 mainPanel()
-             )
+             
     )     
 )
-)
+
+
               
 
