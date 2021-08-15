@@ -1,8 +1,83 @@
-dtanalisi %>% filter(`Centro di Costo`== "SEDE TERRITORIALE DI BERGAMO" & `Costo o Ricavo`=="Costo") %>% 
+dtanalisi %>%  
+  filter(`Costo o Ricavo`== "Costo") %>% 
+  group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
+
+  summarise(costidett = sum(Costo, na.rm = TRUE),
+             )  %>%  
+  filter(`Centro di Costo`== "SEDE TERRITORIALE DI BERGAMO"  ) %>% 
+  group_by(Anno, Quarter,Classe) %>%  
+  summarise(C = sum(costidett, na.rm=TRUE)) %>% 
+  mutate(YQ = paste(Anno, "-", Quarter)) %>%  ungroup() %>% 
+  select(-Anno, -Quarter) %>%  
+  pivot_wider( names_from = YQ,  values_from = C, values_fill = 0) %>%    
+ 
+  left_join(  
+    
+    (dtanalisi %>% 
+       filter(`Costo o Ricavo`== "Costo") %>% 
+       group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 
+       #filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
+       summarise(costidett = sum(Costo, na.rm = TRUE),
+       )  %>%  
+       filter(`Centro di Costo`== "SEDE TERRITORIALE DI BERGAMO"  ) %>% 
+       group_by(Anno, Quarter, Classe) %>% 
+       summarise(C = sum(costidett, na.rm=TRUE)) %>% 
+       mutate(YQ = paste(Anno, "-", Quarter)) %>%
+       select(-Anno, -Quarter) %>% 
+       group_by(Classe) %>%
+       summarise(trend = spk_chr(C, type= "line", options =
+                                   list(paging = FALSE)))
+    )) %>% rename("Tipologia Costi" = Classe) %>% 
+  
+  format_table()  %>% 
+  htmltools::HTML() %>% 
+  div() %>% 
+  spk_add_deps()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+dtCostiT <- dtanalisi %>% filter(`Centro di Costo`== "SEDE TERRITORIALE DI BERGAMO" & `Costo o Ricavo`=="Costo") %>% 
   group_by(`Centro di Costo`,  Anno,  Quarter) %>% 
   summarise(Costi = sum(Costo, na.rm = TRUE)) %>% 
   ungroup() %>% 
-  mutate(VarCosti = round((Costi/lag(Costi)-1)*100,2)) %>% View()
+  mutate(VarCosti = round((Costi/lag(Costi)-1)*100,2))  
+  
+
+Tplot(dtCostiT, "Costi", "VarCosti", euro="€")
 
 
 

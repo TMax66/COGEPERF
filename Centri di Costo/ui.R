@@ -47,14 +47,14 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                    tabPanel("Costi", value = 3,
                             fluidRow(
                                 column(12,  
-                                       h2(textOutput("titoloRic")),
+                                       h2(textOutput("titoloCosti")),
                                        plotOutput("PLOT3",height = "400px" ))
                                 
                             ), 
                             hr(), 
                             fluidRow(
                                 column(11, 
-                                       htmlOutput("dtricprest")
+                                       htmlOutput("dettcosti")
                                 ))
                )
                ) 
