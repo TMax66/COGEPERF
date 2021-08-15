@@ -1,29 +1,18 @@
 server<-function(input, output) {
   
-#Controlli della UI----
-  # output$sel1 <- renderUI({  
-  #   req(input$CC)
-  #   selectInput("uff", "Ufficiale/Non Ufficiale", 
-  #               choices = c("","Ufficiale", "Non Ufficiale"))  })
-  # 
-  # output$sel2 <- renderUI({  
-  #   req(input$CC)
-  # 
-  #   selectInput("paga", "Gratuito/Pagamento", 
-  #               choices = c("", "Gratuito", "Pagamento"))
-  # })
-    
+
     
 
 output$parametri <- renderUI({
       req(input$CC)
+      if(input$tabs == 1 | input$tabs == 2){  
       selectInput("par", "Seleziona la categoria", 
                   choices = c(
-                      
                     "Attività Complessiva", 
                     "Attività Ufficiale",
                     "Attività Non Ufficiale"
                   ))
+      } else {}
     })
     
     
@@ -115,20 +104,7 @@ dtT <- reactive (dtanalisi %>% filter(`Centro di Costo`== input$CC & `Costo o Ri
  )
   
   
-# dt <- reactive(dtanalisi %>% 
-#                    group_by(`Centro di Costo`, Pagamento, ClassAnalisi,Uff, Anno,  Quarter) %>% 
-#                    summarise(Tariffato = round(sum(`A Tariffario`, na.rm = TRUE), 0), 
-#                              Fatturato = round(sum(Fatturato, na.rm = TRUE), 0)) %>% 
-#                    mutate(VarVal = round((Tariffato/lag(Tariffato) - 1) * 100, 2 ), 
-#                           VarFatt= round((Fatturato/lag(Fatturato)-1)*100, 2)) %>% 
-#                    filter(`Centro di Costo` == input$CC) %>% 
-#                    pivot_longer(cols = 7:10, names_to = "Parametro", values_to = "metrica") %>% 
-#                    to_be(Pagamento = input$paga) %>%  
-#                    filter(Pagamento == input$paga & Uff == input$uff) %>%  
-#                    pivot_wider(names_from = "Parametro", values_from = "metrica") %>% 
-#                    data.frame()
-#   )
-
+# dtCostiT
 
  
 #GRAFICI----

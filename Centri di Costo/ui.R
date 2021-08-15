@@ -4,17 +4,13 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
     tabPanel("Attività-Ricavi-Costi",
              sidebarLayout(
                  sidebarPanel(width = 3,
-                    # h4(textOutput("struttura")),
-                     
                      selectInput("CC", "Seleziona il Centro di Costo", 
                                  choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`))))),
-                     uiOutput("sel1"),
-                     uiOutput("sel2"), 
                      uiOutput("parametri")
                  ),
                mainPanel(
-                   tabsetPanel(
-                       tabPanel("Attività", 
+                   tabsetPanel(id = "tabs",
+                       tabPanel("Attività", value = 1,
                                 fluidRow(
                                     column(12,
                                       h2(textOutput("titoloAtt")),
@@ -33,7 +29,7 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                     )
                                 )
                                 ), 
-                       tabPanel("Ricavi", 
+                       tabPanel("Ricavi", value = 2,
                                 fluidRow(
                                     
                                     column(12,  
@@ -53,9 +49,7 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                 #     
                                 # ), 
                    ), 
-                   tabPanel("Costi")
-
-                   )
+                   tabPanel("Costi", value = 3)
                )
                )),
               
@@ -81,6 +75,7 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                  mainPanel()
              )
     )     
+)
 )
               
 
