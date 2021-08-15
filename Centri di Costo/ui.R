@@ -16,11 +16,6 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                       h2(textOutput("titoloAtt")),
                                       plotOutput("PLOT",height = "400px" ))
                                 ), 
-                                # hr(),
-                                # fluidRow(
-                                #     uiOutput("butt1")
-                                #     
-                                # ), 
                                 hr(),
                                 fluidRow(
                                     column(11,

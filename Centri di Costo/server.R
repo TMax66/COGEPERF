@@ -14,11 +14,7 @@ output$parametri <- renderUI({
                   ))
       } else {}
     })
-    
-    
 
-  
-  
   output$butt1 <- renderUI({
     req(input$CC, input$par)
     div( align = "center", 
@@ -31,19 +27,7 @@ output$parametri <- renderUI({
          downloadButton("down", "Scarica i dati in formato .tsv"))
   })
   
-  
-  # lab <- reactive(   
-  #   cc %>% 
-  #     filter(`Centro di Costo`== input$CC) %>% 
-  #     select(Laboratorio, CodCC ) %>% 
-  #     data.frame())
-  
-  
-  # output$struttura <- renderText({
-  #   req(input$CC)
-  #   paste(lab()[1,1], "-", lab()[1,2])
-  # })
-  
+
   titolo <- reactive(
     paste(input$CC,":",input$par)
   )
