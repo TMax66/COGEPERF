@@ -5,6 +5,8 @@ library(here)
 library(lubridate)
 library(DBI)
 library(odbc)
+library(knitr)
+library(kableExtra)
 
 
 #DATI PERFORMANCE####
@@ -100,8 +102,9 @@ Area <-  dt %>%
     mutate(MacroArea = factor(MacroArea)) %>% 
     group_by(Dipartimento,  MacroArea) %>% 
     summarise(mediana =  round(median(Avanzamento, na.rm = T),2)) %>% 
-  mutate(mediana = percent(mediana)) %>% 
-    pivot_wider(names_from = "Dipartimento", values_from = "mediana") %>% 
+  mutate(mediana = percent(mediana), 
+         mediana = as.character(mediana)) %>%
+    pivot_wider(names_from = "Dipartimento", values_from = "mediana", values_fill = " ") %>%  
     select("MacroArea","Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale", 
            "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
            "Dipartimento area territoriale Emilia Romagna",
@@ -110,13 +113,14 @@ Area <-  dt %>%
     mutate(MacroArea = as.character(MacroArea)) %>% 
     mutate(MacroArea = gsub("\\d+", "", MacroArea), 
            MacroArea = gsub("\"", "", MacroArea))  
-Area <- sapply(Area, as.character)
 
-Area[is.na(Area)] <- ""   
+#Area <- sapply(Area, as.character)
 
-Area %>% data.frame() %>%
+# Area[is.na(Area)] <- ""   
+# 
+# Area %>% data.frame() %>%
   
-kbl() %>% 
+kbl(Area) %>% 
     kable_styling() %>% 
   kable_paper(bootstrap_options = "striped", full_width = F)
     
@@ -125,21 +129,20 @@ kbl() %>%
 Obiettivi <-  dt %>%  
   mutate(Obiettivo = factor(Obiettivo)) %>% 
   group_by(Dipartimento,  Obiettivo) %>% 
-  summarise(mediana = 100*round(median(Avanzamento, na.rm = T),2)) %>% 
-  pivot_wider(names_from = "Dipartimento", values_from = "mediana") %>% 
+  summarise(mediana =  round(median(Avanzamento, na.rm = T),2)) %>% 
+  mutate(mediana = percent(mediana), 
+         mediana = as.character(mediana)) %>%
   select("Obiettivo","Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale", 
          "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
          "Dipartimento area territoriale Emilia Romagna",
-         "Dipartimento amministrativo") %>% 
+         "Dipartimento amministrativo") %>%  
   arrange(Obiettivo) %>% 
   mutate(Obiettivo = as.character(Obiettivo)) %>% 
   mutate(Obiettivo = gsub("\\d+", "", Obiettivo), 
          Obiettivo = gsub("\\.", "", Obiettivo), 
          Obiettivo = gsub("\\)", "", Obiettivo),
          Obiettivo = gsub("\"", "", Obiettivo))
-Obiettivi <- sapply(Obiettivi, as.character)
-
-Obiettivi[is.na(Obiettivi)] <- ""   
+  
 
 Obiettivi %>% 
   kbl() %>% 
