@@ -145,8 +145,10 @@ Obiettivi <-  dt %>%
 Indicatori <-   dt %>%  
   mutate(Indicatore = factor(Indicatore)) %>% 
   group_by(Dipartimento,  Indicatore) %>% 
-  summarise(mediana = 100*round(median(Avanzamento, na.rm = T),2)) %>% 
-  pivot_wider(names_from = "Dipartimento", values_from = "mediana") %>% 
+  summarise(mediana =  round(median(Avanzamento, na.rm = T),2)) %>% 
+  mutate(mediana = percent(mediana), 
+         mediana = as.character(mediana)) %>%
+  pivot_wider(names_from = "Dipartimento", values_from = "mediana", values_fill = " ") %>% 
   select("Indicatore","Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale", 
          "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
          "Dipartimento area territoriale Emilia Romagna",
@@ -156,13 +158,8 @@ Indicatori <-   dt %>%
   mutate(Indicatore = gsub("\\d+", "", Indicatore), 
          Indicatore = gsub("\\.", "", Indicatore), 
          Indicatore = gsub("\\)", "", Indicatore),
-         Indicatore = gsub("\"", "", Indicatore))
-Indicatori <- sapply(Indicatori, as.character)
-
-Indicatori[is.na(Indicatori)] <- ""   
-
-Indicatori %>% 
-  kbl() %>% 
+         Indicatore = gsub("\"", "", Indicatore)) %>% View()
+kbl() %>% 
   kable_styling()
 
 
