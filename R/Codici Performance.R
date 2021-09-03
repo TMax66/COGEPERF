@@ -7,7 +7,7 @@ library(DBI)
 library(odbc)
 library(knitr)
 library(kableExtra)
-
+library(formattable)
 
 #DATI PERFORMANCE####
 con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2", 
@@ -97,13 +97,13 @@ dt <- dt %>% rename( Reparto = Struttura ) %>%
 #   summarise(media = mean(Avanzamento, na.rm = T)) %>% 
 #   pivot_wider(names_from = "Reparto", values_from = "media") %>% View()
   
-library(formattable)
+
 Area <-  dt %>%  
     mutate(MacroArea = factor(MacroArea)) %>% 
     group_by(Dipartimento,  MacroArea) %>% 
     summarise(mediana =  round(median(Avanzamento, na.rm = T),2)) %>% 
   mutate(mediana = percent(mediana), 
-         mediana = as.character(mediana)) %>%
+         mediana = as.character(mediana)) %>%  
     pivot_wider(names_from = "Dipartimento", values_from = "mediana", values_fill = " ") %>%  
     select("MacroArea","Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale", 
            "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
@@ -112,15 +112,8 @@ Area <-  dt %>%
     arrange(MacroArea) %>% 
     mutate(MacroArea = as.character(MacroArea)) %>% 
     mutate(MacroArea = gsub("\\d+", "", MacroArea), 
-           MacroArea = gsub("\"", "", MacroArea))  
-
-#Area <- sapply(Area, as.character)
-
-# Area[is.na(Area)] <- ""   
-# 
-# Area %>% data.frame() %>%
-  
-kbl(Area) %>% 
+           MacroArea = gsub("\"", "", MacroArea))  %>% 
+kbl( ) %>% 
     kable_styling() %>% 
   kable_paper(bootstrap_options = "striped", full_width = F)
     
@@ -132,6 +125,7 @@ Obiettivi <-  dt %>%
   summarise(mediana =  round(median(Avanzamento, na.rm = T),2)) %>% 
   mutate(mediana = percent(mediana), 
          mediana = as.character(mediana)) %>%
+  pivot_wider(names_from = "Dipartimento", values_from = "mediana", values_fill = " ") %>%  
   select("Obiettivo","Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale", 
          "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
          "Dipartimento area territoriale Emilia Romagna",
@@ -141,12 +135,10 @@ Obiettivi <-  dt %>%
   mutate(Obiettivo = gsub("\\d+", "", Obiettivo), 
          Obiettivo = gsub("\\.", "", Obiettivo), 
          Obiettivo = gsub("\\)", "", Obiettivo),
-         Obiettivo = gsub("\"", "", Obiettivo))
-  
-
-Obiettivi %>% 
+         Obiettivo = gsub("\"", "", Obiettivo)) %>% .[-5,] %>% 
   kbl() %>% 
-  kable_styling()
+  kable_styling() %>% 
+  kable_paper(bootstrap_options = "striped", full_width = F)
 
 
 
