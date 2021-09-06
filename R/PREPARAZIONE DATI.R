@@ -43,7 +43,9 @@ cc <- read_delim(here("data", "raw", "coge1921.txt"),
                  "\t", escape_double = FALSE, locale = locale(decimal_mark = ",", 
                                                               grouping_mark = "."), trim_ws = TRUE)
 
-names(cc)[5:9] <- c("Dipartimento", "Reparto", "Laboratorio", "Centro di Costo", "CodCC")
+names(cc)[5:7] <- c("Dipartimento", "Reparto", "Laboratorio")
+
+names(cc)[20:21] <- c("Centro di Costo", "CodCC")
 
 #PREPARAZIONE TABELLE-----
 T1 <- cc %>% #tabella con prestazioni (tariffato, fatturato) e costi
