@@ -1,0 +1,30 @@
+"Struttura" "N.conferimenti ufficiali" "N.conferimenti refertati" "N.conferimenti con analisi in corso" "% conferimenti refertati"
+"1" "Analisi del rischio ed epidemiologia genomica" 298 265 33 88.93
+"2" "Bologna (Reparto chimico degli alimenti)" 4821 4599 222 95.4
+"3" "Reparto Chimica degli Alimenti e Mangimi" 8499 7988 511 93.99
+"4" "Reparto Controllo Alimenti" 1645 1628 17 98.97
+"5" "Reparto Produzione e Controllo Materiale Biologico" 83 83 0 100
+"6" "Reparto Produzione Primaria" 1511 1511 0 100
+"7" "Reparto Tecnologie Biologiche Applicate" 12503 12493 10 99.92
+"8" "Reparto Tecnologie Biologiche Applicate - Batteriologia Specializzata" 349 268 81 76.79
+"9" "Reparto Virologia" 3915 3910 5 99.87
+"10" "Reparto Virologia - Laboratorio Proteomica" 120 101 19 84.17
+"11" "Reparto Virus Vescicolari e Produzioni Biotecnologiche" 482 479 3 99.38
+"12" "Sede Territoriale di Bergamo" 7528 7474 54 99.28
+"13" "Sede Territoriale di Binago" 3723 3694 29 99.22
+"14" "Sede Territoriale di Bologna" 4676 4609 67 98.57
+"15" "Sede Territoriale di Brescia" 11903 11849 54 99.55
+"16" "Sede Territoriale di Cremona" 4032 3858 174 95.68
+"17" "Sede Territoriale di Ferrara" 2128 2036 92 95.68
+"18" "Sede Territoriale di Forlì" 9216 9083 133 98.56
+"19" "Sede Territoriale di Lodi" 6896 6861 35 99.49
+"20" "Sede Territoriale di Mantova" 5911 5821 90 98.48
+"21" "Sede Territoriale di Milano" 3270 3234 36 98.9
+"22" "Sede Territoriale di Milano (IS)" 57 53 4 92.98
+"23" "Sede Territoriale di Modena" 6098 6019 79 98.7
+"24" "Sede Territoriale di Parma" 4535 4488 47 98.96
+"25" "Sede Territoriale di Pavia" 6684 6624 60 99.1
+"26" "Sede Territoriale di Piacenza" 2302 2264 38 98.35
+"27" "Sede Territoriale di Ravenna" 627 625 2 99.68
+"28" "Sede Territoriale di Reggio Emilia" 4644 4566 78 98.32
+"29" "Sede Territoriale di Sondrio" 7804 7474 330 95.77
