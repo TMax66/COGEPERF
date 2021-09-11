@@ -65,56 +65,86 @@ mutate(Ricerca = ifelse(Tipologia == "Corrente", "Non Competitiva",
 select("Anno" = anno, Ricerca,   Tipologia, N.Progetti , "Budget" = Bdg)  %>% 
   arrange(Anno, Ricerca)
   
+pr <- progetti %>% 
+  select(-Budget, -Ricerca) %>% 
+  pivot_wider(names_from = c("Tipologia"), values_from = c("N.Progetti"), values_fill = 0) %>% 
+  adorn_totals(where = "row") %>% 
+  adorn_totals(where = "col")
+   
+  
+pr2 <- progetti %>% 
+  select(-N.Progetti, -Ricerca) %>% 
+  pivot_wider(names_from = c("Tipologia"), values_from = c("Budget"), values_fill = 0) %>% 
+  adorn_totals(where = "row") %>% 
+  adorn_totals(where = "col")
 
+p3 <- progetti %>% 
+  select(-N.Progetti) %>% 
+  mutate(Anno = as.character(Anno)) %>% 
+  group_by(Anno, Ricerca) %>% 
+  summarise(Budget = sum(Budget)) %>% 
+ pivot_wider(names_from = c("Ricerca"), values_from = c("Budget"), values_fill = 0) %>% 
+  adorn_totals(where = "col") %>% 
+  mutate(rapp = Competitiva/`Non Competitiva`) %>% 
+  select(Anno, Total, "Competitiva(A)" = Competitiva,  "Non Competitiva (B)"=`Non Competitiva`, "A/B" = rapp)
 
-
-reactable(
-  progetti,
-  columns = list(
-   Anno = colDef(
-      style = JS("function(rowInfo, colInfo, state) {
-        var firstSorted = state.sorted[0]
-        // Merge cells if unsorted or sorting by school
-        if (!firstSorted || firstSorted.id === 'Anno') {
-          var prevRow = state.pageRows[rowInfo.viewIndex - 1]
-          if (prevRow && rowInfo.row['Anno'] === prevRow['Anno']) {
-            return { visibility: 'hidden' }
-          }
-        }
-      }")
-    ), 
-   Ricerca = colDef(
-     style = JS("function(rowInfo, colInfo, state) {
-        var firstSorted = state.sorted[0]
-        // Merge cells if unsorted or sorting by school
-        if (!firstSorted || firstSorted.id === 'Ricerca') {
-          var prevRow = state.pageRows[rowInfo.viewIndex - 1]
-          if (prevRow && rowInfo.row['Ricerca'] === prevRow['Ricerca']) {
-            return { visibility: 'hidden' }
-          }
-        }
-      }")
-   )
-  ),
-  outlined = FALSE
-)
+p3m <- summarize_all(p3[,-1], mean)
  
+p3 <- p3 %>% 
+  add_row(Anno= "Media", p3m)
+
+ 
+  
+  
+  
+
+
 
 # pivot_wider(names_from = "Tipologia", values_from = c("N.Progetti", "Budget"), values_fill = 0) %>%)
   # rename(N.Progetti)
   
          
-#library(gt)
+library(gt)
 
-
-kbl(progetti, align = "c") %>% 
-  kable_paper(full_width = F) %>% 
-  column_spec(1:2, bold = T) %>%
-  collapse_rows(1, valign = "top") %>%  
-  kable_styling()
-
+gt(pr) %>%  
+  tab_header(
+    title = "Progetti di ricerca finanziati da Enti terzi in IZSLER (triennio 2018-2020)"
+  ) %>%
+   tab_spanner(
+     label = "Ricerca Competitiva",
+     columns = c(Finalizzato, Europeo, Regionali, CCM,`Altro tipo` )
+   ) %>%
+     tab_spanner(
+       label = "Ricerca Non Competitiva",
+       columns = c(Corrente, Autofinanziato)
+     ) %>% 
+ 
+  gtsave("tab_1.rtf")
  
 
+
+ 
+gt(pr2) %>%  
+  tab_header(
+    title = "Finanziamenti dei progetti di ricerca per Anno e Tipologia"
+  ) %>%
+  tab_spanner(
+    label = "Ricerca Competitiva",
+    columns = c(Finalizzato, Europeo, Regionali, CCM,`Altro tipo` )
+  ) %>%
+  tab_spanner(
+    label = "Ricerca Non Competitiva",
+    columns = c(Corrente, Autofinanziato)
+  ) %>% 
+  gtsave("tab_2.rtf")
+ 
+gt(p3) %>%  
+  tab_header(
+    title = "Finanziamenti dei progetti di ricerca per Anno e Tipologia"
+  ) %>%
+  
+   
+  gtsave("tab_3.rtf")
 
 
          
