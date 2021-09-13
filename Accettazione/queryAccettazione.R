@@ -5,15 +5,29 @@ library(tidyverse)
 library(readr)
 library(lubridate)
 
-acc <- read_delim("C:/Users/vito.tranquillo/Desktop/Git Projects/COGEPERF/Accettazione/postazioni.txt", 
+acc <- read_delim("C:/Users/vito.tranquillo/Desktop/Git Projects/COGEPERF/Accettazione/postazioniNew.txt", 
                          "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 
 names(acc) <- c("nconf", "strpropr", "settore", "finalità", "pagamento", 
-                "dtprel", "dtreg", "dtacc", "dtrdp", "IstRDP",  "pc", "gruppoprova")
+                "dtprel", "dtreg", "dtacc", "dtrdp", "IstRDP",  "pc", "gruppoprova", "ncamp")
 
 
 
-#preparazione dati-----
+#
+
+acc21 <- read_delim("C:/Users/vito.tranquillo/Desktop/Git Projects/COGEPERF/Accettazione/ACC21xxx.txt", 
+                  "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+
+
+names(acc21) <- c("Anno", "PC", "Nconf", "Stracc", "Strpr", "Stran")  
+
+pc <- c('ACC-CENTR2', 'PC-47326', 'PC-40780', 'MP-ACC3', 'BS-ASS-N', 'PC-47327', 'CH-ACC4-N', 'CH-ACC2-N', 'MP-SIVARS7', 'PC-47499', 'PC-47929', 'OEVR-8-PORT')
+
+
+gest <- acc21 %>% 
+    filter(PC %in% pc)
+
+#valorizzazione attività accettazione-----
 acc %>% filter(gruppoprova!= "Parere Tecnico") %>% 
   mutate(tipoprove = ifelse(gruppoprova=="Prova Chimica", "Prova Chimica", 
                       ifelse(gruppoprova== "Prova Sierologica", "Prova Sierologica", "Prova Diagnostica/Alimenti"))) %>%  
@@ -35,7 +49,7 @@ acc %>% filter(gruppoprova!= "Parere Tecnico") %>%
   summarise(n.conf = sum(n.conf), 
             valore = sum(valore)) %>% 
   tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
-         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE") %>% 
+         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>% View()
   saveRDS(here("data", "processed", "GCR.rds"))
   
 
@@ -54,7 +68,8 @@ acc %>% filter(gruppoprova!= "Parere Tecnico") %>%
 # dbo.Conferimenti.DataOra_Primo_RDP_Completo_Firmato,
 # dbo.RDP_Date_Emissione.Istanza_RDP,
 # dbo.Conferimenti.Nome_Stazione_Inserimento,
-# dbo.Anag_Gruppo_Prove.Descrizione
+# dbo.Anag_Gruppo_Prove.Descrizione,
+# dbo.Conferimenti.NrCampioni
 # FROM
 # { oj dbo.Anag_Reparti  dbo_Anag_Reparti_ConfProp INNER JOIN dbo.Laboratori_Reparto  dbo_Laboratori_Reparto_ConfProp ON ( dbo_Laboratori_Reparto_ConfProp.Reparto=dbo_Anag_Reparti_ConfProp.Codice )
 #   INNER JOIN dbo.Conferimenti ON ( dbo.Conferimenti.RepLab=dbo_Laboratori_Reparto_ConfProp.Chiave )
@@ -72,7 +87,7 @@ acc %>% filter(gruppoprova!= "Parere Tecnico") %>%
 # WHERE
 # dbo.Esami_Aggregati.Esame_Altro_Ente = 0
 # AND  (
-#   {fn year(dbo.Conferimenti.Data_Accettazione)}  >=  2019  )
+#   {fn year(dbo.Conferimenti.Data_Accettazione)}  >=  2019
 # 
 # AND  dbo.Conferimenti.Nome_Stazione_Inserimento  IN  ('ACC-CENTR2', 'PC-47326', 'PC-40780', 'MP-ACC3', 'BS-ASS-N', 'PC-47327', 'CH-ACC4-N', 'CH-ACC2-N', 'MP-SIVARS7', 'PC-47499', 'PC-47929', 'OEVR-8-PORT'
 # )
