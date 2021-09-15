@@ -32,14 +32,26 @@ GCUop <- c("Muhammad Ibraheem", "Zanoni Dr.ssa Mariagrazia", "Avisani Dominga",
 
 
 
+##
+library(readxl)
+contrACC <- read_excel("C:/Users/vito.tranquillo/Desktop/controllo accettazioni GTR.xlsx")
+
+gest <- contrACC %>% 
+  filter(`Utente che ha registrato` %in% GCUop)  
+   
+
+gest <- gest %>% 
+  filter(!`Nome Stazione Inserimento` %in% c('ACC-CENTR2', 'PC-47326', 'PC-40780', 
+                                            'MP-ACC3', 'BS-ASS-N', 'PC-47327', 
+                                            'CH-ACC4-N', 'CH-ACC2-N', 'MP-SIVARS7', 
+                                            'PC-47499') )
+write.table(gest, file = "dati.txt")
 
 
-
-
-izsler <- acc %>% 
-  group_by(nconf) %>% 
-  distinct(nconf) %>%  
-  nrow()
+# izsler <- acc %>% 
+#   group_by(nconf) %>% 
+#   distinct(nconf) %>%  
+#   nrow()
   # count() %>% ungroup() %>% 
   # summarise(s = sum(n))
 
@@ -107,44 +119,3 @@ acc %>% filter(gruppoprova!= "Parere Tecnico") %>%
 
 
 
-  # SELECT
-  # {fn year(dbo.Conferimenti.Data_Accettazione)},
-  # dbo.Conferimenti.Nome_Stazione_Inserimento,
-  # dbo.Conferimenti.Numero,
-  # dbo_Anag_Reparti_ConfProp.Descrizione,
-  # dbo_Anag_Reparti_ConfAcc.Descrizione,
-  # dbo.Conferimenti.NrCampioni,
-  # dbo.Anag_Registri.Descrizione,
-  # dbo_Anag_Finalita_Confer.Descrizione,
-  # dbo.Anag_TipoConf.Descrizione,
-  # dbo.Anag_Gruppo_Prove.Descrizione,
-  # dbo.Anag_Tipo_Prel.Descrizione,
-  # dbo.Conferimenti.Data_Accettazione,
-  # dbo.Esami_Aggregati.Data_Inizio_Analisi,
-  # dbo.RDP_Date_Emissione.Data_RDP,
-  # dbo_Operatori_di_sistema_ConfMatr.Descr_Completa,
-  # dbo_Anag_Reparti_ConfAcc.Locazione
-  # FROM
-  # { oj dbo.Anag_Reparti  dbo_Anag_Reparti_ConfProp INNER JOIN dbo.Laboratori_Reparto  dbo_Laboratori_Reparto_ConfProp ON ( dbo_Laboratori_Reparto_ConfProp.Reparto=dbo_Anag_Reparti_ConfProp.Codice )
-  #   INNER JOIN dbo.Conferimenti ON ( dbo.Conferimenti.RepLab=dbo_Laboratori_Reparto_ConfProp.Chiave )
-  #   LEFT OUTER JOIN dbo.Esami_Aggregati ON ( dbo.Conferimenti.Anno=dbo.Esami_Aggregati.Anno_Conferimento and dbo.Conferimenti.Numero=dbo.Esami_Aggregati.Numero_Conferimento )
-  #   LEFT OUTER JOIN dbo.Nomenclatore_MP ON ( dbo.Esami_Aggregati.Nomenclatore=dbo.Nomenclatore_MP.Codice )
-  #   LEFT OUTER JOIN dbo.Nomenclatore_Settori ON ( dbo.Nomenclatore_MP.Nomenclatore_Settore=dbo.Nomenclatore_Settori.Codice )
-  #   LEFT OUTER JOIN dbo.Nomenclatore ON ( dbo.Nomenclatore_Settori.Codice_Nomenclatore=dbo.Nomenclatore.Chiave )
-  #   LEFT OUTER JOIN dbo.Anag_Gruppo_Prove ON ( dbo.Nomenclatore.Codice_Gruppo=dbo.Anag_Gruppo_Prove.Codice )
-  #   INNER JOIN dbo.Anag_Tipo_Prel ON ( dbo.Conferimenti.Tipo_Prelievo=dbo.Anag_Tipo_Prel.Codice )
-  #   INNER JOIN dbo.Anag_Registri ON ( dbo.Conferimenti.Registro=dbo.Anag_Registri.Codice )
-  #   INNER JOIN dbo.Laboratori_Reparto  dbo_Laboratori_Reparto_ConfAcc ON ( dbo.Conferimenti.RepLab_Conferente=dbo_Laboratori_Reparto_ConfAcc.Chiave )
-  #   INNER JOIN dbo.Anag_Reparti  dbo_Anag_Reparti_ConfAcc ON ( dbo_Laboratori_Reparto_ConfAcc.Reparto=dbo_Anag_Reparti_ConfAcc.Codice )
-  #   INNER JOIN dbo.Anag_TipoConf ON ( dbo.Anag_TipoConf.Codice=dbo.Conferimenti.Tipo )
-  #   INNER JOIN dbo.Conferimenti_Finalita ON ( dbo.Conferimenti.Anno=dbo.Conferimenti_Finalita.Anno and dbo.Conferimenti.Numero=dbo.Conferimenti_Finalita.Numero )
-  #   INNER JOIN dbo.Anag_Finalita  dbo_Anag_Finalita_Confer ON ( dbo.Conferimenti_Finalita.Finalita=dbo_Anag_Finalita_Confer.Codice )
-  #   INNER JOIN dbo.Operatori_di_sistema  dbo_Operatori_di_sistema_ConfMatr ON ( dbo.Conferimenti.Matr_Ins=dbo_Operatori_di_sistema_ConfMatr.Ident_Operatore )
-  #   LEFT OUTER JOIN dbo.RDP_Date_Emissione ON ( dbo.RDP_Date_Emissione.Anno=dbo.Conferimenti.Anno and dbo.RDP_Date_Emissione.Numero=dbo.Conferimenti.Numero )
-  # }
-  # WHERE
-  # dbo.Esami_Aggregati.Esame_Altro_Ente = 0
-  # AND  (
-  #   {fn year(dbo.Conferimenti.Data_Accettazione)}  =  2021
-  #   AND  {fn month(dbo.Conferimenti.Data_Accettazione)}  <=  6
-  # )
