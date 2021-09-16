@@ -23,7 +23,7 @@ names(acc) <- c("anno","pc","nconf", "strpropr", "stracc","operatore", "locstrac
 GCUpost <- c('ACC-CENTR2', 'PC-47326', 'PC-40780', 
         'MP-ACC3', 'BS-ASS-N', 'PC-47327', 
         'CH-ACC4-N', 'CH-ACC2-N', 'MP-SIVARS7', 
-        'PC-47499')
+        'PC-47499', 'MP-SIVARS7-N')
 
 GCUop <- c("Muhammad Ibraheem", "Zanoni Dr.ssa Mariagrazia", "Avisani Dominga", 
            "Savoldini Laura", "Merigo Silvia", "Marmaglio Giordano", "Baldin Silvia", 
@@ -44,7 +44,7 @@ gest <- gest %>%
   filter(!`Nome Stazione Inserimento` %in% c('ACC-CENTR2', 'PC-47326', 'PC-40780', 
                                             'MP-ACC3', 'BS-ASS-N', 'PC-47327', 
                                             'CH-ACC4-N', 'CH-ACC2-N', 'MP-SIVARS7', 
-                                            'PC-47499') )
+                                            'PC-47499', 'MP-SIVARS7-N') )
 write.table(gest, file = "dati.txt")
 
 
