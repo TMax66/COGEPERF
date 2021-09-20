@@ -20,7 +20,7 @@ library("summaryBox")
 #tabIZSLER <- readRDS(file = here( "data", "processed", "TABELLA.rds"))#-tabella complessiva izsler esami prodotti orelav##
 
 tabIZSLER <- readRDS(file = here( "data", "processed", "TabellaGenerale.rds"))#-tabella complessiva izsler esami prodotti orelav##
-GCR <- readRDS(file = here("data", "processed", "GCR.rds"))
+#GCR <- readRDS(file = here("data", "processed", "GCR.rds"))-dati da gestione centralizzata della richiesta
 
 prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
 pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazioni
@@ -44,7 +44,7 @@ ValueBOX <- function(dt, Variabile, Variabile2 = NULL, Titolo, colore, icona){
 
 tizsler <-  tabIZSLER %>%  
   rename( "ANALISI" = TotPrestazioni, "VALORE" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
-          "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto) %>%  
+          "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%  
   group_by(Anno, Dipartimento) %>%
   summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
   mutate(RT = (VALORE+VP+AI),

@@ -45,9 +45,10 @@ tdip <- reactive(
 
 tdiprep <- reactive(
   (tabIZSLER %>% 
-     filter(Anno == input$anno2 & Dipartimento == input$dip) %>% 
      rename( "ANALISI" = TotPrestazioni, "VALORE" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
-             "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto) %>%  
+                         "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
+     filter(Anno == input$anno2 & Dipartimento == input$dip) %>% 
+     
      group_by(Reparto) %>%
      summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
      mutate(RT = (VALORE+VP+AI),

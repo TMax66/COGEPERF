@@ -5,7 +5,7 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
              sidebarLayout(
                  sidebarPanel(width = 3,
                      selectInput("CC", "Seleziona il Centro di Costo", 
-                                 choices = c("", as.character(unique(factor(dtanalisi$`Centro di Costo`))))),
+                                 choices = c("", as.character(unique(factor(dtanalisi$CDC))))),
                      uiOutput("parametri")
                  ),
                mainPanel(
