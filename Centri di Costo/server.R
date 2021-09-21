@@ -248,13 +248,13 @@ output$dtprestazioni <- renderUI({
       
       dtanalisi %>%  
         filter(Uff == "Non Ufficiale" & Costi== "Ricavo") %>% 
-        group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio,Costi,ClassAnalisi, Classe, Area) %>% 
+        group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio,CDC, Costi,ClassAnalisi, Classe, Area) %>% 
         filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
         summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
                   N_Num = sum(Numero, na.rm = TRUE), 
                   S_Tariffa = sum(Tariffario, na.rm = TRUE), 
                   S_Fatturato = sum(Fatturato, na.rm = TRUE))  %>% 
-        filter(Costi == input$CC & Classe == "Prestazioni") %>% 
+        filter(CDC == input$CC & Classe == "Prestazioni") %>% 
         group_by(ANNO, Quarter, Area) %>% 
         summarise(N = sum(N_Det, na.rm=TRUE)) %>% 
         mutate(YQ = paste(ANNO, "-", Quarter)) %>% ungroup() %>% 
