@@ -552,7 +552,7 @@ dtx <- reactive(dtanalisi %>%
                          Fatturato, Tariffario, Costo,
                          "ANALISI" = Determinazioni, Numero, 
                          "Tipologia Analisi" = ClassAnalisi, 
-                         Categoria, Classificazione, Classe, Area, descrArea))
+                         Categoria, Classificazione, Classe, Area))
 
 output$pivot <- renderRpivotTable({
   rpivotTable(dtx(),
