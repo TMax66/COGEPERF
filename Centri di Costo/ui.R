@@ -23,6 +23,8 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                     htmlOutput("dtprestazioni")
                                     )
                                 )
+                              
+                                
                                 ), 
                        tabPanel("Ricavi", value = 2,
                                 fluidRow(
@@ -58,26 +60,26 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                 ))
                )
                ) 
-              
- 
-    
-    # tabPanel("Costi",
-    #          sidebarLayout(
-    #            sidebarPanel(),
-    #            mainPanel()
-    #          )
-    # ), 
-                   
-    # tabPanel("Indicatori",
-    #          sidebarLayout(
-    #            sidebarPanel(),
-    #            mainPanel()
-    #          )
     )), 
     
-    tabPanel("Tools")     
+      
+), 
+tabPanel("TABELLA PIVOT", 
+         fluidPage(
+             fluidRow(
+                 downloadButton("download_pivot", label = "Excel")), 
+             fluidRow(
+                 column(6,div(style="height:10px"),rpivotTableOutput("pivot")
+                 ))
+             
+         ))
 )
-)
+         
+         
+         
+         
+     
+
  
 
 

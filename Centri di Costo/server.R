@@ -12,17 +12,17 @@ output$parametri <- renderUI({
       } else {}
     })
 
-  output$butt1 <- renderUI({
-    req(input$CC, input$par)
-    div( align = "center", 
-         downloadButton("down", "Scarica i dati in formato .tsv"))
-  })
+  # output$butt1 <- renderUI({
+  #   req(input$CC, input$par)
+  #   div( align = "center", 
+  #        downloadButton("down", "Scarica i dati in formato .tsv"))
+  # })
   
-  output$butt2 <- renderUI({
-    req(input$CC)
-    div( align = "center", 
-         downloadButton("down", "Scarica i dati in formato .tsv"))
-  })
+  # output$butt2 <- renderUI({
+  #   req(input$CC)
+  #   div( align = "center", 
+  #        downloadButton("down", "Scarica i dati in formato .tsv"))
+  # })
   
 
   titolo <- reactive(
@@ -84,7 +84,7 @@ dtT <- reactive(dtanalisi %>% filter(CDC== input$CC & Costi =="Ricavo") %>%
            VarVP = round((Vprod/lag(Vprod)-1)*100, 2), 
            VarAI = round((AI/lag(AI)-1)*100,2)) %>% 
     rowwise() %>% 
-    mutate(TotRic = sum(Ufficiali, NonUfficiali, na.rm = T)) %>% ungroup() %>% 
+    mutate(TotRic = round(sum(Ufficiali, NonUfficiali, na.rm = T),2)) %>% ungroup() %>% 
     mutate(VarTot = round((TotRic/lag(TotRic)-1)*100, 2)) %>%   
     group_by(CDC,  ANNO,  Quarter)
  )
@@ -92,9 +92,9 @@ dtT <- reactive(dtanalisi %>% filter(CDC== input$CC & Costi =="Ricavo") %>%
   
 dtCostiT <- reactive(dtanalisi %>% filter(CDC== input$CC & Costi=="Costo") %>% 
          group_by(CDC,  ANNO,  Quarter) %>% 
-           summarise(Costi = sum(Costo, na.rm = TRUE)) %>% 
+           summarise(Costi = round(sum(Costo, na.rm = TRUE),2)) %>% 
            ungroup() %>% 
-           mutate(VarCosti = round((Costi/lag(Costi)-1)*100))
+           mutate(VarCosti = round((Costi/lag(Costi)-1)*100),2)
                      )
 
  
@@ -102,13 +102,17 @@ dtCostiT <- reactive(dtanalisi %>% filter(CDC== input$CC & Costi=="Costo") %>%
 
 ##Grafici attività analitica e produzione interna----
 
-# ###Download tabella attività----
-# output$down <- downloadHandler(
-#    filename = function(){ 
-#      paste0(input$CC, "Totale Attività")}, 
-#    
+###Download tabella attività----
+
+
+
+
+# output$down  <- downloadHandler(
+#    filename = function(){
+#      paste0(input$CC, ".csv", sep = "")},
+# 
 #    content = function(file){
-#      vroom::vroom_write(dtAtt(), file)
+#     write.csv(dtanalisi, file, row.names = FALSE)
 #    })
  
  
@@ -290,6 +294,9 @@ output$dtprestazioni <- renderUI({
   
   
 })
+
+
+
   
 ##Tabella dettaglio ricavi da prestazioni----
  
@@ -533,5 +540,59 @@ dtanalisi %>%
   div() %>% 
   spk_add_deps()
 })
+
+
+#TABELLA PIVOT----
+
+dtx <- reactive(dtanalisi %>% 
+                  select(Anno = ANNO, 
+                         Trimestre = TRIMESTRE, 
+                         Mese = MESE, 
+                         Dipartimento, Reparto, Laboratorio, "Centro di Costo" = CDC,
+                         Fatturato, Tariffario, Costo,
+                         "ANALISI" = Determinazioni, Numero, 
+                         "Tipologia Analisi" = ClassAnalisi, 
+                         Categoria, Classificazione, Classe, Area, descrArea))
+
+output$pivot <- renderRpivotTable({
+  rpivotTable(dtx(),
+              aggregatorName="Integer Sum", 
+              onRefresh = htmlwidgets::JS(
+                "function(config) {
+                        Shiny.onInputChange('pivot', document.getElementById('pivot').innerHTML); 
+                        }"))
+})
+
+
+pivot_tbl <- eventReactive(input$pivot, {
+  tryCatch({
+    input$pivot %>%
+      read_html %>%
+      html_table(fill = TRUE) %>%
+      .[[2]]
+  }, error = function(e) {
+    return()
+  })
+})
+
+observe({
+  if (is.data.frame(pivot_tbl()) && nrow(pivot_tbl()) > 0) {
+    shinyjs::enable("download_pivot")
+  } else {
+    shinyjs::disable("download_pivot")
+  }
+})
+
+output$download_pivot <- downloadHandler(
+  filename = function() {
+    "pivot.xlsx"
+  },
+  content = function(file) {
+    writexl::write_xlsx(pivot_tbl(), path =file)
+  }
+
+)
+
+
 
 }
