@@ -1,21 +1,16 @@
 library(tidyverse)
-
-#importazione accettazione----- da query esportata da SQLServer ( vedi sotto)
+ 
 
 library(readr)
 library(lubridate)
 
 
-acc <- read_delim("C:/Users/vito.tranquillo/Desktop/Git Projects/COGEPERF/Accettazione/GCR.txt", 
-                         "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+
+
 
 names(acc) <- c("anno","pc","nconf", "strpropr", "stracc","operatore", "locstracc", "finalità", 
                 "settore", "pagamento", "dtreg", "prove", "tipoprel", "istrdp", "dtirdp", "dturdp", 
                 "wday", "ncamp")
-
-
-
-
 
 
 

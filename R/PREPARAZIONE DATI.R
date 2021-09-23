@@ -146,41 +146,82 @@ T1 %>% ##attività costi e fte
 
 
 
-##Dati da Gestione centralizzata----
+##DATI GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA----
+conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it", 
+                      Database = "IZSLER", Port = 1433)
 
-# acc <- read_delim("C:/Users/vito.tranquillo/Desktop/Git Projects/COGEPERF/data/raw/postazioni.txt", 
-#                   "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
-# 
-# names(acc) <- c("nconf", "strpropr", "settore", "finalità", "pagamento", 
-#                 "dtprel", "dtreg", "dtacc", "dtrdp", "IstRDP",  "pc", "gruppoprova")
-# 
-# 
-# 
-# #preparazione dati-----
-# acc %>% filter(gruppoprova!= "Parere Tecnico") %>% 
-#   mutate(tipoprove = ifelse(gruppoprova=="Prova Chimica", "Prova Chimica", 
-#                             ifelse(gruppoprova== "Prova Sierologica", "Prova Sierologica", "Prova Diagnostica/Alimenti"))) %>%  
-#   select(-gruppoprova) %>% 
-#   group_by(dtreg, nconf, pc, settore ) %>% 
-#   pivot_wider(names_from = "tipoprove", values_from = "tipoprove") %>% 
-#   mutate(`Prova Chimica` = ifelse(`Prova Chimica`!= "NULL", 2.46, 0), 
-#          `Prova Diagnostica/Alimenti` = ifelse(`Prova Diagnostica/Alimenti` != "NULL", 0.72, 0),
-#          `Prova Sierologica` = ifelse(`Prova Sierologica` != "NULL", 0.20, 0)) %>%  
-#   rowwise() %>% 
-#   mutate(valore= sum(`Prova Chimica` ,`Prova Diagnostica/Alimenti`, `Prova Sierologica`), 
-#          valore = 0.07*(valore)+valore) %>%
-#   ungroup() %>%  
-#   group_by(dtreg, pc) %>% 
-#   summarise(n.conf = n(), 
-#             valore = sum(valore)) %>% 
-#   mutate(Anno = year(dtreg)) %>%  
-#   group_by(Anno) %>% 
-#   summarise(n.conf = sum(n.conf), 
-#             valore = sum(valore)) %>% 
-#   tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
-#          Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE") %>% 
-#   saveRDS(here("data", "processed", "GCR.rds"))
-# 
+
+
+queryAcc <- ("SELECT { fn YEAR(Conferimenti.Data_Accettazione) } AS Anno, Conferimenti.Nome_Stazione_Inserimento AS PC, Conferimenti.Numero AS Nconf, dbo_Anag_Reparti_ConfProp.Descrizione AS StrPropr, dbo_Anag_Reparti_ConfAcc.Descrizione AS StrAcc, 
+                  dbo_Operatori_di_sistema_ConfMatr.Descr_Completa AS Operatore, dbo_Anag_Reparti_ConfAcc.Locazione AS Locstrutt, dbo_Anag_Finalita_Confer.Descrizione AS Finalità, Anag_Registri.Descrizione AS Settore, 
+				  Anag_TipoConf.Descrizione AS Pagamento, 
+                  Conferimenti.Data_Accettazione AS dtreg, Anag_Gruppo_Prove.Descrizione AS Prova, Anag_Tipo_Prel.Descrizione AS Tipoprel, Esami_Aggregati.Istanza AS Istanzardp, CONVERT(SMALLDATETIME, Conferimenti.Data_Primo_RDP_Completo_Firmato) AS dtprimotrdp, 
+                  RDP_Date_Emissione.Data_RDP AS dturdp, DATENAME(weekday, Conferimenti.Data_Accettazione) AS Giornoacc, Conferimenti.NrCampioni
+FROM     Anag_Reparti AS dbo_Anag_Reparti_ConfProp INNER JOIN
+                  Laboratori_Reparto AS dbo_Laboratori_Reparto_ConfProp ON dbo_Laboratori_Reparto_ConfProp.Reparto = dbo_Anag_Reparti_ConfProp.Codice INNER JOIN
+                  Conferimenti ON Conferimenti.RepLab = dbo_Laboratori_Reparto_ConfProp.Chiave LEFT OUTER JOIN
+                  Esami_Aggregati ON Conferimenti.Anno = Esami_Aggregati.Anno_Conferimento AND Conferimenti.Numero = Esami_Aggregati.Numero_Conferimento LEFT OUTER JOIN
+                  Nomenclatore_MP ON Esami_Aggregati.Nomenclatore = Nomenclatore_MP.Codice LEFT OUTER JOIN
+                  Nomenclatore_Settori ON Nomenclatore_MP.Nomenclatore_Settore = Nomenclatore_Settori.Codice LEFT OUTER JOIN
+                  Nomenclatore ON Nomenclatore_Settori.Codice_Nomenclatore = Nomenclatore.Chiave LEFT OUTER JOIN
+                  Anag_Gruppo_Prove ON Nomenclatore.Codice_Gruppo = Anag_Gruppo_Prove.Codice INNER JOIN
+                  Anag_Tipo_Prel ON Conferimenti.Tipo_Prelievo = Anag_Tipo_Prel.Codice INNER JOIN
+                  Anag_Registri ON Conferimenti.Registro = Anag_Registri.Codice INNER JOIN
+                  Laboratori_Reparto AS dbo_Laboratori_Reparto_ConfAcc ON Conferimenti.RepLab_Conferente = dbo_Laboratori_Reparto_ConfAcc.Chiave INNER JOIN
+                  Anag_Reparti AS dbo_Anag_Reparti_ConfAcc ON dbo_Laboratori_Reparto_ConfAcc.Reparto = dbo_Anag_Reparti_ConfAcc.Codice INNER JOIN
+                  Anag_TipoConf ON Anag_TipoConf.Codice = Conferimenti.Tipo INNER JOIN
+                  Conferimenti_Finalita ON Conferimenti.Anno = Conferimenti_Finalita.Anno AND Conferimenti.Numero = Conferimenti_Finalita.Numero INNER JOIN
+                  Anag_Finalita AS dbo_Anag_Finalita_Confer ON Conferimenti_Finalita.Finalita = dbo_Anag_Finalita_Confer.Codice INNER JOIN
+                  Operatori_di_sistema AS dbo_Operatori_di_sistema_ConfMatr ON Conferimenti.Matr_Ins = dbo_Operatori_di_sistema_ConfMatr.Ident_Operatore LEFT OUTER JOIN
+                  RDP_Date_Emissione ON RDP_Date_Emissione.Anno = Conferimenti.Anno AND RDP_Date_Emissione.Numero = Conferimenti.Numero
+WHERE  (Esami_Aggregati.Esame_Altro_Ente = 0) AND ({ fn YEAR(Conferimenti.Data_Accettazione) } = 2021) AND ({ fn MONTH(Conferimenti.Data_Accettazione) } <= 6) AND 
+                  (dbo_Anag_Finalita_Confer.Descrizione NOT IN ('Autocontrollo latte routine', 'Controlli di qualità interni', 'Emergenza COVID-19', 'Validazione metodiche')) AND
+				  (dbo_Operatori_di_sistema_ConfMatr.Descr_Completa IN ('Avisani Dominga', 'Muhammad Ibraheem', 'Zanoni Dr.ssa Mariagrazia', 
+				  'Savoldini Laura', 'Merigo Silvia', 'Marmaglio Giordano', 'Baldin Silvia', 'Barbeno Claudio', 'Boccacci Giuliana', 
+				  'Bettinzoli Luana', 'Bonometti Laura Camilla')) AND
+				  (Conferimenti.Nome_Stazione_Inserimento IN ('ACC-CENTR2', 'PC-47326', 'PC-40780', 
+				  'MP-ACC3', 'BS-ASS-N', 'PC-47327', 'CH-ACC4-N', 'CH-ACC2-N', 'MP-SIVARS7', 'PC-47499', 'MP-SIVARS7-N'))")
+
+acc <- conAcc%>% tbl(sql(queryAcc)) %>% as_tibble() 
+
+
+x <- acc %>% filter(Prova!= "Parere Tecnico") %>% 
+  mutate(tipoprove = ifelse(Prova=="Prova Chimica", "Prova Chimica", 
+                            ifelse(Prova== "Prova Sierologica", "Prova Sierologica", "Prova Diagnostica/Alimenti"))) %>%
+  mutate(Valorizzazione = ifelse(tipoprove == "Prova Chimica", 3.70, 
+                                 ifelse(tipoprove == "Prova Sierologica", 0.20, 0.72)))  
+      
+ 
+  
+
+d <- as.data.frame((duplicated(x$Nconf)))
+  
+x <- cbind(x,d)
+  
+  
+  #select(-Prova) %>% 
+  group_by(dtreg, Nconf, PC, Settore )  %>% select(-dtprimotrdp) %>% View()
+  pivot_wider(names_from = "tipoprove", values_from = "tipoprove") %>%  
+  distinct(Nconf) %>% View()
+
+mutate(`Prova Chimica` = ifelse(`Prova Chimica`!= "NULL", 2.46, 0), 
+       `Prova Diagnostica/Alimenti` = ifelse(`Prova Diagnostica/Alimenti` != "NULL", 0.72, 0),
+       `Prova Sierologica` = ifelse(`Prova Sierologica` != "NULL", 0.20, 0)) %>%  
+  rowwise() %>% 
+  mutate(valore= sum(`Prova Chimica` ,`Prova Diagnostica/Alimenti`, `Prova Sierologica`), 
+         valore = 0.07*(valore)+valore) %>%
+  ungroup() %>%  
+  group_by(dtreg, pc) %>% 
+  summarise(n.conf = n(), 
+            valore = sum(valore)) %>% 
+  mutate(Anno = year(dtreg)) %>%  
+  group_by(Anno) %>% 
+  summarise(n.conf = sum(n.conf), 
+            valore = sum(valore)) %>% 
+  tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
+         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>% View()
+saveRDS(here("data", "processed", "GCR.rds"))
+
 
 
 
