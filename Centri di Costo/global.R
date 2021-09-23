@@ -13,6 +13,7 @@ library(sparkline)
 library(rpivotTable)
 library(shinyjs)
 library(rvest)
+library(shinycssloaders)
 #Carica dati----
 library(writexl)
 dtanalisi <-  readRDS(file = here( "data", "processed", "CC.rds"))
