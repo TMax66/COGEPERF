@@ -544,19 +544,27 @@ dtanalisi %>%
 
 #TABELLA PIVOT----
 
-dtx <- reactive(dtanalisi %>% 
-                  select(Anno = ANNO, 
-                         Trimestre = TRIMESTRE, 
-                         Mese = MESE, 
+ dtanalisi %>% 
+select(Anno = ANNO,
+                         Trimestre = TRIMESTRE,
+                         Mese = MESE,
                          Dipartimento, Reparto, Laboratorio, "Centro di Costo" = CDC,
                          Fatturato, Tariffario, Costo,
-                         "ANALISI" = Determinazioni, Numero, 
-                         "Tipologia Analisi" = ClassAnalisi, 
-                         Categoria, Classificazione, Classe, Area))
+                         "ANALISI" = Determinazioni, Numero,
+                         "Tipologia Analisi" = ClassAnalisi,
+                         Categoria, Classificazione, Classe, Area)
 
 output$pivot <- renderRpivotTable({
-  rpivotTable(dtx(),
-              aggregatorName="Integer Sum", 
+  rpivotTable( dtanalisi %>% 
+                 select(Anno = ANNO,
+                        Trimestre = TRIMESTRE,
+                        Mese = MESE,
+                        Dipartimento, Reparto, Laboratorio, "Centro di Costo" = CDC,
+                        Fatturato, Tariffario, Costo,
+                        "ANALISI" = Determinazioni, Numero,
+                        "Tipologia Analisi" = ClassAnalisi,
+                        Categoria, Classificazione, Classe, Area),
+              aggregatorName="Sum", vals = "",
               onRefresh = htmlwidgets::JS(
                 "function(config) {
                         Shiny.onInputChange('pivot', document.getElementById('pivot').innerHTML); 
@@ -575,23 +583,51 @@ pivot_tbl <- eventReactive(input$pivot, {
   })
 })
 
+
+
 observe({
   if (is.data.frame(pivot_tbl()) && nrow(pivot_tbl()) > 0) {
     shinyjs::enable("download_pivot")
+    shinyjs::enable("copy_pivot")
   } else {
     shinyjs::disable("download_pivot")
+    shinyjs::disable("copy_pivot")
   }
 })
 
 output$download_pivot <- downloadHandler(
   filename = function() {
-    "pivot.xlsx"
+    if (input$format == "csv") {
+      "pivot.csv"
+    } else if (input$format == "excel") {
+      "pivot.xlsx"
+    }
   },
   content = function(file) {
-    writexl::write_xlsx(pivot_tbl(), path =file)
+    if (input$format == "csv") {
+      write_csv(pivot_tbl(), path = file)
+    } else if (input$format == "excel") {
+      writexl::write_xlsx(pivot_tbl(), path = file)
+    }
   }
-
 )
+
+observeEvent(input$copy_pivot,  {
+  clipr::write_clip(pivot_tbl(), object_type = "table")
+})
+
+
+
+
+
+# output$download_pivot   <- downloadHandler(
+#    filename = function(){
+#      paste0("tabella", ".csv", sep = "")},
+# 
+#    content = function(file){
+#     write.csv(pivot_tbl(), file, row.names = FALSE)
+#    })
+
 
 
 

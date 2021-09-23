@@ -1,3 +1,53 @@
+dtx <-  dtanalisi %>% 
+                  select(Anno = ANNO, 
+                         Trimestre = TRIMESTRE, 
+                         Mese = MESE, 
+                         Dipartimento, Reparto, Laboratorio, "Centro di Costo" = CDC,
+                         Fatturato, Tariffario, Costo,
+                         "ANALISI" = Determinazioni, Numero, 
+                         "Tipologia Analisi" = ClassAnalisi, 
+                         Categoria, Classificazione, Classe, Area)
+
+x <- rpivotTable(dtx,
+            aggregatorName="Integer Sum", 
+            onRefresh = htmlwidgets::JS(
+              "function(config) {
+                        Shiny.onInputChange('pivot', document.getElementById('pivot').innerHTML); 
+                        }"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 dtanalisi %>%  
   filter(`Costo o Ricavo`== "Costo") %>% 
   group_by(Anno, Quarter, Dipartimento, Reparto, Laboratorio, `Centro di Costo`,ClassAnalisi, Classe, Area) %>% 

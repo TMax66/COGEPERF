@@ -65,14 +65,22 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
       
 ), 
 tabPanel("TABELLA PIVOT", 
+         # fluidPage(
+         #     fluidRow(
+         #         downloadButton("download_pivot", label = "Excel")), 
+         #     fluidRow(
+         #         column(6,div(style="height:10px"),rpivotTableOutput("pivot")
+         #         ))
+         #     
+         # )
+         
          fluidPage(
-             fluidRow(
-                 downloadButton("download_pivot", label = "Excel")), 
-             fluidRow(
-                 column(6,div(style="height:10px"),rpivotTableOutput("pivot")
-                 ))
-             
-         ))
+           radioButtons(inputId = "format", label = "Enter the format to download", 
+                        choices = c( "csv", "excel"), inline = FALSE, selected = "csv"),
+           downloadButton("download_pivot"),
+           actionButton("copy_pivot", "Copy"),
+           fluidRow(rpivotTableOutput("pivot")))
+         )
 )
          
          

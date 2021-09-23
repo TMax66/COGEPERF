@@ -11,9 +11,10 @@ library(readr)
 library(formattable)
 library(sparkline)
 library(rpivotTable)
-
-
+library(shinyjs)
+library(rvest)
 #Carica dati----
+library(writexl)
 dtanalisi <-  readRDS(file = here( "data", "processed", "CC.rds"))
 
 
@@ -153,4 +154,5 @@ Tplot <- function(df, y_par, y_par2, euro)
 #   else filter(df, Parametro %in% c("Tariffato","VarVal"))
 # }
 
+ 
  
