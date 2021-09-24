@@ -174,50 +174,66 @@ FROM     Anag_Reparti AS dbo_Anag_Reparti_ConfProp INNER JOIN
                   Anag_Finalita AS dbo_Anag_Finalita_Confer ON Conferimenti_Finalita.Finalita = dbo_Anag_Finalita_Confer.Codice INNER JOIN
                   Operatori_di_sistema AS dbo_Operatori_di_sistema_ConfMatr ON Conferimenti.Matr_Ins = dbo_Operatori_di_sistema_ConfMatr.Ident_Operatore LEFT OUTER JOIN
                   RDP_Date_Emissione ON RDP_Date_Emissione.Anno = Conferimenti.Anno AND RDP_Date_Emissione.Numero = Conferimenti.Numero
-WHERE  (Esami_Aggregati.Esame_Altro_Ente = 0) AND ({ fn YEAR(Conferimenti.Data_Accettazione) } = 2021) AND ({ fn MONTH(Conferimenti.Data_Accettazione) } <= 6) AND 
-                  (dbo_Anag_Finalita_Confer.Descrizione NOT IN ('Autocontrollo latte routine', 'Controlli di qualità interni', 'Emergenza COVID-19', 'Validazione metodiche')) AND
+WHERE  (Esami_Aggregati.Esame_Altro_Ente = 0) AND ({ fn YEAR(Conferimenti.Data_Accettazione) } = 2021)  AND 
 				  (dbo_Operatori_di_sistema_ConfMatr.Descr_Completa IN ('Avisani Dominga', 'Muhammad Ibraheem', 'Zanoni Dr.ssa Mariagrazia', 
 				  'Savoldini Laura', 'Merigo Silvia', 'Marmaglio Giordano', 'Baldin Silvia', 'Barbeno Claudio', 'Boccacci Giuliana', 
-				  'Bettinzoli Luana', 'Bonometti Laura Camilla')) AND
-				  (Conferimenti.Nome_Stazione_Inserimento IN ('ACC-CENTR2', 'PC-47326', 'PC-40780', 
-				  'MP-ACC3', 'BS-ASS-N', 'PC-47327', 'CH-ACC4-N', 'CH-ACC2-N', 'MP-SIVARS7', 'PC-47499', 'MP-SIVARS7-N'))")
-
-acc <- conAcc%>% tbl(sql(queryAcc)) %>% as_tibble() 
+				  'Bettinzoli Luana', 'Bonometti Laura Camilla'))")
 
 
-x <- acc %>% filter(Prova!= "Parere Tecnico") %>% 
+
+# AND ({ fn MONTH(Conferimenti.Data_Accettazione) } <= 6)
+
+# AND(Conferimenti.Nome_Stazione_Inserimento IN ('ACC-CENTR2', 'PC-47326', 'PC-40780', 
+                                           # 'MP-ACC3', 'BS-ASS-N', 'PC-47327', 'CH-ACC4-N', 'CH-ACC2-N', 'MP-SIVARS7', 'PC-47499', 'MP-SIVARS7-N'))
+# (dbo_Anag_Finalita_Confer.Descrizione NOT IN ('Autocontrollo latte routine', 'Controlli di qualità interni', 'Emergenza COVID-19', 'Validazione metodiche')) AND
+
+
+
+# acc <- conAcc%>% tbl(sql(queryAcc)) %>% as_tibble() 
+# 
+# conf <- unique(factor(acc$Nconf))
+# 
+# pt <- acc %>% 
+#   filter(Prova !="Parere Tecnico")
+# 
+# confpt <- unique(factor(pt$Nconf))
+# 
+# 
+# xx <- acc %>% filter(!Nconf %in% confpt)
+# 
+# 
+# z <- acc %>% 
+#   filter(Prova == "Parere Tecnico") %>% 
+#   group_by(Nconf) %>% 
+#   count()
+# 
+# 
+# 
+# dz <- as.data.frame((duplicated(z$Nconf)))
+# 
+# z <- cbind(z,dz)
+
+
+accV <- acc %>% 
   mutate(tipoprove = ifelse(Prova=="Prova Chimica", "Prova Chimica", 
-                            ifelse(Prova== "Prova Sierologica", "Prova Sierologica", "Prova Diagnostica/Alimenti"))) %>%
+                            ifelse(Prova== "Prova Sierologica", "Prova Sierologica", 
+                                   ifelse(Prova == "Parere Tecnico", "Parere Tecnico", "Prova Diagnostica/Alimenti")))) %>%
   mutate(Valorizzazione = ifelse(tipoprove == "Prova Chimica", 3.70, 
-                                 ifelse(tipoprove == "Prova Sierologica", 0.20, 0.72)))  
-      
- 
-  
-
-d <- as.data.frame((duplicated(x$Nconf)))
-  
-x <- cbind(x,d)
-  
-  
-  #select(-Prova) %>% 
-  group_by(dtreg, Nconf, PC, Settore )  %>% select(-dtprimotrdp) %>% View()
-  pivot_wider(names_from = "tipoprove", values_from = "tipoprove") %>%  
-  distinct(Nconf) %>% View()
-
-mutate(`Prova Chimica` = ifelse(`Prova Chimica`!= "NULL", 2.46, 0), 
-       `Prova Diagnostica/Alimenti` = ifelse(`Prova Diagnostica/Alimenti` != "NULL", 0.72, 0),
-       `Prova Sierologica` = ifelse(`Prova Sierologica` != "NULL", 0.20, 0)) %>%  
-  rowwise() %>% 
-  mutate(valore= sum(`Prova Chimica` ,`Prova Diagnostica/Alimenti`, `Prova Sierologica`), 
-         valore = 0.07*(valore)+valore) %>%
-  ungroup() %>%  
-  group_by(dtreg, pc) %>% 
+                                 ifelse(tipoprove == "Prova Sierologica", 0.20,
+                                        ifelse(tipoprove == "Prova Diagnostica/Alimenti", 0.72, 0))))%>% 
+  group_by(Nconf) %>% 
+  mutate(Valore = max(Valorizzazione) ) %>% 
+  select(-Valorizzazione, -Finalità) %>% 
+  distinct(Nconf, .keep_all = TRUE) %>% 
+  mutate(Valore =  0.07*(Valore)+Valore ) %>% 
+  group_by(dtreg, PC) %>% 
   summarise(n.conf = n(), 
-            valore = sum(valore)) %>% 
+            Valore = sum(Valore),
+            ncamp = sum(NrCampioni, na.rm = TRUE)) %>% View()
   mutate(Anno = year(dtreg)) %>%  
   group_by(Anno) %>% 
   summarise(n.conf = sum(n.conf), 
-            valore = sum(valore)) %>% 
+            Valore = sum(Valore)) %>% 
   tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
          Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>% View()
 saveRDS(here("data", "processed", "GCR.rds"))
