@@ -189,7 +189,7 @@ WHERE  (Esami_Aggregati.Esame_Altro_Ente = 0) AND ({ fn YEAR(Conferimenti.Data_A
 
 
 
-# acc <- conAcc%>% tbl(sql(queryAcc)) %>% as_tibble() 
+
 # 
 # conf <- unique(factor(acc$Nconf))
 # 
@@ -213,6 +213,7 @@ WHERE  (Esami_Aggregati.Esame_Altro_Ente = 0) AND ({ fn YEAR(Conferimenti.Data_A
 # 
 # z <- cbind(z,dz)
 
+acc <- conAcc%>% tbl(sql(queryAcc)) %>% as_tibble() 
 
 accV <- acc %>% 
   mutate(tipoprove = ifelse(Prova=="Prova Chimica", "Prova Chimica", 
@@ -229,13 +230,13 @@ accV <- acc %>%
   group_by(dtreg, PC) %>% 
   summarise(n.conf = n(), 
             Valore = sum(Valore),
-            ncamp = sum(NrCampioni, na.rm = TRUE)) %>% View()
+            ncamp = sum(NrCampioni, na.rm = TRUE)) %>% 
   mutate(Anno = year(dtreg)) %>%  
   group_by(Anno) %>% 
   summarise(n.conf = sum(n.conf), 
             Valore = sum(Valore)) %>% 
   tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
-         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>% View()
+         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>%  
 saveRDS(here("data", "processed", "GCR.rds"))
 
 
