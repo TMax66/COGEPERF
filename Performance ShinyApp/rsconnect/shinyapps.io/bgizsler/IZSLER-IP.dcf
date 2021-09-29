@@ -1,0 +1,12 @@
+name: IZSLER-IP
+title: IZSLER-IP
+username:
+account: bgizsler
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3323126
+bundleId: 3922401
+url: https://bgizsler.shinyapps.io/IZSLER-IP/
+when: 1606734725.09936
+asMultiple: FALSE
+asStatic: FALSE

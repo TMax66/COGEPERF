@@ -32,15 +32,16 @@ perf <- con %>% tbl(sql(query)) %>% as_tibble()
 
 ##Dati strutture
 
-strutture <- read_xlsx("strutture.xlsx")
+strutture <- read_excel("strutture.xlsx") 
+
+
 
 dip <- c("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA", "DIPARTIMENTO SICUREZZA ALIMENTARE", 
                "DIPARTIMENTO TUTELA SALUTE ANIMALE", "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA", 
                "DIPARTIMENTO AMMINISTRATIVO", "CONTROLLO DI GESTIONE")
 
 
-strutture %>% select(Dipartimento, Reparto) %>% 
-  unique()
+
 
 ##ricordificare le strutture
 
@@ -83,7 +84,13 @@ dt <- dt %>% rename( Reparto = Struttura ) %>%
     
     
     ,  by = c("Reparto")) %>% 
-  filter(Periodo == 2 & Avanzamento != 0 )
+  
+saveRDS(here("data", "processed", "performance.RDS"))
+ 
+perf <- readRDS(here("data", "processed", "performance.RDS"))
+
+dt <- perf %>% 
+filter(Periodo == 2 & Avanzamento != 0 )
   
 
 AV <- dt %>% 
