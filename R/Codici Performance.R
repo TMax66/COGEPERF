@@ -104,6 +104,18 @@ x <- gauge(74, min= 0, max = 100, symbol = '%',
 x %>% 
   knit_print()
  
+
+
+
+#Dipartimenti----
+
+perf %>% 
+  
+  
+
+
+
+
 #Avanzamento per Area----
 Area <-  dt %>%  
   mutate(MacroArea = factor(MacroArea)) %>% 

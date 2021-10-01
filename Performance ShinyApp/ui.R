@@ -162,16 +162,20 @@ tabItem(
 tabItem(
   tabName = "Performance", 
   fluidRow(
-    column(6, offset = 3, 
+     column(12, offset = 3, 
+          box(title = "Performance Organizzativa dell'Ente", 
+              status = "primary", solidHeader = TRUE,
           loadEChartsLibrary(), 
-          tags$div(id="test", style="width:50%;height:400px;"),
+          loadEChartsTheme("london"),
+          tags$div(id="test", style="width:100%;height:400px;"),
           deliverChart(div_id = "test")
+          ))
           )
   )
 )
              )
             )
-          )
+     
 
           
           

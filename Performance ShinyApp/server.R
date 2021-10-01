@@ -372,21 +372,14 @@ output$projrep <- renderDataTable(Prjdip(), server = FALSE, class = 'cell-border
 
 # Performance----
 
-# dt <- perf %>% 
-#   filter(Periodo == 2 & Avanzamento != 0 )
-# 
-# 
-# AV <- dt %>% 
-#   summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))
-
-
-# output$perf1 <- renderC3Gauge({
-#   C3Gauge(74)
-# })
-
-
- 
-renderGauge(div_id = "test",rate = 74, gauge_name = "Performance Organizzativa")
+renderGauge(div_id = "test", theme =  "london",  rate = (
+  
+  perf %>%
+    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))
+  
+  
+), gauge_name = "")
 
 
 

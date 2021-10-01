@@ -13,7 +13,8 @@ library("DT")
 library("lubridate")
 library("fmsb")
 library("summaryBox")
-library(C3)
+library("ECharts2Shiny")
+
 #library(flexdashboard)
 # library("dashboardthemes")
 
