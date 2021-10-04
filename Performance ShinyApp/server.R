@@ -372,7 +372,7 @@ output$projrep <- renderDataTable(Prjdip(), server = FALSE, class = 'cell-border
 
 # Performance----
 
-renderGauge(div_id = "test", theme =  "london",  rate = (
+renderGauge(div_id = "perfIZSLER", theme =  "shine",  rate = (
   
   perf %>%
     filter(Periodo == 2 & Avanzamento != 0 ) %>% 
@@ -382,8 +382,74 @@ renderGauge(div_id = "test", theme =  "london",  rate = (
 ), gauge_name = "")
 
 
+renderGauge(div_id = "dirgen", theme =  "london",  rate = (
+  
+  perf %>%
+    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    group_by(Dipartimento) %>% 
+    summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
+    filter(Dipartimento == "Direzione Generale")
+), gauge_name = "")
 
 
+renderGauge(div_id = "dirsan", theme =  "london",  rate = (
+  
+  perf %>%
+    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    group_by(Dipartimento) %>% 
+    summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
+    filter(Dipartimento == "Direzione Sanitaria")
+), gauge_name = "")
+
+
+renderGauge(div_id = "dipamm", theme =  "london",  rate = (
+  
+  perf %>%
+    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    group_by(Dipartimento) %>% 
+    summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
+    filter(Dipartimento == "Dipartimento amministrativo")
+), gauge_name = "")
+
+
+renderGauge(div_id = "dipTSA", theme =  "london",  rate = (
+  
+  perf %>%
+    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    group_by(Dipartimento) %>% 
+    summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
+    filter(Dipartimento == "Dipartimento tutela e salute animale")
+), gauge_name = "")
+
+
+renderGauge(div_id = "dipSA", theme =  "london",  rate = (
+  
+  perf %>%
+    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    group_by(Dipartimento) %>% 
+    summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
+    filter(Dipartimento == "Dipartimento sicurezza alimentare")
+), gauge_name = "")
+
+
+renderGauge(div_id = "LOMB", theme =  "london",  rate = (
+  
+  perf %>%
+    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    group_by(Dipartimento) %>% 
+    summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
+    filter(Dipartimento == "Dipartimento area territoriale Lombardia")
+), gauge_name = "")
+
+
+renderGauge(div_id = "EMR", theme =  "london",  rate = (
+  
+  perf %>%
+    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    group_by(Dipartimento) %>% 
+    summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
+    filter(Dipartimento == "Dipartimento area territoriale Emilia Romagna")
+), gauge_name = "")
 
 
 
