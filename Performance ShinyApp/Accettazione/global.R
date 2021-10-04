@@ -16,8 +16,6 @@ library(shinycssloaders)
 conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it", 
                          Database = "IZSLER", Port = 1433)
 
-
-
 queryAcc <- ("SELECT { fn YEAR(Conferimenti.Data_Accettazione) } AS Anno, Conferimenti.Nome_Stazione_Inserimento AS PC, Conferimenti.Numero AS Nconf, dbo_Anag_Reparti_ConfProp.Descrizione AS StrPropr, dbo_Anag_Reparti_ConfAcc.Descrizione AS StrAcc, 
                   dbo_Operatori_di_sistema_ConfMatr.Descr_Completa AS Operatore, dbo_Anag_Reparti_ConfAcc.Locazione AS Locstrutt, dbo_Anag_Finalita_Confer.Descrizione AS Finalità, Anag_Registri.Descrizione AS Settore, 
 				  Anag_TipoConf.Descrizione AS Pagamento, 
@@ -50,25 +48,11 @@ acc[,"Finalità"] <- sapply(acc[, "Finalità"], iconv, from = "latin1", to = "UT
 acc[,"StrAcc"] <- sapply(acc[, "StrAcc"], iconv, from = "latin1", to = "UTF-8", sub = "")
 acc[,"StrPropr"] <- sapply(acc[, "StrPropr"], iconv, from = "latin1", to = "UTF-8", sub = "")
 
-# accV <- acc %>% 
-#   mutate(tipoprove = ifelse(Prova=="Prova Chimica", "Prova Chimica", 
-#                             ifelse(Prova== "Prova Sierologica", "Prova Sierologica", 
-#                                    ifelse(Prova == "Parere Tecnico", "Parere Tecnico", "Prova Diagnostica/Alimenti")))) %>%
-#   mutate(Valorizzazione = ifelse(tipoprove == "Prova Chimica", 3.70, 
-#                                  ifelse(tipoprove == "Prova Sierologica", 0.20,
-#                                         ifelse(tipoprove == "Prova Diagnostica/Alimenti", 0.72, 0))))%>% 
-#   group_by(Nconf) %>% 
-#   mutate(Valore = max(Valorizzazione) ) %>% 
-#   select(-Valorizzazione, -Finalità) %>% 
-#   distinct(Nconf, .keep_all = TRUE) %>% 
-#   mutate(Valore =  0.07*(Valore)+Valore ) %>% 
-#   group_by(dtreg, PC) %>% 
-#   summarise(n.conf = n(), 
-#             Valore = sum(Valore),
-#             ncamp = sum(NrCampioni, na.rm = TRUE)) %>% 
-#   mutate(Anno = year(dtreg)) %>%  
-#   group_by(Anno) %>% 
-#   summarise(n.conf = sum(n.conf), 
-#             Valore = sum(Valore)) %>% 
-#   tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
-#          Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")
+
+
+dt <- acc %>%
+  group_by(Nconf) %>% 
+  distinct(Nconf, .keep_all = TRUE) %>% 
+  select(-Finalità, -Prova, -StrAcc)
+
+   

@@ -2,7 +2,7 @@ server<-function(input, output, session) {
   
 # tabella dati----  
 output$dati <- renderDataTable({  
-    datatable(acc,
+    datatable(dt,
     rownames = FALSE,filter = 'top',
     extensions = 'Buttons', options = list(
       dom = 'Bfrtip',
@@ -13,7 +13,7 @@ output$dati <- renderDataTable({
 # tabella pivot 
   
 output$pivot <- renderRpivotTable({
-  rpivotTable( acc,   
+  rpivotTable( dt,   
                  #select( ),
                aggregatorName="Sum", vals = "",
                onRefresh = htmlwidgets::JS(

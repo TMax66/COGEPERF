@@ -1,18 +1,10 @@
 library(tidyverse)
- 
-
 library(readr)
 library(lubridate)
-
-
-
-
 
 names(acc) <- c("anno","pc","nconf", "strpropr", "stracc","operatore", "locstracc", "finalità", 
                 "settore", "pagamento", "dtreg", "prove", "tipoprel", "istrdp", "dtirdp", "dturdp", 
                 "wday", "ncamp")
-
-
 
 
 GCUpost <- c('ACC-CENTR2', 'PC-47326', 'PC-40780', 

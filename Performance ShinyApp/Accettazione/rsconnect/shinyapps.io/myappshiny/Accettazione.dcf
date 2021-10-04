@@ -1,0 +1,14 @@
+name: Accettazione
+title: Accettazione
+username:
+account: myappshiny
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4790448
+bundleId: 5102004
+url: https://myappshiny.shinyapps.io/Accettazione/
+when: 1633347103.98488
+lastSyncTime: 1633347103.98488
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: oldstuff/anag.xls|oldstuff/codici.R|oldstuff/Elenco_correzioni.xlsx|oldstuff/postazioniPC.xlsx|oldstuff/README.md
