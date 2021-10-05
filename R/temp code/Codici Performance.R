@@ -43,7 +43,8 @@ perf %>%
   
 
 #Avanzamento per Area----
-Area <-  dt %>%  
+Area <-  perf %>%
+    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
   mutate(MacroArea = factor(MacroArea)) %>% 
   group_by(MacroArea) %>% 
   summarise(mediana =  round(median(Avanzamento, na.rm = T),2),

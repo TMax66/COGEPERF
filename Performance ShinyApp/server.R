@@ -453,6 +453,41 @@ renderGauge(div_id = "EMR", theme =  "london",  rate = (
 
 
 
+###Aree performance----
+
+Area <-  perf %>%
+  mutate(MacroArea = factor(MacroArea)) %>%
+  group_by(MacroArea) %>%
+  summarise(mediana =  round(median(Avanzamento, na.rm = T),2),
+            media = round(mean(Avanzamento,na.rm  = T),2),
+            n = n()) %>%  
+  mutate(mediana = percent(mediana),
+         mediana = as.character(mediana),
+         media = percent(media),
+         media = as.character(media)) %>%  
+  #pivot_wider(names_from = "Dipartimento", values_from = "mediana", values_fill = " ") %>%  View()
+  arrange(MacroArea) %>%
+  mutate(MacroArea = as.character(MacroArea)) %>%
+  mutate(MacroArea = gsub("\\d+", "", MacroArea),
+         MacroArea = gsub("\"", "", MacroArea))  %>%
+  kbl( ) %>%
+  kable_styling() %>%
+  kable_paper(bootstrap_options = "striped", full_width = F)
+
+
+### Obiettivi----
+
+### Azioni----
+
+### Indicatori----
+
+
+
+
+
+
+
+
 }
      
       
