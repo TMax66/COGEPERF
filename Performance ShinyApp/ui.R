@@ -110,6 +110,20 @@ ui <- dashboardPage(
              box(title = textOutput("year"),  solidHeader = TRUE, collapsible = TRUE,status = "primary", width = 12,
             tableOutput("t")
              )
+          ),
+          fluidRow(
+            column(1, 
+                   radioButtons("ind", "", 
+                                c("IP" = "IP","Dipartimento" = "Dipartimento" ))),
+            
+            
+            column(11, 
+                   div(id = 'clickdiv00'
+                       #plotOutput("tbd"))
+                   # bsModal("TW", "Distribuzione percentuale degli Indicatori di performance  tra i Dipartimenti",  
+                   #         'clickdiv00', tableOutput("tbw"))
+                   )
+            
           )
           ), 
 #Dipartimenti----
@@ -278,6 +292,7 @@ tabPanel("Indicatori")
 )
              )
             )
+)
      
 
           
