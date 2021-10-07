@@ -125,7 +125,7 @@ ui <- dashboardPage(
                    )
             
           )
-          ), 
+          )), 
 #Dipartimenti----
         tabItem(
           tabName = "dipartimenti", 
@@ -292,7 +292,7 @@ tabPanel("Indicatori")
 )
              )
             )
-)
+
      
 
           

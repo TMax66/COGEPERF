@@ -544,15 +544,15 @@ dtanalisi %>%
 
 #TABELLA PIVOT----
 
- dtanalisi %>% 
-select(Anno = ANNO,
-                         Trimestre = TRIMESTRE,
-                         Mese = MESE,
-                         Dipartimento, Reparto, Laboratorio, "Centro di Costo" = CDC,
-                         Fatturato, Tariffario, Costo,
-                         "ANALISI" = Determinazioni, Numero,
-                         "Tipologia Analisi" = ClassAnalisi,
-                         Categoria, Classificazione, Classe, Area)
+#  dtanalisi %>% 
+# select(Anno = ANNO,
+#                          Trimestre = TRIMESTRE,
+#                          Mese = MESE,
+#                          Dipartimento, Reparto, Laboratorio, "Centro di Costo" = CDC,
+#                          Fatturato, Tariffario, Costo,
+#                          "ANALISI" = Determinazioni, Numero,
+#                          "Tipologia Analisi" = ClassAnalisi,
+#                          Categoria, Classificazione, Classe, Area)
 
 output$pivot <- renderRpivotTable({
   rpivotTable( dtanalisi %>% 
@@ -563,7 +563,7 @@ output$pivot <- renderRpivotTable({
                         Fatturato, Tariffario, Costo,
                         "ANALISI" = Determinazioni, Numero,
                         "Tipologia Analisi" = ClassAnalisi,
-                        Categoria, Classificazione, Classe, Area),
+                        Categoria, Classificazione, Classe, Area, descrArea),
               aggregatorName="Sum", vals = "",
               onRefresh = htmlwidgets::JS(
                 "function(config) {

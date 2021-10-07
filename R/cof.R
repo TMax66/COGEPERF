@@ -28,38 +28,39 @@ tdip <-
       (pr %>%
          group_by(Dipartimento) %>%
          summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
-      ),  by = "Dipartimento" )
+      ),  by = "Dipartimento" ) %>% 
+  ungroup()
 
 
 
 
 
 tb <- tdip  %>% 
-     
+  select(-Anno) %>% 
+ 
     mutate("Prestazioni" = round(100*(ANALISI/sum(ANALISI)), 1), 
            "VP" = round(100*(VP/sum(VP)),1), 
            "AI" = round(100*(AI/sum(AI)),1), 
            "RT" = round(100*(RT/sum(RT)),1),
            "COSTI" =round(100*(COSTI/sum(COSTI)),1), 
-           "ROI" = round(100*(ROI/sum(ROI)), 1),
+           "ROI" = round(100*(ROI/sum(ROI)), 1), 
            "RFTE" = round(100*(`R-FTE`/sum(`R-FTE`)),1),
            "CFTE" = round(100*(`C-FTE`/ sum(`C-FTE`)), 1)
-           # "Ricavo per FTE" = round(100*(`R/FTET`/sum(`R/FTET`)), 1)
-    ) %>%  View()
-    select(Dipartimento, Prestazioni, AI, VP, RT, COSTI, ROI, RFTE, CFTE) %>% 
+    ) %>% 
+    select( Dipartimento, Prestazioni,   RT, COSTI, ROI, RFTE, CFTE) %>%  
     pivot_longer(!Dipartimento, names_to = "KPI", values_to = "valore") %>% 
-    mutate(KPI = factor(KPI, levels = c("Prestazioni","AI", "VP", "RT", "COSTI", "ROI", "RFTE", "CFTE" )))
+    mutate(KPI = factor(KPI, levels = c("Prestazioni","RT", "COSTI", "ROI", "RFTE", "CFTE" )))
  
 
 
 
-output$tbd <- renderPlot( 
+output$tbd <- 
   
   if(input$ind == "Dipartimento")
     
   {
     
-    ggplot(tb(),  aes( 
+    ggplot(tb,  aes( 
       x = KPI, 
       y = valore, 
       fill = KPI
@@ -79,11 +80,12 @@ output$tbd <- renderPlot(
   else
     
   {
-    tb() %>% 
-      mutate(Dipartimento = recode(Dipartimento, "Dipartimento Sicurezza Alimentare" = "DSA", 
-                                   "Dipartimento Tutela e  Salute Animale" = "DTSA", 
-                                   "Area Territoriale Lombardia" = "ATLOMB", 
-                                   "Area Territoriale Emilia Romagna" = "ATER")) %>% 
+    tb %>% 
+      mutate(Dipartimento = recode(Dipartimento, "Dipartimento sicurezza alimentare" = "DSA", 
+                                   "Dipartimento tutela e salute animale" = "DTSA", 
+                                   "Dipartimento area territoriale Lombardia" = "ATLOMB", 
+                                   "Dipartimento area territoriale Emilia Romagna" = "ATER", 
+                                   "Direzione Sanitaria" = "DirSAN")) %>%  
       ggplot(aes( 
         x = Dipartimento, 
         y = valore, 
