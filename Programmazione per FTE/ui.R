@@ -18,7 +18,7 @@ ui<- fluidPage(
                             valueBoxOutput("ftep"),
                             valueBoxOutput("rfteP"),
                             valueBoxOutput("target"),
-                            
+                            br(), br(), br(), br(), hr(),
                             tableOutput("tb")
                             
                             
@@ -38,10 +38,10 @@ ui<- fluidPage(
                    valueBoxOutput("rtot"),
                    valueBoxOutput("fteR"),
                    valueBoxOutput("rfteR"),
-                   valueBoxOutput("target2"),#,
-                   #valueBoxOutput("risn")
+                   valueBoxOutput("target2"),
+                   valueBoxOutput("risn"),
                    
-                   
+                   br(),br(),br(),
                     tableOutput("tb2")
             )))
     

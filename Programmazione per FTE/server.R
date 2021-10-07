@@ -53,60 +53,53 @@ server<-function(input, output) {
   output$rfteT <- renderValueBox({
     valueBox( (df() %>%
                  mutate(RFTEt= round(RFTEt, 2)) %>%
-                 select(RFTEt)), "Ricavo per FTE teorico",  icon = icon("euro"),
-              color = "blue"
-    )
+                 select(RFTEt)), "Ricavo per FTE teorico")
+            
+  
   })
   
   
   output$ftep <- renderValueBox({
     valueBox( (df() %>%
-                 select(FTEp)), "FTE programmati per l'attività istituzionale",  icon = icon("flask"),
-              color = "blue"
-    )
+                 select(FTEp)), "FTE programmati per l'attività istituzionale" )
   })
   
   
   output$rfteP <- renderValueBox({
     valueBox( (df() %>%
                  mutate(RFTEprog= round(RFTEprog, 2)) %>%
-                 select(RFTEprog)), "Ricavo per FTE programmato",  icon = icon("euro"),
-              color = "aqua"
-    )
+                 select(RFTEprog)), "Ricavo per FTE programmato" )
+               
+   
   })
   
   
   output$target <- renderValueBox({
     valueBox( (df() %>%
                  mutate(VARrfte= round(VARrfte, 2)) %>%
-                 select(VARrfte)), "Variazione % attesa del RFTE",  icon = icon("euro"),
-              color = "red"
-    )
+                 select(VARrfte)), "Variazione % attesa del RFTE")
+              
+    
   })
   
   
   output$rtot <- renderValueBox({
     valueBox( (df() %>%
                  mutate(VarRT= round(VarRT, 2)) %>%
-                 select(VarRT)), "Ricavo Totale ",  icon = icon("euro"),
-              color = "blue"
-    )
+                 select(VarRT)), "Ricavo Totale ")
+               
   })
   
   output$fteR <- renderValueBox({
     valueBox( (df() %>%
                  mutate(VarFT= round(VarFT, 2)) %>%
-                 select(VarFT)), "FTE erogati ",  icon = icon("flask"),
-              color = "blue"
-    )
+                 select(VarFT)), "FTE erogati " )
   })
   options(scipen = 999)
   output$rfteR <- renderValueBox({
     valueBox( (df() %>%
                  mutate(RFTEr= round(RFTEr, 2)) %>%
-                 select(RFTEr)), "Ricavo per FTE erogati ",  icon = icon("euro"),
-              color = "blue"
-    )
+                 select(RFTEr)), "Ricavo per FTE erogati ")
   })
   
   output$target2 <- renderValueBox({
@@ -114,9 +107,7 @@ server<-function(input, output) {
                  mutate(VARRFTEr= as.numeric(VARRFTEr)) %>%
                  mutate(VARRFTEr = round(VARRFTEr, 2)) %>%
                  mutate(VARRFTEr= ifelse(is.na(VARRFTEr), 0, VARRFTEr)) %>%
-                 select(VARRFTEr)), "Variazione % reale del RFTE ",  icon = icon("euro"),
-              color = "red"
-    )
+                 select(VARRFTEr)), "Variazione % reale del RFTE")
   })
   
   output$risn <- renderValueBox({
@@ -124,9 +115,7 @@ server<-function(input, output) {
                  mutate(RisN = as.numeric(RisN, 1)) %>%
                  mutate(RisN = ifelse(is.na(RisN), 0, RisN)) %>%
                  mutate(RisN = round(RisN, 1)) %>%
-                 select(RisN)), "Indicatore di verifica",  icon = icon("euro"),
-              color = "red"
-    )
+                 select(RisN)), "Indicatore di verifica")
   } )
   
   
