@@ -3,7 +3,7 @@ ui<- fluidPage(
     
     wellPanel(
                  fluidRow(
-                     column(3,
+                     column(2,
                             h3("Programmazione"),
                             numericInput("rt", "Ricavo Totale previsto",  value = "1000000"),
                             br(),
@@ -13,13 +13,13 @@ ui<- fluidPage(
                             # br(),
                             sliderInput("pc", "percentuale FTE allocata agli obiettivi", min=0, max= 50,  value = "0")),
                      
-                     column(9,
+                     column(10,
                             valueBoxOutput("rfteT"),
                             valueBoxOutput("ftep"),
                             valueBoxOutput("rfteP"),
                             valueBoxOutput("target"),
-                            br(), br(), br(), br(), hr(),
-                            tableOutput("tb")
+                            br(), br(), br(), br(), hr() 
+                            #tableOutput("tb")
                             
                             
                             
@@ -28,21 +28,21 @@ ui<- fluidPage(
     
     wellPanel(
         fluidRow(
-            column(3,
-                   h3("Verifica"),
+            column(2,
+                   h3("Simulazione"),
                    sliderInput("Vrt", "Variazione percentuale del Ricavo Totale previsto", min=-50, max= 50,  value = 0),
                    br(),
                    sliderInput("Vfte", "Variazione percentuale del FTE programmato ", min=-50, max= 50,  value = 0)),
             
-            column(9,
+            column(10,
                    valueBoxOutput("rtot"),
                    valueBoxOutput("fteR"),
                    valueBoxOutput("rfteR"),
-                   valueBoxOutput("target2"),
-                   valueBoxOutput("risn"),
+                   valueBoxOutput("target2")#,
+                   # valueBoxOutput("risn"),
                    
-                   br(),br(),br(),
-                    tableOutput("tb2")
+                   #br(),br(),br()
+                    #tableOutput("tb2")
             )))
     
     )
