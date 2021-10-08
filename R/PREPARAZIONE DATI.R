@@ -64,15 +64,12 @@ queryCoge <- "SELECT IZS_ANNI.ANNO, IZS_TRIMESTRI.TRIMESTRE, IZS_MESI.MESE, IZS_
                   Elenco_Tipi_Movimenti.Descrizione AS Costi, 
                   IZS_Classi.Descrizione AS Classe, 
                   IZS_Aree.Descrizione AS Area, 
-                  IZS_PRODOTTI.Descrizione AS descrArea, 
                   IZS_CDC.CODICE_CDC AS CodiceCDC, 
                   IZS_CDC.CENTRO_DI_COSTO AS CDC
-                  
 FROM              IZS_Categorie INNER JOIN
                   IZS_Classi ON IZS_Categorie.TipoCostoRicavo = IZS_Classi.TipoCostoRicavo AND IZS_Categorie.Codice = IZS_Classi.Codice_categoria INNER JOIN
                   IZS_Aree ON IZS_Classi.TipoCostoRicavo = IZS_Aree.TipoCostoRicavo AND IZS_Classi.Codice = IZS_Aree.Codice_classe INNER JOIN
-                  CDC_MOVIMENTI_BO ON IZS_Aree.TipoCostoRicavo = CDC_MOVIMENTI_BO.TipoCostoRicavo AND IZS_Aree.Codice_classe = CDC_MOVIMENTI_BO.Classe AND IZS_Aree.Codice_area = CDC_MOVIMENTI_BO.Area RIGHT OUTER JOIN
-                  IZS_PRODOTTI ON CDC_MOVIMENTI_BO.Codice = IZS_PRODOTTI.CodSAI INNER JOIN
+                  CDC_MOVIMENTI_BO ON IZS_Aree.TipoCostoRicavo = CDC_MOVIMENTI_BO.TipoCostoRicavo AND IZS_Aree.Codice_classe = CDC_MOVIMENTI_BO.Classe AND IZS_Aree.Codice_area = CDC_MOVIMENTI_BO.Area INNER JOIN
                   IZS_Classificazioni ON IZS_Classificazioni.idClassificazione = CDC_MOVIMENTI_BO.IdClassificazione INNER JOIN
                   IZS_Riclassificazione ON IZS_Riclassificazione.idClassificazione = IZS_Classificazioni.idRiclassifica INNER JOIN
                   Elenco_Tipi_Movimenti ON CDC_MOVIMENTI_BO.TipoCostoRicavo = Elenco_Tipi_Movimenti.TipoMovimento INNER JOIN
@@ -86,7 +83,7 @@ FROM              IZS_Categorie INNER JOIN
                   
 WHERE  (IZS_ANNI.ANNO >= 2019)
 GROUP BY IZS_ANNI.ANNO, IZS_TRIMESTRI.TRIMESTRE, IZS_MESI.MESE, IZS_MESI.Descrizione, IZS_Livello0.Livello0, IZS_Dipartimenti.DIPARTIMENTO, IZS_Reparti.REPARTO, IZS_Categorie.Descrizione, IZS_Riclassificazione.Descrizione, 
-                  IZS_Riclassificazione.idClassificazione, Elenco_Tipi_Movimenti.Descrizione, IZS_Classi.Descrizione, IZS_Aree.Descrizione, IZS_PRODOTTI.Descrizione, IZS_CDC.CODICE_CDC, IZS_CDC.CENTRO_DI_COSTO"
+                  IZS_Riclassificazione.idClassificazione, Elenco_Tipi_Movimenti.Descrizione, IZS_Classi.Descrizione, IZS_Aree.Descrizione, IZS_CDC.CODICE_CDC, IZS_CDC.CENTRO_DI_COSTO"
 cc <- con %>% tbl(sql(queryCoge)) %>% as_tibble() 
 
 
@@ -408,7 +405,7 @@ cc %>%
          AttGrat = ifelse(Pagamento== "Gratuito", Determinazioni, 0 ), 
          AttPag = ifelse(Pagamento == "Pagamento", Determinazioni, 0), 
          VP = ifelse(Classe == "Vendite prodotti", Numero, 0), 
-         AI = ifelse(Classe == "Ricavi da produzione interna", Numero, 0)) %>%View()
+         AI = ifelse(Classe == "Ricavi da produzione interna", Numero, 0)) %>% 
   saveRDS(here("data", "processed", "CC.rds"))
 
 
