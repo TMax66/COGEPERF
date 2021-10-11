@@ -14,12 +14,12 @@ ui<- fluidPage(
                             sliderInput("pc", "percentuale FTE allocata agli obiettivi", min=0, max= 50,  value = "0")),
                      
                      column(10,
-                            valueBoxOutput("rfteT"),
-                            valueBoxOutput("ftep"),
-                            valueBoxOutput("rfteP"),
-                            valueBoxOutput("target"),
-                            br(), br(), br(), br(), hr() 
-                            #tableOutput("tb")
+                            # valueBoxOutput("rfteT"),
+                            # valueBoxOutput("ftep"),
+                            # valueBoxOutput("rfteP"),
+                            # valueBoxOutput("target"),
+                            # br(), br(), br(), br(), hr() 
+                            tableOutput("tb")
                             
                             
                             
@@ -35,14 +35,14 @@ ui<- fluidPage(
                    sliderInput("Vfte", "Variazione percentuale del FTE programmato ", min=-50, max= 50,  value = 0)),
             
             column(10,
-                   valueBoxOutput("rtot"),
-                   valueBoxOutput("fteR"),
-                   valueBoxOutput("rfteR"),
-                   valueBoxOutput("target2")#,
-                   # valueBoxOutput("risn"),
+                   # valueBoxOutput("rtot"),
+                   # valueBoxOutput("fteR"),
+                   # valueBoxOutput("rfteR"),
+                   # valueBoxOutput("target2")#,
+                   # # valueBoxOutput("risn"),
                    
                    #br(),br(),br()
-                    #tableOutput("tb2")
+                    tableOutput("tb2")
             )))
     
     )

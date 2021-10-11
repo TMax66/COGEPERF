@@ -241,7 +241,7 @@ saveRDS(here("data", "processed", "GCR.rds"))
 
 ##DATI DA PROGETTI DI RICERCA----
 
-prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2020.xlsx"))
+prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2021.xlsx"))
 
 anag <- ore %>% 
   mutate(annoraplav = year(FineRapporto)) %>% 

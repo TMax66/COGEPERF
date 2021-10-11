@@ -1,0 +1,14 @@
+name: ProgrammazioneFTE
+title: ProgrammazioneFTE
+username:
+account: izslerapp
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4843726
+bundleId: 5126632
+url: https://izslerapp.shinyapps.io/ProgrammazioneFTE/
+when: 1633952904.21364
+lastSyncTime: 1633952904.21364
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: codici.R
