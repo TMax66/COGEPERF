@@ -3,17 +3,18 @@ library(here)
 library(readxl)
 library(knitr)
 library(kableExtra)
+library(janitor)
 
 
 
-prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2020.xlsx"))
+prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2021.xlsx"))
 
 
 
-dt1 <- c(  "2018-01-01","2019-01-01","2020-01-01"  )
+dt1 <- c(  "2019-01-01","2020-01-01","2021-01-01"  )
 
-dt2 <-  c( "2018-12-31","2019-12-31","2020-12-31" )
-anno <- seq(from = 2018, to = 2020, by=1)
+dt2 <-  c( "2019-12-31","2020-12-31","2021-12-31" )
+anno <- seq(from = 2019, to = 2021, by=1)
 
 x <- data.frame(dt1, dt2, anno)
 
