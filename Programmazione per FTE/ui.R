@@ -2,6 +2,12 @@ ui<- fluidPage(
         theme = shinytheme("cerulean"),
     
     wellPanel(
+      fluidRow(
+        tableOutput("dati20")
+      )
+    ),  
+    
+    wellPanel(
                  fluidRow(
                      column(2,
                             h3("Programmazione"),

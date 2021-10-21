@@ -5,10 +5,10 @@ account: izslerapp
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4843726
-bundleId: 5126632
+bundleId: 5162871
 url: https://izslerapp.shinyapps.io/ProgrammazioneFTE/
-when: 1633952904.21364
-lastSyncTime: 1633952904.21364
+when: 1634828553.88458
+lastSyncTime: 1634828553.88461
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: codici.R
+ignoredFiles: codici.R|cof.R|datiSB.rds
