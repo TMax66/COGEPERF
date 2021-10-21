@@ -104,3 +104,23 @@ output$tbd <-
       labs(x = "", y = "")
     
   }, bg = "transparent")
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####
+library(here)
+library(tidyverse)
+library(writexl)
+
+ob <- readRDS(here("data", "processed", "performance.RDS"))
+write_xlsx(ob, path = "obiettivi.xlsx")
