@@ -60,6 +60,8 @@ output$tbd <-
     
   {
     
+    
+    
     ggplot(tb,  aes( 
       x = KPI, 
       y = valore, 
