@@ -15,7 +15,7 @@ output$dati <- renderDataTable({
 output$pivot <- renderRpivotTable({
   rpivotTable( dt,   
                  #select( ),
-               aggregatorName="Sum", vals = "",
+               aggregatorName="Count", vals = "",
                onRefresh = htmlwidgets::JS(
                  "function(config) {
                         Shiny.onInputChange('pivot', document.getElementById('pivot').innerHTML); 

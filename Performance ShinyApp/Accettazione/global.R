@@ -13,8 +13,8 @@ library(shinyjs)
 library(shinycssloaders)
 
 
-conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
-                       Database = "IZSLER", Port = 1433)
+#conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
+                       #Database = "IZSLER", Port = 1433)
 # 
 # queryAcc <- ("SELECT
 #   {fn year(dbo.Conferimenti.Data_Accettazione)} AS Anno,
@@ -84,5 +84,7 @@ conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02
 # 
  
 
-dt <- readRDS(file = here("Performance ShinyApp","Accettazione","dt.rds"))
- 
+#dt <- readRDS(file = here("Performance ShinyApp","Accettazione","dt.rds"))
+dt <- readRDS("dt.rds")
+
+
