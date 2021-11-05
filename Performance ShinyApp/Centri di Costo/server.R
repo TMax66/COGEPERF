@@ -567,14 +567,14 @@ output$pivot <- renderRpivotTable({
               aggregatorName="Sum", vals = "",
               onRefresh = htmlwidgets::JS(
                 "function(config) {
-                        Shiny.onInputChange('pivot', document.getElementById('pivot').innerHTML); 
+                        Shiny.onInputChange('mypivot', document.getElementById('pivot').innerHTML); 
                         }"))
 })
 
 
-pivot_tbl <- eventReactive(input$pivot, {
+pivot_tbl <- eventReactive(input$mypivot, {
   tryCatch({
-    input$pivot %>%
+    input$mypivot %>%
       read_html %>%
       html_table(fill = TRUE) %>%
       .[[2]]
@@ -620,13 +620,13 @@ observeEvent(input$copy_pivot,  {
 
 
 
-# output$download_pivot   <- downloadHandler(
-#    filename = function(){
-#      paste0("tabella", ".csv", sep = "")},
-# 
-#    content = function(file){
-#     write.csv(pivot_tbl(), file, row.names = FALSE)
-#    })
+output$download_pivot   <- downloadHandler(
+   filename = function(){
+     paste0("tabella", ".csv", sep = "")},
+
+   content = function(file){
+    write.csv(pivot_tbl(), file, row.names = FALSE)
+   })
 
 
 

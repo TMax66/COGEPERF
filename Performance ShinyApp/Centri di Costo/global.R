@@ -12,7 +12,7 @@ library(formattable)
 library(sparkline)
 library(rpivotTable)
 library(shinyjs)
-library(rvest)
+#library(rvest)
 library(shinycssloaders)
 #Carica dati----
 library(writexl)

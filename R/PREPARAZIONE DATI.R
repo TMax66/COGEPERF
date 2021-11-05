@@ -251,7 +251,7 @@ anag <- ore %>%
 prj %>%
   left_join(anag, by = c("MatrRSUO" = "Matricola")) %>% 
   mutate(annoinizio = year(DataInizio), 
-         annofine = year(DataFine)) %>%  
+         annofine = year(DataFine)) %>%   
   saveRDS(., file = here( "data", "processed",  "prj.rds"))
 
 

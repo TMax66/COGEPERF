@@ -1,3 +1,45 @@
+library(tidyverse)
+library(readr)
+library(readxl)
+library(here)
+
+
+# 
+prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2021.xlsx"))
+# 
+anag <- ore %>%
+  mutate(annoraplav = year(FineRapporto)) %>%
+  filter(annoraplav > 2018) #%>%
+ # distinct(Matricola, .keep_all = TRUE)
+# 
+prj %>%
+  left_join(anag, by = c("MatrRSUO" = "Matricola")) %>%
+  mutate(annoinizio = year(DataInizio),
+         annofine = year(DataFine)) %>% View()
+  saveRDS(., file = here( "data", "processed",  "prj.rds"))
+
+
+pr <- prj %>% 
+        mutate("Stato" = ifelse(annofine < 2020, "Archiviato", "Attivo")) %>% 
+        filter(Stato == "Attivo" & annoinizio <= 2020) %>%  
+        group_by(Dipartimento) %>%
+        summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 IZSLER <- tizsler %>% 
           filter(Anno == 2020)
@@ -104,6 +146,9 @@ output$tbd <-
       labs(x = "", y = "")
     
   }, bg = "transparent")
+
+
+
 
 
 

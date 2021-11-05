@@ -1,14 +1,15 @@
 server<-function(input, output, session) { 
   
 # tabella dati----  
-output$dati <- renderDataTable({  
-    datatable(dt,
+output$dati <- renderDataTable( 
+    dt,
+    server = FALSE, 
     rownames = FALSE,filter = 'top',
     extensions = 'Buttons', options = list(
       dom = 'Bfrtip',
       buttons = c('excel'))
-      )
-     })
+      
+     )
 
 # tabella pivot 
   
