@@ -607,7 +607,7 @@ output$download_pivot <- downloadHandler(
     if (input$format == "csv") {
       write_csv(pivot_tbl(), path = file)
     } else if (input$format == "excel") {
-      writexl::write_xlsx(pivot_tbl(), path = file)
+      writexl::write_xlsx(as.data.frame(pivot_tbl(), path = file))
     }
   }
 )
