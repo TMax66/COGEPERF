@@ -3,13 +3,33 @@ server<-function(input, output, session) {
 # tabella dati----  
 output$dati <- renderDataTable( 
     dt,
-    server = FALSE, 
+    server = TRUE, 
     rownames = FALSE,filter = 'top',
-    extensions = 'Buttons', options = list(
-      dom = 'Bfrtip',
-      buttons = c('excel'))
+    options = list(
+      dom = 'Bfrtip')
       
      )
+
+output$downloadData <- downloadHandler(
+  filename = function() {
+    paste("data-", Sys.Date(), ".csv", sep="")
+  },
+  content = function(file) {
+    write.csv(dt, file)
+  }
+)
+
+
+#plot----
+
+# dtP <- dt %>% 
+#   mutate(dtacc = as.character(dtreg)) %>% 
+#   group_by(dtreg) %>% 
+#   mutate(Nconf = sum(n())) %>%  
+#   #filter(esami > 0) %>%
+#   mutate(sett = rollmean(Nconf, k = 30, fill = NA) )
+
+
 
 # tabella pivot 
   
