@@ -1,11 +1,13 @@
 ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
     theme = shinytheme("cerulean"),
 
-    tabPanel("Attività-Ricavi-Costi",
+    tabPanel("Produzione",
              sidebarLayout(
                  sidebarPanel(width = 3,
                      selectInput("CC", "Seleziona il Centro di Costo", 
-                                 choices = c("", as.character(unique(factor(dtanalisi$CDC))))),
+                                # choices = c("", as.character(unique(factor(dtanalisi$CDC))), 
+                                  choices = c("", produzione          
+                                             )),
                      uiOutput("parametri")
                  ),
                mainPanel(
@@ -64,6 +66,85 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
     
       
 ), 
+
+tabPanel("Gestione", 
+         
+         sidebarLayout(
+           sidebarPanel(width = 3,
+                        selectInput("CC2", "Seleziona il Centro di Costo", 
+                                    choices = c("", gestionale          
+                                    ))
+           ),
+           mainPanel( 
+             tabsetPanel(id = "tabsgest",
+                         tabPanel("Costi", value = 4,
+                                  fluidRow(
+                                    column(12,  
+                                           h2(textOutput("titoloCosti2")),
+                                           plotOutput("PLOT4",height = "400px" ))
+                                    
+                                  ), 
+                                  hr(), 
+                                  fluidRow(
+                                    column(11, 
+                                           htmlOutput("dettcostigest")
+                                    ))
+                         )
+             
+                         
+                         
+                         
+                         )
+             
+             
+             
+             
+             
+           ))
+ ), 
+tabPanel("Costi Comuni", 
+         
+         sidebarLayout(
+           sidebarPanel(width = 3,
+                        selectInput("CC3", "Seleziona il Centro di Costo", 
+                                    choices = c("", cscomuni          
+                                    ))
+           ),
+           mainPanel( 
+             tabsetPanel(id = "tabscosticom",
+                         tabPanel("Costi", value = 4,
+                                  fluidRow(
+                                    column(12,  
+                                           h2(textOutput("titoloCosti4")),
+                                           plotOutput("PLOT5",height = "400px" ))
+                                    
+                                  ), 
+                                  hr(), 
+                                  fluidRow(
+                                    column(11, 
+                                           htmlOutput("dettcosticom")
+                                    ))
+                         )
+                         
+                         
+                         
+                         
+             )
+             
+             
+             
+             
+             
+           ))
+         
+         
+         
+         
+         
+         ), 
+
+
+
 tabPanel("TABELLA PIVOT", 
          
          fluidPage(

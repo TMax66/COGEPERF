@@ -90,6 +90,8 @@ cc <- con %>% tbl(sql(queryCoge)) %>% as_tibble()
 
 
 
+
+
 #PREPARAZIONE DATI PER DASHBOARD PERFORMANCES----
 
 ###TABELLE-----

@@ -1,5 +1,6 @@
 server<-function(input, output) {
 
+
 output$parametri <- renderUI({
       req(input$CC)
       if(input$tabs == 1 | input$tabs == 2){
@@ -11,6 +12,12 @@ output$parametri <- renderUI({
                   ))
       } else {}
     })
+
+
+
+
+
+
 
   # output$butt1 <- renderUI({
   #   req(input$CC, input$par)
@@ -46,7 +53,18 @@ output$parametri <- renderUI({
     paste(input$CC, ": Costi complessivi" )} 
   )
   
-#TABELLE REATTIVE----
+  output$titoloCosti2 <- renderText({
+    req(input$CC2)
+    paste(input$CC2, ": Costi complessivi" )} 
+  )
+  
+  output$titoloCosti3 <- renderText({
+    req(input$CC3)
+    paste(input$CC3, ": Costi complessivi" )} 
+  )
+#PRODUZIONE----
+
+##Tabelle reattive----
 dtAtt <- reactive (dtanalisi %>% filter(CDC == input$CC & Costi=="Ricavo") %>% 
          group_by(CDC,  ANNO,  Quarter) %>% 
              summarise(N.Esami = sum(Determinazioni, na.rm = TRUE), 
@@ -98,11 +116,11 @@ dtCostiT <- reactive(dtanalisi %>% filter(CDC== input$CC & Costi=="Costo") %>%
                      )
 
  
-#GRAFICI----
+##Grafici----
 
-##Grafici attività analitica e produzione interna----
+##grafici attività analitica e produzione interna----
 
-###Download tabella attività----
+###Download tabella attività
 
 
 
@@ -149,7 +167,7 @@ output$PLOT <- renderPlot({
 
 )
 
-##Tabella dettaglio prestazioni----
+##tabella dettaglio prestazioni----
 
 output$dtprestazioni <- renderUI({
   req(input$par)
@@ -298,7 +316,7 @@ output$dtprestazioni <- renderUI({
 
 
   
-##Tabella dettaglio ricavi da prestazioni----
+##tabella dettaglio ricavi da prestazioni----
  
  
 output$dtricprest <- renderUI({
@@ -444,16 +462,16 @@ output$dtricprest <- renderUI({
 })
  
  
-##Grafici ricavi----
-###Download dati ricavi----
+##grafici ricavi----
+###download dati ricavi----
  
-output$down <- downloadHandler(
-                       filename = function(){ 
-                       paste0(input$CC, "Totale Ricavi")}, 
- 
-                       content = function(file){
-                         vroom::vroom_write(dtT(), file)
-                       })
+# output$down <- downloadHandler(
+#                        filename = function(){ 
+#                        paste0(input$CC, "Totale Ricavi")}, 
+#  
+#                        content = function(file){
+#                          vroom::vroom_write(dtT(), file)
+#                        })
  
 
 
@@ -492,7 +510,7 @@ output$PLOT2 <- renderPlot({
 
 )
 
-##Grafici costi----
+##grafici costi----
 
 output$PLOT3 <- renderPlot({
   req(input$CC)
@@ -500,7 +518,7 @@ output$PLOT3 <- renderPlot({
 
 })
 
-##Tabella dettaglio costi----
+##tabella dettaglio costi----
 
 output$dettcosti <- renderUI({
 req(input$CC)
@@ -541,6 +559,148 @@ dtanalisi %>%
   spk_add_deps()
 })
 
+#GESTIONE----
+dtCostiTgest <- reactive(dtanalisi %>% filter(CDC== input$CC2 & Costi=="Costo") %>% 
+                       group_by(CDC,  ANNO,  Quarter) %>% 
+                       summarise(Costi = round(sum(Costo, na.rm = TRUE),2)) %>% 
+                       ungroup() %>% 
+                       mutate(VarCosti = round((Costi/lag(Costi)-1)*100),2))
+
+
+##grafici costi----
+
+output$PLOT4 <- renderPlot({
+  req(input$CC2)
+  Tplot(dtCostiTgest(), "Costi", "VarCosti", euro="€")
+  
+})
+
+##tabella dettaglio costi----
+
+output$dettcostigest <- renderUI({
+  req(input$CC2)
+  dtanalisi %>%  
+    filter(Costi== "Costo") %>% 
+    group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
+    
+    summarise(costidett = sum(Costo, na.rm = TRUE),
+    )  %>%  
+    filter(CDC == input$CC2  ) %>% 
+    group_by(ANNO, Quarter,Classe) %>%  
+    summarise(C = sum(costidett, na.rm=TRUE)) %>% 
+    mutate(YQ = paste(ANNO, "-", Quarter)) %>%  ungroup() %>% 
+    select(-ANNO, -Quarter) %>%  
+    pivot_wider( names_from = YQ,  values_from = C, values_fill = 0) %>%    
+    
+    left_join(  
+      
+      (dtanalisi %>% 
+         filter(Costi == "Costo") %>% 
+         group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
+         #filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
+         summarise(costidett = sum(Costo, na.rm = TRUE),
+         )  %>%  
+         filter(CDC == input$CC2 ) %>% 
+         group_by(ANNO, Quarter, Classe) %>% 
+         summarise(C = sum(costidett, na.rm=TRUE)) %>% 
+         mutate(YQ = paste(ANNO, "-", Quarter)) %>%
+         select(-ANNO, -Quarter) %>% 
+         group_by(Classe) %>%
+         summarise(trend = spk_chr(C, type= "line", options =
+                                     list(paging = FALSE)))
+      )) %>% rename("Tipologia Costi" = Classe) %>% 
+    
+    format_table()  %>% 
+    htmltools::HTML() %>% 
+    div() %>% 
+    spk_add_deps()
+})
+
+
+#COSTI COMUNI----
+
+
+dtCostiCom <- reactive(dtanalisi %>% filter(CDC== input$CC3 & Costi=="Costo") %>% 
+                           group_by(CDC,  ANNO,  Quarter) %>% 
+                           summarise(Costi = round(sum(Costo, na.rm = TRUE),2)) %>% 
+                           ungroup() %>% 
+                           mutate(VarCosti = round((Costi/lag(Costi)-1)*100),2))
+
+
+##grafici costi----
+
+output$PLOT5 <- renderPlot({
+  req(input$CC3)
+  Tplot(dtCostiCom(), "Costi", "VarCosti", euro="€")
+  
+})
+
+##tabella dettaglio costi----
+
+output$dettcosticom <- renderUI({
+  req(input$CC3)
+  dtanalisi %>%  
+    filter(Costi== "Costo") %>% 
+    group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
+    
+    summarise(costidett = sum(Costo, na.rm = TRUE),
+    )  %>%  
+    filter(CDC == input$CC3  ) %>% 
+    group_by(ANNO, Quarter,Classe) %>%  
+    summarise(C = sum(costidett, na.rm=TRUE)) %>% 
+    mutate(YQ = paste(ANNO, "-", Quarter)) %>%  ungroup() %>% 
+    select(-ANNO, -Quarter) %>%  
+    pivot_wider( names_from = YQ,  values_from = C, values_fill = 0) %>%    
+    
+    left_join(  
+      
+      (dtanalisi %>% 
+         filter(Costi == "Costo") %>% 
+         group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
+         #filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
+         summarise(costidett = sum(Costo, na.rm = TRUE),
+         )  %>%  
+         filter(CDC == input$CC3 ) %>% 
+         group_by(ANNO, Quarter, Classe) %>% 
+         summarise(C = sum(costidett, na.rm=TRUE)) %>% 
+         mutate(YQ = paste(ANNO, "-", Quarter)) %>%
+         select(-ANNO, -Quarter) %>% 
+         group_by(Classe) %>%
+         summarise(trend = spk_chr(C, type= "line", options =
+                                     list(paging = FALSE)))
+      )) %>% rename("Tipologia Costi" = Classe) %>% 
+    
+    format_table()  %>% 
+    htmltools::HTML() %>% 
+    div() %>% 
+    spk_add_deps()
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #TABELLA PIVOT----
 
@@ -563,7 +723,7 @@ output$pivot <- renderRpivotTable({
                         Fatturato, Tariffario, Costo,
                         "ANALISI" = Determinazioni, Numero,
                         "Tipologia Analisi" = ClassAnalisi,
-                        Categoria, Classificazione, Classe, Area),
+                        Categoria, Classificazione, Classe, Area, CodiceCDC),
               aggregatorName="Sum", vals = "",
               onRefresh = htmlwidgets::JS(
                 "function(config) {
