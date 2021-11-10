@@ -3,6 +3,8 @@ ui<-navbarPage("IZSLER: Gestione Centralizzata Delle Richieste dell'Utenza",
            
     tabPanel("Dati",
              fluidRow(
+               br(), 
+               downloadButton("downloadData", "Scarica i dati"),
                  DTOutput("dati")
              )
              ), 
@@ -11,10 +13,10 @@ ui<-navbarPage("IZSLER: Gestione Centralizzata Delle Richieste dell'Utenza",
     tabPanel("Pivot Table",
               
                  fluidPage(
-                     radioButtons(inputId = "format", label = "Enter the format to download", 
-                                  choices = c( "csv", "excel"), inline = FALSE, selected = "csv"),
-                     downloadButton("download_pivot"),
-                     actionButton("copy_pivot", "Copy"),
+                     # radioButtons(inputId = "format", label = "Enter the format to download", 
+                     #              choices = c( "csv", "excel"), inline = FALSE, selected = "csv"),
+                     # downloadButton("download_pivot"),
+                     # actionButton("copy_pivot", "Copy"),
                      fluidRow(rpivotTableOutput("pivot") %>% 
                                   withSpinner(color="blue", type=8)))
                

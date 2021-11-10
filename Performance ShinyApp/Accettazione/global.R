@@ -11,7 +11,7 @@ library(odbc)
 library(rpivotTable)
 library(shinyjs)
 library(shinycssloaders)
-
+library(zoo)
 
 #conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
                        #Database = "IZSLER", Port = 1433)
