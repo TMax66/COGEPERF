@@ -723,7 +723,7 @@ output$pivot <- renderRpivotTable({
                         Fatturato, Tariffario, Costo,
                         "ANALISI" = Determinazioni, Numero,
                         "Tipologia Analisi" = ClassAnalisi,
-                        Categoria, Classificazione, Classe, Area, CodiceCDC),
+                        Categoria, Classificazione, Classe, Area, CodiceCDC, Contratto),
               aggregatorName="Sum", vals = "",
               onRefresh = htmlwidgets::JS(
                 "function(config) {

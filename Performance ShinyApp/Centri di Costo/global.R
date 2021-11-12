@@ -19,6 +19,14 @@ library(writexl)
 dtanalisi <-  readRDS(file = here( "data", "processed", "CC.rds"))
 
 
+
+# dtanalisi %>% 
+#   select(Dipartimento, Reparto, Laboratorio) %>% 
+#   distinct() %>% 
+#   write_xlsx(path= "strutture.xlsx")
+
+
+
 #controlli----
 ccnotecnici <- c(
   "1000", "1100", "1200", "1300", "1400", "2100", "3000", 
