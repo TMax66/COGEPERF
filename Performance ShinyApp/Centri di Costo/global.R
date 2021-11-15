@@ -76,28 +76,29 @@ Tplot <- function(df, y_par, y_par2, euro)
           
           strip.text.x = element_text(size = 18))
   
-  p2 <- ggplot(df)+ 
-    aes(
-      y = .data[[y_par2]],
-      x = .data[["Quarter"]],  
-      label=paste(as.character(.data[[y_par2]]), "%"))+
-    geom_line(group = 1, aes(color = ANNO == max(ANNO)), size= 1.1,  )+
-    geom_label(size = 4.5, aes(color = ANNO == max(ANNO)))+
-    scale_color_manual(values = c("grey", "blue"), guide = "none") +
-    facet_grid(~ANNO, switch = "x", scales = "free")+
-    geom_hline(yintercept = 0, size = 0.5)+
-    labs(y = "", x = " ",
-         title = "")+
-    theme_ipsum_rc()+
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          
-          axis.text.y = element_blank(),
-          axis.text.x = element_text(size = 15),
-          
-          strip.text.x = element_text(size = 18))
+  # p2 <- ggplot(df)+ 
+  #   aes(
+  #     y = .data[[y_par2]],
+  #     x = .data[["Quarter"]],  
+  #     label=paste(as.character(.data[[y_par2]]), "%"))+
+  #   geom_line(group = 1, aes(color = ANNO == max(ANNO)), size= 1.1,  )+
+  #   geom_label(size = 4.5, aes(color = ANNO == max(ANNO)))+
+  #   scale_color_manual(values = c("grey", "blue"), guide = "none") +
+  #   facet_grid(~ANNO, switch = "x", scales = "free")+
+  #   geom_hline(yintercept = 0, size = 0.5)+
+  #   labs(y = "", x = " ",
+  #        title = "")+
+  #   theme_ipsum_rc()+
+  #   theme(panel.grid.major = element_blank(),
+  #         panel.grid.minor = element_blank(),
+  #         
+  #         axis.text.y = element_blank(),
+  #         axis.text.x = element_text(size = 15),
+  #         
+  #         strip.text.x = element_text(size = 18))
   
-  p1|p2
+  p1
+  #|p2
   
   
 }
