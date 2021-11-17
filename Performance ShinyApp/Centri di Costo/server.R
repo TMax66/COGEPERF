@@ -74,19 +74,21 @@ dtAtt <- reactive (dtanalisi %>% filter(CDC == input$CC & Costi=="Ricavo") %>%
                      Egrat = sum(AttGrat, na.rm = TRUE), 
                      PI = sum(AI , na.rm = TRUE), 
                      Prodv = sum(VP, na.rm = TRUE)) %>% 
-           ungroup() #%>% 
-           # mutate(VarEsami = round((N.Esami/lag(N.Esami)-1)*100, 2), 
-           #        VarEUff = round((EUff/lag(EUff)-1)*100, 2), 
-           #        VarENUff = round((ENUff/lag(ENUff)-1)*100, 2), 
-           #        VarEPag = round((EPag/lag(EPag)-1)*100, 2),
-           #        VarEgrat = round((Egrat/lag(Egrat)-1)*100, 2),
-           #        VarPI = round((PI/lag(PI)-1)*100, 2), 
-           #        VarProdv = round((Prodv/lag(Prodv)-1)*100, 2), 
-                  #)
+          ungroup() %>% 
+           arrange(Quarter) %>%  
+           mutate(VarEsami = round((N.Esami/lag(N.Esami)-1)*100, 2), 
+                  VarEUff = round((EUff/lag(EUff)-1)*100, 2), 
+                  VarENUff = round((ENUff/lag(ENUff)-1)*100, 2), 
+                  VarEPag = round((EPag/lag(EPag)-1)*100, 2),
+                  VarEgrat = round((Egrat/lag(Egrat)-1)*100, 2),
+                  VarPI = round((PI/lag(PI)-1)*100, 2), 
+                  VarProdv = round((Prodv/lag(Prodv)-1)*100, 2)
+           ) 
            
 )
 
-dtT <- reactive(dtanalisi %>% filter(CDC== input$CC & Costi =="Ricavo") %>% 
+  
+dtT <- reactive(dtanalisi %>% filter(CDC == input$CC & Costi=="Ricavo") %>% 
     group_by(CDC,  ANNO,  Quarter) %>% 
     summarise(Ufficiali = sum(TUff, na.rm = T), 
               NonUfficiali = sum(TNonUff, na.rm = T), 
@@ -94,7 +96,8 @@ dtT <- reactive(dtanalisi %>% filter(CDC== input$CC & Costi =="Ricavo") %>%
               Pagamento = sum(TPagamento, na.rm = T), 
               Vprod = sum(TVP, na.rm= T), 
               AI = sum(TAI, na.rm = T)) %>% ungroup() %>% 
-              
+    ungroup %>% 
+    arrange(Quarter) %>% 
     mutate(VarUff = round((Ufficiali/lag(Ufficiali)-1)*100, 2), 
            VarNUff = round((NonUfficiali/lag(NonUfficiali)-1)*100, 2), 
            VarGrat = round((Gratuiti/lag(Gratuiti)-1)*100, 2), 
@@ -103,17 +106,21 @@ dtT <- reactive(dtanalisi %>% filter(CDC== input$CC & Costi =="Ricavo") %>%
            VarAI = round((AI/lag(AI)-1)*100,2)) %>% 
     rowwise() %>% 
     mutate(TotRic = round(sum(Ufficiali, NonUfficiali, na.rm = T),2)) %>% ungroup() %>% 
-    mutate(VarTot = round((TotRic/lag(TotRic)-1)*100, 2)) %>%   
-    group_by(CDC,  ANNO,  Quarter)
- )
+    mutate(VarTot = round((TotRic/lag(TotRic)-1)*100, 2))
+)
   
   
 dtCostiT <- reactive(dtanalisi %>% filter(CDC== input$CC & Costi=="Costo") %>% 
          group_by(CDC,  ANNO,  Quarter) %>% 
            summarise(Costi = round(sum(Costo, na.rm = TRUE),2)) %>% 
-           ungroup() %>% 
+           ungroup %>% 
+           arrange(Quarter) %>% 
            mutate(VarCosti = round((Costi/lag(Costi)-1)*100),2)
                      )
+
+
+ 
+
 
  
 ##Grafici----
@@ -139,19 +146,19 @@ output$PLOT <- renderPlot({
   
   if (input$par == "Attività Complessiva")
     {   
-    Tplot(dtAtt(), "N.Esami", "VarEsami", euro = "")
+    Tplot(dtAtt(), "N.Esami", "VarEsami")#, euro = "")
     
     }else
            
            if(input$par == "Attività Ufficiale") {
-              Tplot(dtAtt(), "EUff", "VarEUff", euro = "")
+              Tplot(dtAtt(), "EUff", "VarEUff")#, euro = "")
            }
 
 
           else
 
             if(input$par == "Attività Non Ufficiale"){
-               Tplot(dtAtt(), "ENUff", "VarENUff", euro = "")
+               Tplot(dtAtt(), "ENUff", "VarENUff")#, euro = "")
 
             }
 
@@ -482,19 +489,19 @@ output$PLOT2 <- renderPlot({
   
   if (input$par == "Attività Complessiva")
   {   
-    Tplot(dtT(), "TotRic", "VarTot", euro = "€")
+    Tplot(dtT(), "TotRic", "VarTot" )
     
   }else
     
     if(input$par == "Attività Ufficiale") {
-      Tplot(dtT(), "Ufficiali", "VarUff",euro = "€")
+      Tplot(dtT(), "Ufficiali", "VarUff" )
     }
   
   
   else
     
     if(input$par == "Attività Non Ufficiale"){
-      Tplot(dtT(), "NonUfficiali", "VarNUff",euro = "€")
+      Tplot(dtT(), "NonUfficiali", "VarNUff" )
       
     }
   
@@ -502,7 +509,7 @@ output$PLOT2 <- renderPlot({
   else
     
     if(input$par == "Produzione Interna"){
-      Tplot(dtT(), "Vprod", "VarVP", euro = "")
+      Tplot(dtT(), "Vprod", "VarVP" )
       
     }
   
@@ -514,7 +521,7 @@ output$PLOT2 <- renderPlot({
 
 output$PLOT3 <- renderPlot({
   req(input$CC)
-  Tplot(dtCostiT(), "Costi", "VarCosti", euro="€")
+  Tplot(dtCostiT(), "Costi", "VarCosti")
 
 })
 

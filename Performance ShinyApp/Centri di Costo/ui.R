@@ -16,7 +16,7 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                 fluidRow(
                                     column(12,
                                       h2(textOutput("titoloAtt")),
-                                      plotOutput("PLOT",height = "400px" ))
+                                      plotOutput("PLOT",height = "500px" ))
                                 ), 
                                 hr(),
                                 fluidRow(
@@ -33,7 +33,7 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                     
                                     column(12,  
                                            h2(textOutput("titoloRic")),
-                                           plotOutput("PLOT2",height = "400px" ))
+                                           plotOutput("PLOT2",height = "500px" ))
                                      
                                 ), 
                                 hr(), 
@@ -52,7 +52,7 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                             fluidRow(
                                 column(12,  
                                        h2(textOutput("titoloCosti")),
-                                       plotOutput("PLOT3",height = "400px" ))
+                                       plotOutput("PLOT3",height = "500px" ))
                                 
                             ), 
                             hr(), 
@@ -81,7 +81,7 @@ tabPanel("Gestione",
                                   fluidRow(
                                     column(12,  
                                            h2(textOutput("titoloCosti2")),
-                                           plotOutput("PLOT4",height = "400px" ))
+                                           plotOutput("PLOT4",height = "500px" ))
                                     
                                   ), 
                                   hr(), 
@@ -116,7 +116,7 @@ tabPanel("Costi Comuni",
                                   fluidRow(
                                     column(12,  
                                            h2(textOutput("titoloCosti4")),
-                                           plotOutput("PLOT5",height = "400px" ))
+                                           plotOutput("PLOT5",height = "500px" ))
                                     
                                   ), 
                                   hr(), 

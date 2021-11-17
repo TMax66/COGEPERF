@@ -54,55 +54,97 @@ cscomuni <- dtanalisi %>% select(CodiceCDC, CDC) %>%
 
 
 ## Funzione per fare i grafici-----
-Tplot <- function(df, y_par, y_par2, euro)
+Tplot <- function(df, y_par, y_par2)
 {    
-  p1 <- ggplot(df)+ 
+  ggplot(df)+ 
     aes(
       y = .data[[y_par]],
-      x = .data[["Quarter"]],  
-      label=paste(as.character(.data[[y_par]]), euro))+
-    geom_line(group = 1, aes(color = ANNO == max(ANNO)), size= 1.1,  )+
-    geom_label(size = 4.5, aes(color = ANNO == max(ANNO)))+
-    scale_color_manual(values = c("grey", "blue"), guide = "none") +
-    facet_grid(~ANNO, switch = "x", scales = "free")+
-    geom_hline(yintercept = 0, size = 0.5)+
+      x = .data[["ANNO"]])+  
+    
+    geom_ribbon(aes(ymin = 0, ymax = (.data[[y_par]])+0.1*(.data[[y_par]])), alpha=0.05)+
+    geom_point(aes(y = .data[[y_par]])) +
+    geom_line(aes(y = .data[[y_par]]))+
+    facet_wrap(facets = ~Quarter, nrow=1, scales = "free")+
+    scale_x_continuous(breaks = unique(df$ANNO), expand=c(0.16, 0))+
+    geom_text(data = dplyr::filter(df, ANNO == 2020), aes(label = sprintf('%+0.1f%%',.data[[y_par2]])), 
+              x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+    geom_text(data = dplyr::filter(df, ANNO == 2021), aes(label = sprintf('%+0.1f%%', .data[[y_par2]])), 
+              x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+    geom_text(aes(label = sprintf('%0.1f',.data[[y_par]]), y = .data[[y_par]]), vjust = -1, size=3.5)+
     labs(y = "", x = " ",
          title = "")+
-    theme_ipsum_rc()+
+    theme_bw()+
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
           
           axis.text.y = element_blank(),
           axis.text.x = element_text(size = 15),
           
-          strip.text.x = element_text(size = 18))
-  
-  # p2 <- ggplot(df)+ 
-  #   aes(
-  #     y = .data[[y_par2]],
-  #     x = .data[["Quarter"]],  
-  #     label=paste(as.character(.data[[y_par2]]), "%"))+
-  #   geom_line(group = 1, aes(color = ANNO == max(ANNO)), size= 1.1,  )+
-  #   geom_label(size = 4.5, aes(color = ANNO == max(ANNO)))+
-  #   scale_color_manual(values = c("grey", "blue"), guide = "none") +
-  #   facet_grid(~ANNO, switch = "x", scales = "free")+
-  #   geom_hline(yintercept = 0, size = 0.5)+
-  #   labs(y = "", x = " ",
-  #        title = "")+
-  #   theme_ipsum_rc()+
-  #   theme(panel.grid.major = element_blank(),
-  #         panel.grid.minor = element_blank(),
-  #         
-  #         axis.text.y = element_blank(),
-  #         axis.text.x = element_text(size = 15),
-  #         
-  #         strip.text.x = element_text(size = 18))
-  
-  p1
-  #|p2
-  
-  
+          strip.text.x = element_text(size = 15))
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Tplot <- function(df, y_par, y_par2, euro)
+# {    
+#   p1 <- ggplot(df)+ 
+#     aes(
+#       y = .data[[y_par]],
+#       x = .data[["Quarter"]],  
+#       label=paste(as.character(.data[[y_par]]), euro))+
+#     geom_line(group = 1, aes(color = ANNO == max(ANNO)), size= 1.1,  )+
+#     geom_label(size = 4.5, aes(color = ANNO == max(ANNO)))+
+#     scale_color_manual(values = c("grey", "blue"), guide = "none") +
+#     facet_grid(~ANNO, switch = "x", scales = "free")+
+#     geom_hline(yintercept = 0, size = 0.5)+
+#     labs(y = "", x = " ",
+#          title = "")+
+#     theme_ipsum_rc()+
+#     theme(panel.grid.major = element_blank(),
+#           panel.grid.minor = element_blank(),
+#           
+#           axis.text.y = element_blank(),
+#           axis.text.x = element_text(size = 15),
+#           
+#           strip.text.x = element_text(size = 18))
+#   
+#   # p2 <- ggplot(df)+ 
+#   #   aes(
+#   #     y = .data[[y_par2]],
+#   #     x = .data[["Quarter"]],  
+#   #     label=paste(as.character(.data[[y_par2]]), "%"))+
+#   #   geom_line(group = 1, aes(color = ANNO == max(ANNO)), size= 1.1,  )+
+#   #   geom_label(size = 4.5, aes(color = ANNO == max(ANNO)))+
+#   #   scale_color_manual(values = c("grey", "blue"), guide = "none") +
+#   #   facet_grid(~ANNO, switch = "x", scales = "free")+
+#   #   geom_hline(yintercept = 0, size = 0.5)+
+#   #   labs(y = "", x = " ",
+#   #        title = "")+
+#   #   theme_ipsum_rc()+
+#   #   theme(panel.grid.major = element_blank(),
+#   #         panel.grid.minor = element_blank(),
+#   #         
+#   #         axis.text.y = element_blank(),
+#   #         axis.text.x = element_text(size = 15),
+#   #         
+#   #         strip.text.x = element_text(size = 18))
+#   
+#   p1
+#   #|p2
+#   
+#   
+# }
 
 
 
