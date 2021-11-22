@@ -14,8 +14,8 @@ library("lubridate")
 library("fmsb")
 # library("summaryBox")
 library("ECharts2Shiny")
-library(formattable)
-library(fmsb)
+library("formattable")
+library("fmsb")
 
 
 #library(flexdashboard)
@@ -70,14 +70,11 @@ tizsler <-  tabIZSLER %>%
   rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
           "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%   
   group_by(Anno, Dipartimento) %>% 
-  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%  
+  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>% 
   mutate(RT = (Valorizzazione+VP+AI),
-         FTE_T = round((FTED+FTEC),1)) %>%
-  arrange(desc(Prestazioni)) %>%
-  mutate("R-FTE" = round(RT/FTE_T,0), 
-         "C-FTE" = round(COSTI/FTE_T, 0), 
-         "ROI" = round(RT/COSTI, 2)) %>% 
-  select(-FTED, -FTEC)  %>%
+         FTE_T = round((FTED+FTEC),1)) %>%   
+  arrange(desc(Prestazioni)) %>%  
+  mutate("R-FTE" = round(RT/FTE_T,0)) %>%  
   filter(Prestazioni >0)  
 
 

@@ -35,7 +35,8 @@ tdip <- reactive(
       # count(Dipartimento, NR) %>%
        group_by(Dipartimento) %>%  
       # count(NR) %>%
-       summarise("Pubblicazioni" = nlevels(factor(NR)))), by = "Dipartimento") %>%    
+       summarise("Pubblicazioni" = nlevels(factor(NR)), 
+                 "Impact Factor" = sum(IF, na.rm = TRUE))), by = "Dipartimento") %>%    
   left_join(
     (pr() %>%
        group_by(Dipartimento) %>%
