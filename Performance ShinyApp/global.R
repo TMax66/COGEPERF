@@ -67,18 +67,18 @@ ValueBOX <- function(dt, Variabile, Variabile2 = NULL, Titolo, colore, icona){
 #TABELLA IZSLER aggregato per dipartimenti con FTE----
 
 tizsler <-  tabIZSLER %>% 
-  rename( "ANALISI" = TotPrestazioni, "VALORE" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
+  rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
           "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%   
   group_by(Anno, Dipartimento) %>% 
-  summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%  
-  mutate(RT = (VALORE+VP+AI),
+  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%  
+  mutate(RT = (Valorizzazione+VP+AI),
          FTE_T = round((FTED+FTEC),1)) %>%
-  arrange(desc(ANALISI)) %>%
+  arrange(desc(Prestazioni)) %>%
   mutate("R-FTE" = round(RT/FTE_T,0), 
          "C-FTE" = round(COSTI/FTE_T, 0), 
          "ROI" = round(RT/COSTI, 2)) %>% 
   select(-FTED, -FTEC)  %>%
-  filter(ANALISI >0)  
+  filter(Prestazioni >0)  
 
 
 

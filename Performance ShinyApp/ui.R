@@ -21,7 +21,10 @@ ui <- dashboardPage(
                                         "Direzione Sanitaria")), 
               br(), 
               sliderInput("anno2", h3("Seleziona l'Anno"), min=2019, max = 2021, value = 2021)), 
-            menuItem("Report Costi-Ricavi per Centri di Costo", tabName = "Centri di Costo", icon = icon("euro")), 
+            menuItem("Report Costi-Ricavi per Centri di Costo",href = "http://rshiny.izsler.it/costiricavi",
+                     newtab = FALSE, icon = icon("euro")
+                     
+                     ), 
             menuItem("Obiettivi di Performance", tabName = "Performance", icon = icon("table"))
             )),
       
@@ -91,8 +94,7 @@ ui <- dashboardPage(
                  valueBoxOutput("rictot"),
                  valueBoxOutput("RFTE"),
                  valueBoxOutput("Costi"),
-                 valueBoxOutput("costifte"),
-                 valueBoxOutput("roi"), 
+                 
                  div(id='clickdiv0',
                             valueBoxOutput("IF")),
                         bsModal("P", "Pubblicazioni IF", "clickdiv0",dataTableOutput("articoli"), size = "large"),
