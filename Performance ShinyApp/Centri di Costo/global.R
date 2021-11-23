@@ -18,7 +18,7 @@ library(shinycssloaders)
 #library(writexl)
 
 #dtanalisi <-  readRDS(file = here( "data", "processed", "CC.rds"))
-dtanalisi <- readRDS("C:/Users/vito.tranquillo/Desktop/Git Projects/COGEPERF/Performance ShinyApp/Centri di Costo/data/CC.rds")
+dtanalisi <- readRDS(here("Performance ShinyApp", "Centri di COsto","CC.rds"))
  
  
 

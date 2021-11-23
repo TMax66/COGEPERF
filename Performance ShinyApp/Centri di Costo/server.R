@@ -571,6 +571,7 @@ dtCostiTgest <- reactive(dtanalisi %>% filter(CDC== input$CC2 & Costi=="Costo") 
                        group_by(CDC,  ANNO,  Quarter) %>% 
                        summarise(Costi = round(sum(Costo, na.rm = TRUE),2)) %>% 
                        ungroup() %>% 
+                         arrange(Quarter) %>% 
                        mutate(VarCosti = round((Costi/lag(Costi)-1)*100),2))
 
 
@@ -578,7 +579,7 @@ dtCostiTgest <- reactive(dtanalisi %>% filter(CDC== input$CC2 & Costi=="Costo") 
 
 output$PLOT4 <- renderPlot({
   req(input$CC2)
-  Tplot(dtCostiTgest(), "Costi", "VarCosti", euro="€")
+  Tplot(dtCostiTgest(), "Costi", "VarCosti")
   
 })
 
@@ -631,6 +632,7 @@ dtCostiCom <- reactive(dtanalisi %>% filter(CDC== input$CC3 & Costi=="Costo") %>
                            group_by(CDC,  ANNO,  Quarter) %>% 
                            summarise(Costi = round(sum(Costo, na.rm = TRUE),2)) %>% 
                            ungroup() %>% 
+                           arrange(Quarter) %>% 
                            mutate(VarCosti = round((Costi/lag(Costi)-1)*100),2))
 
 
@@ -638,7 +640,7 @@ dtCostiCom <- reactive(dtanalisi %>% filter(CDC== input$CC3 & Costi=="Costo") %>
 
 output$PLOT5 <- renderPlot({
   req(input$CC3)
-  Tplot(dtCostiCom(), "Costi", "VarCosti", euro="€")
+  Tplot(dtCostiCom(), "Costi", "VarCosti")
   
 })
 
@@ -685,41 +687,6 @@ output$dettcosticom <- renderUI({
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#TABELLA PIVOT----
-
-#  dtanalisi %>% 
-# select(Anno = ANNO,
-#                          Trimestre = TRIMESTRE,
-#                          Mese = MESE,
-#                          Dipartimento, Reparto, Laboratorio, "Centro di Costo" = CDC,
-#                          Fatturato, Tariffario, Costo,
-#                          "ANALISI" = Determinazioni, Numero,
-#                          "Tipologia Analisi" = ClassAnalisi,
-#                          Categoria, Classificazione, Classe, Area)
 
 output$pivot <- renderRpivotTable({
   rpivotTable( dtanalisi %>% 
