@@ -36,6 +36,16 @@ tabIZSLER <- tabIZSLER %>%
   mutate_at(vars(TotTariff),
             funs(ifelse( Laboratorio == "GESTIONE CENTRALIZZATA DELLE RICHIESTE" & ANNO >= 2021,GCR$Valore, TotTariff )))
 
+tabIZSLER <- 
+  tabIZSLER %>% 
+  filter(!Dipartimento %in% c("Non applicabile", 
+                              "Costi Comuni e Centri contabili", 
+                              "Dipartimento amministrativo", 
+                              "Direzione Generale", 
+                              "Direzione Amministrativa",
+                              "Costi Comuni e Centri contabili"
+                               ))
+
 prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
 pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazioni
 
