@@ -44,7 +44,8 @@ tabIZSLER <-
                               "Direzione Generale", 
                               "Direzione Amministrativa",
                               "Costi Comuni e Centri contabili"
-                               ))
+                               )) %>% 
+  filter(!Reparto %in% c("COSTI COMUNI LOMBARDIA"))
 
 prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
 pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazioni
