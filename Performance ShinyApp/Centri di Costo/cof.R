@@ -1,27 +1,89 @@
-tb2 <- reactive({tdsa %>% 
-    filter(Reparto != "Totale") %>% 
-    mutate(Esami = round(100*(N.esami/sum(N.esami)), 1), 
-           "RA" = round(100*(RA/sum(RA)),1), 
-           "FTED" = round(100*(FTED/sum(FTED)),1), 
-           "FTEC" = round(100*(FTEC/sum(FTEC)),1),
-           "RVP" =round(100*(RVP/sum(RVP)),1), 
-           "RAI" = round(100*(RAI/sum(RAI)), 1),
-           "RT" = round(100*(RT/sum(RT)),1),
-           "FTET" = round(100*(FTET/ sum(FTET)), 1) 
-           # "Ricavo per FTE" = round(100*(`R/FTET`/sum(`R/FTET`)), 1)
-    ) %>% 
-    select(Reparto, Esami, "FTED", "FTEC", "FTET",   "RT") %>% 
-    pivot_longer(!Reparto, names_to = "KPI", values_to = "valore") %>% 
-    mutate(KPI = factor(KPI, levels = c("Esami", "FTED", "FTEC", "FTET", "RT"  )))
-})
 
-output$tbd2 <- renderPlot( 
+pubsdip <- pub %>% 
+   filter(OA == 2021 & Dipartimento == "Dipartimento area territoriale Lombardia")
+
+prdip <-  
+  prj %>% 
+    mutate("Stato" = ifelse(annofine < 2021, "Archiviato", "Attivo")) %>% 
+    filter(Stato == "Attivo" & annoinizio <= 2021 & Dipartimento == "Dipartimento area territoriale Lombardia")
+
+
+
+tx <- tabIZSLER %>% 
+  rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
+          "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
+  filter(Anno == 2021 & Dipartimento == "Dipartimento area territoriale Lombardia") %>% 
   
-  if(input$ind2 == "Reparto")
+  group_by(Reparto) %>%
+  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+  mutate(RT = (Valorizzazione+VP+AI),
+         FTE_T = round((FTED+FTEC),1)) %>%
+  arrange(desc(Prestazioni)) %>%
+  mutate("R-FTE" = round(RT/FTE_T,0)) %>% 
+  select(-FTED, -FTEC) %>% 
+  left_join(
+    (pubsdip %>%
+       filter(articoliif == "IF") %>%
+       count(Reparto, NR) %>%
+       group_by(Reparto) %>%  
+       count(NR) %>%
+       summarise("Pubblicazioni" = sum(n))), by = "Reparto") %>%    
+  left_join(
+    (prdip %>%
+       group_by(Reparto) %>%
+       summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
+    ), by = "Reparto")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tb2 <-  tx %>% 
+  mutate(Reparto = recode(Reparto, "SEDE TERRITORIALE DI CREMONA - MANTOVA" = "ST-CRMN", 
+                          "SEDE TERRITORIALE DI BRESCIA" = "ST-BS", 
+                          "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO" = "ST-BGBISO", 
+                          "SEDE TERRITORIALE DI LODI - MILANO" = "ST-LOMI", 
+                          "SEDE TERRITORIALE DI PAVIA" = "ST-PV")) %>% 
+  
+    mutate(Esami = round(100*(Prestazioni/sum(Prestazioni)), 1), 
+           Valore = round(100*(Valorizzazione/sum(Valorizzazione)),1), 
+           "RVP" =round(100*(VP/sum(VP)),1), 
+           "RAI" = round(100*(AI/sum(AI)), 1),
+           "RT" = round(100*(RT/sum(RT)),1),
+           "FTET" = round(100*(FTE_T/ sum(FTE_T)), 1), 
+           Costi = round(100*(COSTI/sum(COSTI)), 1)) %>%  
+    select(Reparto, Esami, RT, RVP, RT, FTET, Costi) %>% 
+    pivot_longer(!Reparto, names_to = "KPI", values_to = "valore") %>%  
+    mutate(KPI = factor(KPI, levels = c("Esami", "RT", "RVP", "RAI", "FTET", "Costi" )))
+ 
+ 
+ 
     
-  {  
-    
-    ggplot(tb2(),  aes( 
+    ggplot(tb2,  aes( 
       x = KPI, 
       y = valore, 
       fill = KPI
@@ -36,17 +98,11 @@ output$tbd2 <- renderPlot(
             axis.text.x = element_text(size = 10, color = "black"))+
       labs(x = "", y = "") 
     
-  }
   
-  else
     
-  {
     
-    tb2() %>% 
-      mutate(Reparto = recode(Reparto, "REPARTO PRODUZIONE PRIMARIA" = "RPP", 
-                              "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI" = "RChAM", 
-                              "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)" = "RChAB", 
-                              "REPARTO CONTROLLO ALIMENTI" = "RCA")) %>% 
+    
+    tb2 %>% 
       ggplot(aes( 
         x = Reparto, 
         y = valore, 
@@ -61,6 +117,6 @@ output$tbd2 <- renderPlot(
             strip.text.x = element_text(size = 15, colour = "blue"), 
             axis.text.x = element_text(size = 10, color = "black"))+
       labs(x = "", y = "")
-  }, bg = "transparent")
+ 
 
 
