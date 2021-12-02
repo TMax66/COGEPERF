@@ -1,4 +1,32 @@
+library(readxl)
+personale <- read_excel("C:/Users/vito.tranquillo/Desktop/personale.xls")
 
+
+library(gt)
+personale %>% 
+  group_by(Area) %>% 
+  summarise(n= n()) %>% 
+  gt() %>% 
+  gtsave("personale.rtf")
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##CORDINATE POLARI####
 pubsdip <- pub %>% 
    filter(OA == 2021 & Dipartimento == "Dipartimento area territoriale Lombardia")
 

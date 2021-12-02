@@ -84,6 +84,7 @@ FROM              IZS_Categorie INNER JOIN
 WHERE  (IZS_ANNI.ANNO >= 2019)
 GROUP BY IZS_ANNI.ANNO, IZS_TRIMESTRI.TRIMESTRE, IZS_MESI.MESE, IZS_MESI.Descrizione, IZS_Livello0.Livello0, IZS_Dipartimenti.DIPARTIMENTO, IZS_Reparti.REPARTO, IZS_Categorie.Descrizione, IZS_Riclassificazione.Descrizione, 
                   IZS_Riclassificazione.idClassificazione, Elenco_Tipi_Movimenti.Descrizione, IZS_Classi.Descrizione, IZS_Aree.Descrizione, IZS_CDC.CODICE_CDC, IZS_CDC.CENTRO_DI_COSTO"
+
 cc <- con %>% tbl(sql(queryCoge)) %>% as_tibble() 
 
 
@@ -205,7 +206,7 @@ WHERE
   {fn year(dbo.Conferimenti.Data_Accettazione)}  =  2021
   AND  dbo.Conferimenti.Nome_Stazione_Inserimento  IN  ('ACC-CENTR2', 'PC-47326', 'PC-40780','MP-ACC3', 'BS-ASS-N',
                                                         'PC-47327', 'CH-ACC4-N','CH-ACC2-N', 'MP-SIVARS7','PC-47499', 
-                                                        'MP-SIVARS7-N')
+                                                        'MP-SIVARS7-N', 'PC-49702')
   )
 ")
 
