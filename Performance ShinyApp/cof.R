@@ -60,31 +60,12 @@ tx <- tabIZSLER %>%
     (prdip %>%
        group_by(Reparto) %>%
        summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
-    ), by = "Reparto")
+    ), by = "Reparto") 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# %>% 
+# 
+# 
+# writexl::write_xlsx("tab20.xlsx")
 
 
 
@@ -111,6 +92,8 @@ tb2 <-  tx %>%
  
  
     
+
+
     ggplot(tb2,  aes( 
       x = KPI, 
       y = valore, 
@@ -124,7 +107,7 @@ tb2 <-  tx %>%
             plot.background = element_blank(), 
             strip.text.x = element_text(size = 12, colour = "blue"), 
             axis.text.x = element_text(size = 10, color = "black"))+
-      labs(x = "", y = "") 
+      labs(x = "", y = "") + labs(title = "indicatori per reparto 2021")
     
   
     
@@ -144,7 +127,7 @@ tb2 <-  tx %>%
             plot.background = element_blank(), 
             strip.text.x = element_text(size = 15, colour = "blue"), 
             axis.text.x = element_text(size = 10, color = "black"))+
-      labs(x = "", y = "")
+      labs(x = "", y = "")+ labs(title = "Confronto strutture per indicatore 2021")
  
 
 
