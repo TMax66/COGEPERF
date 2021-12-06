@@ -133,7 +133,7 @@ fte <- ore %>%
   group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente) %>%   
   filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
   summarise(hworked = sum(Ore, na.rm = T)) %>% 
-  mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(38*47.4), hworked/(36*47.4))) %>% 
+  mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(36*47.4), hworked/(38*47.4))) %>% 
   pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE"))  %>% 
   select(-hworked_, -FTE_)  
 
