@@ -378,7 +378,7 @@ output$projrep <- renderDataTable(Prjdip(), server = FALSE, class = 'cell-border
 renderGauge(div_id = "perfIZSLER", theme =  "shine",  rate = (
   
   perf %>%
-    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    filter(Periodo == 4 & Avanzamento != 0 ) %>% 
     summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))
   
   
@@ -388,7 +388,7 @@ renderGauge(div_id = "perfIZSLER", theme =  "shine",  rate = (
 renderGauge(div_id = "dirgen", theme =  "london",  rate = (
   
   perf %>%
-    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    filter(Periodo == 4 & Avanzamento != 0 ) %>% 
     group_by(Dipartimento) %>% 
     summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
     filter(Dipartimento == "Direzione Generale")
@@ -398,7 +398,7 @@ renderGauge(div_id = "dirgen", theme =  "london",  rate = (
 renderGauge(div_id = "dirsan", theme =  "london",  rate = (
   
   perf %>%
-    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    filter(Periodo == 4 & Avanzamento != 0 ) %>% 
     group_by(Dipartimento) %>% 
     summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
     filter(Dipartimento == "Direzione Sanitaria")
@@ -408,7 +408,7 @@ renderGauge(div_id = "dirsan", theme =  "london",  rate = (
 renderGauge(div_id = "dipamm", theme =  "london",  rate = (
   
   perf %>%
-    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    filter(Periodo == 4 & Avanzamento != 0 ) %>% 
     group_by(Dipartimento) %>% 
     summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
     filter(Dipartimento == "Dipartimento amministrativo")
@@ -418,7 +418,7 @@ renderGauge(div_id = "dipamm", theme =  "london",  rate = (
 renderGauge(div_id = "dipTSA", theme =  "london",  rate = (
   
   perf %>%
-    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    filter(Periodo == 4 & Avanzamento != 0 ) %>% 
     group_by(Dipartimento) %>% 
     summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
     filter(Dipartimento == "Dipartimento tutela e salute animale")
@@ -428,7 +428,7 @@ renderGauge(div_id = "dipTSA", theme =  "london",  rate = (
 renderGauge(div_id = "dipSA", theme =  "london",  rate = (
   
   perf %>%
-    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    filter(Periodo == 4 & Avanzamento != 0 ) %>% 
     group_by(Dipartimento) %>% 
     summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
     filter(Dipartimento == "Dipartimento sicurezza alimentare")
@@ -438,7 +438,7 @@ renderGauge(div_id = "dipSA", theme =  "london",  rate = (
 renderGauge(div_id = "LOMB", theme =  "london",  rate = (
   
   perf %>%
-    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    filter(Periodo == 4 & Avanzamento != 0 ) %>% 
     group_by(Dipartimento) %>% 
     summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
     filter(Dipartimento == "Dipartimento area territoriale Lombardia")
@@ -448,7 +448,7 @@ renderGauge(div_id = "LOMB", theme =  "london",  rate = (
 renderGauge(div_id = "EMR", theme =  "london",  rate = (
   
   perf %>%
-    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    filter(Periodo == 4 & Avanzamento != 0 ) %>% 
     group_by(Dipartimento) %>% 
     summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
     filter(Dipartimento == "Dipartimento area territoriale Emilia Romagna")

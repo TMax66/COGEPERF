@@ -1,17 +1,17 @@
 ## if FTE
 
-tdip <-  
-tizsler %>% filter(Anno == 2021) %>% View()
-    left_join(
-      (pub %>% filter(OA == 2021) %>% 
-         filter(articoliif == "IF") %>%
-         # count(Dipartimento, NR) %>%
-         group_by(Dipartimento) %>%  
-         # count(NR) %>%
-         summarise("Pubblicazioni" = nlevels(factor(NR)), 
-                   "Impact Factor" = sum(IF, na.rm = TRUE), 
-                   "IF mediano" = median(IF, na.rm = TRUE))), by = "Dipartimento") 
-    
+# tdip <-  
+# tizsler %>% filter(Anno == 2021) %>% View()
+#     left_join(
+#       (pub %>% filter(OA == 2021) %>% 
+#          filter(articoliif == "IF") %>%
+#          # count(Dipartimento, NR) %>%
+#          group_by(Dipartimento) %>%  
+#          # count(NR) %>%
+#          summarise("Pubblicazioni" = nlevels(factor(NR)), 
+#                    "Impact Factor" = sum(IF, na.rm = TRUE), 
+#                    "IF mediano" = median(IF, na.rm = TRUE))), by = "Dipartimento") 
+#     
     
     
     fte <- ore %>% 
@@ -20,11 +20,12 @@ tizsler %>% filter(Anno == 2021) %>% View()
              !is.na(Dirigente) & 
                !is.na(Ore) & 
                Mese == 12 & 
-               ANNO == 2020) %>%
+               ANNO == 2020) %>%  
+      mutate(fte = ifelse(Dirigente == "Comparto",  36*47.4,  38*47.4)) %>% 
       group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente) %>%
-      mutate(fte = ifelse(Dirigente == "Comparto",  36*47.4,  38*47.4)) %>%  
       summarise(FTE = sum(fte)/fte) %>% 
-      distinct() %>% 
+      distinct() %>%  
+      select(-ANNO) %>%
       pivot_wider(names_from = "Dirigente", values_from = "FTE", names_repair = c("Dirigente", "FTE"))  
       
       

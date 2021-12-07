@@ -85,7 +85,7 @@ dt <- dt %>% rename( Reparto = Struttura ) %>%
 
 AV <- 
  dt %>% 
-  filter(Periodo == 2 & Avanzamento != 0 ) %>% View()
+  filter(Periodo == 4 & Avanzamento != 0 ) %>% 
   summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))
 
 # library(flexdashboard)
@@ -103,7 +103,7 @@ AV <-
 #Dipartimenti----
 
 dt %>% 
-  filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+  filter(Periodo == 4 & Avanzamento != 0 ) %>% 
   group_by(Dipartimento) %>% 
   summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% View()
   # filter(Dipartimento == "Direzione Generale")
@@ -135,7 +135,7 @@ Area <-  dt %>%
 #Polar plot avanzamento per Area----
 
 plot_dt <- dt %>%  
-    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
+    filter(Periodo == 4 & Avanzamento != 0 ) %>% 
   mutate(MacroArea = factor(MacroArea)) %>% 
   group_by(MacroArea) %>% 
   summarise(mediana =  100*round(median(Avanzamento, na.rm = T),2),
@@ -261,7 +261,7 @@ plt <- ggplot(plot_dt)+
   )
   
 
-plt <- plt+
+plt <- plt
   labs(
     caption = "Analisi dati a cura dell'U.O. Controllo di Gestione e Performances")+
      
@@ -311,129 +311,129 @@ AreaDip <-  dt %>%
 
 #plot aredip----
 
-# plt2 <- ggplot(plot_dt2)+
-#   geom_hline(
-#     aes(yintercept = y),
-#     data.frame(y = c(0, 25, 50, 75, 90, 100)), 
-#     color = "lightgrey"
-#   )+
-#   geom_col(
-#     aes(x = reorder(str_wrap(MacroArea, 1), media), 
-#         y = media, 
-#         fill = media
-#     ), 
-#     position = "dodge2", 
-#     show.legend = TRUE, 
-#     alpha = .9
-#   )+
-#   
-#   geom_point(
-#     aes(
-#       x = reorder(str_wrap(MacroArea, 1), media),
-#       y = media
-#     ), 
-#     size = 3, color = "gray12"
-#   )+
-#   
-#   geom_segment(
-#     aes(
-#       x =  reorder(str_wrap(MacroArea, 1), media), 
-#       y = 0, 
-#       xend = reorder(str_wrap(MacroArea, 1), media), 
-#       yend = 100
-#     ), 
-#     linetype = "dashed",
-#     color = "gray12"
-#   )+
-#   coord_polar()+
-#   
-#   scale_y_continuous(
-#     limits = c(-20,110),
-#     expand = c(0, 0)
-#     
-#   ) +
-#   geom_text(
-#     aes(
-#       x = reorder(str_wrap(MacroArea, 1), media),
-#       y = media-10, 
-#       label = paste0(media, "%")), 
-#     color = "black", 
-#     size=5)+
-#   
-#   annotate(
-#     x = 0.5, 
-#     y = 30, 
-#     label = "25%", 
-#     geom = "text", 
-#     color = "red", 
-#     family = "Bell MT"
-#   )  +
-#   annotate(
-#     x = 0.5, 
-#     y = 55, 
-#     label = "50%", 
-#     geom = "text", 
-#     color = "red", 
-#     family = "Bell MT"
-#   )  +
-#   
-#   annotate(
-#     x = 0.5, 
-#     y = 80, 
-#     label = "75%", 
-#     geom = "text", 
-#     color = "red", 
-#     family = "Bell MT"
-#   )  +
-#   
-#   annotate(
-#     x = 0.5, 
-#     y = 110, 
-#     label = "100%", 
-#     geom = "text", 
-#     color = "red", 
-#     family = "Bell MT"
-#   )  +
-#   
-#   scale_fill_gradientn(colours = gray.colors(7))+
-#   
-#   theme(
-#     # Remove axis ticks and text
-#     axis.title = element_blank(),
-#     axis.ticks = element_blank(),
-#     axis.text.y = element_blank(),
-#     # Use gray text for the region names
-#     axis.text.x = element_text(color = "gray12", size = 8),
-#     # Move the legend to the bottom
-#     legend.position = "blank",
-#   )+
-#   
-# 
-# 
-#   facet_wrap(~Dipartimento, ncol = 5)
-# 
-# plt2 <- plt2+
-#   labs(
-#     title = paste("\nGrado di raggiungimento obiettivi di performance:Valutazione Intermedia al 30/06/2021.\n"), 
-#     caption = "U.O. Controllo di Gestione e Performances")+
-#   
-#   # Customize general theme
-#   theme(
-#     
-#     # Set default color and font family for the text
-#     text = element_text(color = "gray12", family = "Bell MT"),
-#     
-#     # Customize the text in the title, subtitle, and caption
-#     plot.title = element_text(face = "bold", size = 18),
-#     plot.subtitle = element_text(size = 14, hjust = 0.05),
-#     plot.caption = element_text(size = 10, hjust = .5),
-#     
-#     # Make the background white and remove extra grid lines
-#     panel.background = element_rect(fill = "white", color = "white"),
-#     panel.grid = element_blank(),
-#     panel.grid.major.x = element_blank()
-#   )
-# 
+plt2 <- ggplot(plot_dt2)+
+  geom_hline(
+    aes(yintercept = y),
+    data.frame(y = c(0, 25, 50, 75, 90, 100)),
+    color = "lightgrey"
+  )+
+  geom_col(
+    aes(x = reorder(str_wrap(MacroArea, 1), media),
+        y = media,
+        fill = media
+    ),
+    position = "dodge2",
+    show.legend = TRUE,
+    alpha = .9
+  )+
+
+  geom_point(
+    aes(
+      x = reorder(str_wrap(MacroArea, 1), media),
+      y = media
+    ),
+    size = 3, color = "gray12"
+  )+
+
+  geom_segment(
+    aes(
+      x =  reorder(str_wrap(MacroArea, 1), media),
+      y = 0,
+      xend = reorder(str_wrap(MacroArea, 1), media),
+      yend = 100
+    ),
+    linetype = "dashed",
+    color = "gray12"
+  )+
+  coord_polar()+
+
+  scale_y_continuous(
+    limits = c(-20,110),
+    expand = c(0, 0)
+
+  ) +
+  geom_text(
+    aes(
+      x = reorder(str_wrap(MacroArea, 1), media),
+      y = media-10,
+      label = paste0(media, "%")),
+    color = "black",
+    size=5)+
+
+  annotate(
+    x = 0.5,
+    y = 30,
+    label = "25%",
+    geom = "text",
+    color = "red",
+    family = "Bell MT"
+  )  +
+  annotate(
+    x = 0.5,
+    y = 55,
+    label = "50%",
+    geom = "text",
+    color = "red",
+    family = "Bell MT"
+  )  +
+
+  annotate(
+    x = 0.5,
+    y = 80,
+    label = "75%",
+    geom = "text",
+    color = "red",
+    family = "Bell MT"
+  )  +
+
+  annotate(
+    x = 0.5,
+    y = 110,
+    label = "100%",
+    geom = "text",
+    color = "red",
+    family = "Bell MT"
+  )  +
+
+  scale_fill_gradientn(colours = gray.colors(7))+
+
+  theme(
+    # Remove axis ticks and text
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.y = element_blank(),
+    # Use gray text for the region names
+    axis.text.x = element_text(color = "gray12", size = 8),
+    # Move the legend to the bottom
+    legend.position = "blank",
+  )+
+
+
+
+  facet_wrap(~Dipartimento, ncol = 5)
+
+plt2 <- plt2+
+  labs(
+    title = paste("\nGrado di raggiungimento obiettivi di performance:Valutazione Intermedia al 30/06/2021.\n"),
+    caption = "U.O. Controllo di Gestione e Performances")+
+
+  # Customize general theme
+  theme(
+
+    # Set default color and font family for the text
+    text = element_text(color = "gray12", family = "Bell MT"),
+
+    # Customize the text in the title, subtitle, and caption
+    plot.title = element_text(face = "bold", size = 18),
+    plot.subtitle = element_text(size = 14, hjust = 0.05),
+    plot.caption = element_text(size = 10, hjust = .5),
+
+    # Make the background white and remove extra grid lines
+    panel.background = element_rect(fill = "white", color = "white"),
+    panel.grid = element_blank(),
+    panel.grid.major.x = element_blank()
+  )
+
 
 
 
@@ -486,20 +486,6 @@ plt <- ggplot(plot_ob)+
   aes(y = Obiettivo, x = media)+
   geom_point()
    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 Indicatori <-   dt %>%  
   mutate(Indicatore = factor(Indicatore)) %>% 
