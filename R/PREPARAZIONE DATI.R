@@ -125,6 +125,7 @@ T3 <- cc %>% filter(Classe== "Ricavi da produzione") %>% ###attività interna
   summarise(TotNAI = sum(NumAI), 
             TAI = sum(TarAI)) 
 
+
 ore <- con %>% tbl(sql(queryOre)) %>% as_tibble()  ### FTEq
 names(ore)[1:6] <- c("Dipartimento", "Reparto", "Laboratorio", "CDC", "CodiceCC", "ANNO")
 fte <- ore %>% 
@@ -142,7 +143,94 @@ T1 %>% ##attività costi e fte
   left_join(T2, by=c("ANNO", "Dipartimento", "Reparto", "Laboratorio")) %>%  
   left_join(T3, by=c("ANNO", "Dipartimento", "Reparto", "Laboratorio")) %>% 
   left_join(fte,by=c("ANNO", "Dipartimento", "Reparto", "Laboratorio")) %>% 
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%
   saveRDS(., file = here("data", "processed",  "TabellaGenerale.rds"))
+
+
+##DATI FTEQ programmati----
+dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
+
+
+dtProg %>% 
+  filter(Dipartimento != "Dipartimento Amministrativo") %>% 
+  mutate(Dipartimento = recode(Dipartimento, 
+                               "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" , 
+                               "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia", 
+                               "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale", 
+                               )
+  ) %>% 
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
+  group_by(Valorizzazione, Dipartimento) %>%
+  summarise(FTED = sum(FTED, na.rm = T), 
+            FTEC = sum(FTEC, na.rm = T)) %>% 
+  rowwise() %>% 
+  mutate(FT = sum(FTED, FTEC)) %>% 
+  group_by( Dipartimento) %>% 
+  # filter(Valorizzazione == "si") %>%  
+  mutate(FTp = round(100*prop.table(FT), 1)) %>%   
+  select(-FTED, -FTEC) %>%  
+  group_by(Dipartimento, Valorizzazione) %>% 
+  filter(Valorizzazione== "si") %>%  
+  ungroup() %>%
+  select(Dipartimento, FTp) %>% 
+  saveRDS(here("data", "processed", "ftepDIP.RDS"))
+
+
+
+
+
+
+
+
+
+
+dtProg %>% 
+  filter(Dipartimento != "Dipartimento Amministrativo") %>% 
+  mutate(Dipartimento = recode(Dipartimento, 
+                               "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" , 
+                               "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia", 
+                               "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale", 
+                               ), 
+         Reparto = recode(Reparto, 
+                          "STBO-FE-MO" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA", 
+                          "STPR-PC" = "SEDE TERRITORIALE DI PIACENZA - PARMA", 
+                          "STFO-RA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA", 
+                          "STRE" = "SEDE TERRITORIALE DI REGGIO EMILIA", 
+                          "STBG-BI-SO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO", 
+                          "STLO-MI" = "SEDE TERRITORIALE DI LODI - MILANO", 
+                          "STCR-MN" = "SEDE TERRITORIALE DI CREMONA - MANTOVA", 
+                          "STPV" = "SEDE TERRITORIALE DI PAVIA", 
+                          "STBS" = "SEDE TERRITORIALE DI BRESCIA",
+                          "RPP" = "REPARTO PRODUZIONE PRIMARIA", 
+                          "RCABO" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)", 
+                          "RCA" = "REPARTO CONTROLLO ALIMENTI", 
+                          "RCAM" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI", 
+                          "RVIR" = "REPARTO VIROLOGIA", 
+                          "RVVPB" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE", 
+                          "RTBA" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE", 
+                          "RPCMB" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO", 
+                          "AREG" = "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA", 
+                          "GESTCENT" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
+                          "SORVEPIDEM" = "SORVEGLIANZA EPIDEMIOLOGICA", 
+                          "FORMAZIONE" = "FORMAZIONE E BIBLIOTECA"
+                          )
+  ) %>% 
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
+  group_by(Valorizzazione, Dipartimento, Reparto) %>%
+  summarise(FTED = sum(FTED, na.rm = T), 
+            FTEC = sum(FTEC, na.rm = T)) %>% 
+  rowwise() %>% 
+  mutate(FT = sum(FTED, FTEC)) %>% 
+  group_by( Dipartimento, Reparto) %>% 
+  # filter(Valorizzazione == "si") %>%  
+  mutate(FTp = round(100*prop.table(FT), 1)) %>%  
+  select(-FTED, -FTEC) %>%  
+  group_by(Dipartimento,Reparto,  Valorizzazione) %>% 
+  filter(Valorizzazione== "si") %>%  
+  ungroup() %>%
+  select(Dipartimento,Reparto, FTp) %>% 
+  saveRDS(here("data", "processed", "ftepREP.RDS"))
+
 
 
 
@@ -285,7 +373,9 @@ anag <- ore %>%
 prj %>%
   left_join(anag, by = c("MatrRSUO" = "Matricola")) %>% 
   mutate(annoinizio = year(DataInizio), 
-         annofine = year(DataFine)) %>%   
+         annofine = year(DataFine),
+         Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%   
+  
   saveRDS(., file = here( "data", "processed",  "prj.rds"))
 
 
@@ -301,6 +391,7 @@ pubblicazioni %>% filter(OA >= 2019) %>%
   )) %>%
   left_join(anag, by = c("Cognome" = "Cognome")) %>%
   filter(Dirigente == "S") %>%  
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
   saveRDS(., file = here( "data", "processed",  "pub.rds"))
 
 

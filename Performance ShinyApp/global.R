@@ -36,8 +36,7 @@ tabIZSLER <- tabIZSLER %>%
   mutate_at(vars(TotTariff),
             funs(ifelse( Laboratorio == "GESTIONE CENTRALIZZATA DELLE RICHIESTE" & ANNO >= 2021,GCR$Valore, TotTariff )))
 
-tabIZSLER <- 
-  tabIZSLER %>% 
+tabIZSLER <- tabIZSLER %>% 
   filter(!Dipartimento %in% c("Non applicabile", 
                               "Costi Comuni e Centri contabili", 
                               "Dipartimento amministrativo", 
@@ -45,18 +44,18 @@ tabIZSLER <-
                               "Direzione Amministrativa",
                               "Costi Comuni e Centri contabili"
                                )) %>% 
-  filter(!Reparto %in% c("COSTI COMUNI LOMBARDIA"))
+  filter(!Reparto %in% c("COSTI COMUNI LOMBARDIA")) 
+  
+
+
+ftepDIP <- readRDS(here("data", "processed", "ftepDIP.RDS"))
+ftepREP <- readRDS(here("data", "processed", "ftepREP.RDS"))
 
 prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
 pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazioni
 
 
 perf <- readRDS(here("data", "processed", "performance.RDS"))
-
-
-
-
-
 
 
 
@@ -85,7 +84,7 @@ tizsler <-  tabIZSLER %>%
   mutate(RT = (Valorizzazione+VP+AI),
          FTE_T = round((FTED+FTEC),1)) %>%   
   arrange(desc(Prestazioni)) %>%  
-  mutate("R-FTE" = round(RT/FTE_T,0)) %>%  
+  #mutate("R-FTE" = round(RT/FTE_T,0)) %>%  
   filter(Prestazioni >0)  
 
 

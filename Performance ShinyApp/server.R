@@ -41,7 +41,12 @@ tdip <- reactive(
     (pr() %>%
        group_by(Dipartimento) %>%
        summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
-    ),  by = "Dipartimento" ))
+    ),  by = "Dipartimento" ) %>% 
+    left_join(#aggiungola tabella con i fte programmati per dipartimento
+      ftepDIP, by="Dipartimento"
+    ) %>% 
+    mutate(RFTE = RT/(FTE_T*(FTp/100)))#< questo calcola il ricavo fte usando solo la % di fte allocata alle atrtività istituzionali
+  )
 
 
 tdiprep <- reactive(
@@ -186,7 +191,9 @@ output$IF <- renderValueBox({
 output$t <- renderUI({
     border <- officer::fp_border()
    flextable(tdip(),
-      col_keys = c("Dipartimento", "Prestazioni", "Valorizzazione", "VP", "AI",  "RT","COSTI", "FTE_T", "R-FTE", "Pubblicazioni", "Progetti di Ricerca")
+      col_keys = c("Dipartimento", "Prestazioni", "Valorizzazione", 
+                   "VP", "AI",  "RT","COSTI", "FTE_T", "FTp", "RFTE",
+                   "Pubblicazioni", "Progetti di Ricerca")
       ) %>%  
       theme_booktabs() %>% 
       color(i = 1, color = "blue", part = "header") %>%
@@ -195,8 +202,9 @@ output$t <- renderUI({
       fontsize(part = "header", size = 15) %>%
       line_spacing(space = 2.5) %>% 
       autofit() %>%
-      colformat_double(j = c( "Valorizzazione", "VP", "AI", "COSTI",  "RT", "R-FTE"), big.mark = ".", decimal.mark = ",", prefix = "€", digits = 0) %>%
+      colformat_double(j = c( "Valorizzazione", "VP", "AI", "COSTI",  "RT",  "RFTE"), big.mark = ".", decimal.mark = ",", prefix = "€", digits = 0) %>%
       colformat_double(j= c("Prestazioni", "FTE_T"), big.mark = ".", decimal.mark = "," ,  digits = 0) %>% 
+      colformat_double(j= c("FTp"), big.mark = ".", decimal.mark = "," ,  digits = 0, suffix = "%") %>% 
      # bg( i = ~ ROI >= 1, 
      #    j = ~ ROI, 
      #    bg="green") %>% 
@@ -345,6 +353,7 @@ output$projr <- renderDataTable(Prj(), server = FALSE, class = 'cell-border stri
 
 ##tabelle modali DIPA/REP----
 
+###tabella modale progetti di ricerca----
 Prjdip <- reactive({
   prdip() %>%
     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient) %>%
@@ -366,6 +375,22 @@ output$projrep <- renderDataTable(Prjdip(), server = FALSE, class = 'cell-border
                                 extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
                                                                       paging = TRUE,autoWidth = TRUE,
                                                                       buttons = c('excel')))
+
+
+
+###tabella modale pubblicazioni----
+# paper <- reactive({
+#   
+#   pubs %>% filter(IF == "IF") %>% 
+#     select("AUTORI" = autori, "JOURNAL" = `TITOLO RIVISTA`, "TITOLO" = titinglese, "IF" = impf) %>%
+#     unique() %>% 
+#     arrange(desc(IF))
+# })
+# 
+# output$articoli <- renderDataTable(paper(),server = FALSE, class = 'cell-border stripe', rownames=FALSE,
+#                                    extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
+#                                                                          paging = TRUE,autoWidth = TRUE,
+#                                                                          buttons = c('excel')))
 
 
 

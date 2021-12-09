@@ -2,7 +2,7 @@ library(here)
 library(tidyverse)
 
 ##FTE
-dtProg <- readRDS("datiSB.rds")
+dtProg <- readRDS(here("Programmazione per FTE", "datiSB.rds"))
 
 dtProg %>% 
   filter(Dipartimento != "Dipartimento Amministrativo") %>% 

@@ -1,3 +1,86 @@
+
+pr <-  prj %>% 
+                 mutate("Stato" = ifelse(annofine < 2021, "Archiviato", "Attivo")) %>% 
+                 filter(Stato == "Attivo" & annoinizio <= 2021)
+
+
+
+tdip <-  
+  (tizsler %>% 
+    filter(Anno == 2021) %>% 
+    left_join(
+      (pubs %>%
+         filter(articoliif == "IF") %>%
+         # count(Dipartimento, NR) %>%
+         group_by(Dipartimento) %>%  
+         # count(NR) %>%
+         summarise("Pubblicazioni" = nlevels(factor(NR)), 
+                   "Impact Factor" = sum(IF, na.rm = TRUE))), by = "Dipartimento") %>%    
+    left_join(
+      (pr %>%
+         group_by(Dipartimento) %>%
+         summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
+      ),  by = "Dipartimento" )) %>% 
+  left_join(
+    ftepDIP, by="Dipartimento"
+  ) %>% 
+  mutate(RFTE = RT/(FTE_T*(FTp/100)))
+
+  
+  
+  
+  
+  
+  
+  
+  # left_join( 
+  #   ( 
+  #     tizsler %>% 
+  #       mutate(Dipartimento =casefold(Dipartimento, upper = TRUE)) %>% 
+  #       filter(Anno == 2021) #%>% View()
+  #       #select(Dipartimento, RT, FTE_T)   
+  #   ), by = "Dipartimento") %>% 
+  # mutate(FTEprogrammato = FTE_T*FTp, 
+  #        RFTE = RT/FTEprogrammato) %>%  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 library(readxl)
 personale <- read_excel("C:/Users/vito.tranquillo/Desktop/personale.xls")
 
@@ -10,7 +93,27 @@ personale %>%
   gtsave("personale.rtf")
   
 
+pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
+pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
+pubblicazioni$AU <- gsub(",.*$", "", pubblicazioni$AU)
+pubblicazioni %>% filter(OA >= 2019) %>%
+  mutate(Cognome = recode(AU,
+                          "COSCIANI_CUNICO" = "COSCIANI CUNICO",
+  )) %>%
+  left_join(anag, by = c("Cognome" = "Cognome")) %>%
+  filter(Dirigente == "S") %>% 
 
+
+
+
+
+pubs <-  pub %>% 
+  filter(OA == 2021)
+
+pubs %>% filter(IF == "IF") %>% 
+  select("AUTORI" = AU, "JOURNAL" = `TITOLO RIVISTA`, "TITOLO" = titinglese, "IF" = impf) %>%
+  unique() %>% 
+  arrange(desc(IF)) %>% View()
 
 
 
