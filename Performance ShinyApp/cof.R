@@ -3,7 +3,8 @@ pr <-  prj %>%
                  mutate("Stato" = ifelse(annofine < 2021, "Archiviato", "Attivo")) %>% 
                  filter(Stato == "Attivo" & annoinizio <= 2021)
 
-
+pubs <- pub %>% 
+                   filter(OA == 2021)
 
 tdip <-  
   (tizsler %>% 
@@ -26,7 +27,219 @@ tdip <-
   ) %>% 
   mutate(RFTE = RT/(FTE_T*(FTp/100)))
 
+x <- tdip %>%ungroup() %>% 
+summarise(rt=sum(RT),
+          ft=sum(FTE_T))%>% 
+  bind_cols(ftp=FTp) %>% View()
+  mutate(rfte=rt/(ft*ftp)) %>% 
+  select(rfte) %>% 
+  unlist()
+ 
   
+  
+  FTprep <- dtProg %>% 
+    group_by(Reparto, Valorizzazione) %>% 
+    summarise(FTED = sum(FTED, na.rm = T), 
+              FTEC = sum(FTEC, na.rm = T)) %>% 
+    rowwise() %>% 
+    mutate(FT = sum(FTED, FTEC)) %>% 
+    ungroup() %>% 
+    mutate(FTp = round(prop.table(FT), 1)) %>% 
+    filter(Valorizzazione == "si")
+  
+  
+  
+  
+  
+  dtProg %>% 
+    filter(Dipartimento != "Dipartimento Amministrativo") %>% 
+    mutate(Dipartimento = recode(Dipartimento, 
+                                 "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" , 
+                                 "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia", 
+                                 "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale", 
+    ), 
+    Reparto = recode(Reparto, 
+                     "STBO-FE-MO" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA", 
+                     "STPR-PC" = "SEDE TERRITORIALE DI PIACENZA - PARMA", 
+                     "STFO-RA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA", 
+                     "STRE" = "SEDE TERRITORIALE DI REGGIO EMILIA", 
+                     "STBG-BI-SO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO", 
+                     "STLO-MI" = "SEDE TERRITORIALE DI LODI - MILANO", 
+                     "STCR-MN" = "SEDE TERRITORIALE DI CREMONA - MANTOVA", 
+                     "STPV" = "SEDE TERRITORIALE DI PAVIA", 
+                     "STBS" = "SEDE TERRITORIALE DI BRESCIA",
+                     "RPP" = "REPARTO PRODUZIONE PRIMARIA", 
+                     "RCABO" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)", 
+                     "RCA" = "REPARTO CONTROLLO ALIMENTI", 
+                     "RCAM" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI", 
+                     "RVIR" = "REPARTO VIROLOGIA", 
+                     "RVVPB" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE", 
+                     "RTBA" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE", 
+                     "RPCMB" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO", 
+                     "AREG" = "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA", 
+                     "GESTCENT" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
+                     "SORVEPIDEM" = "SORVEGLIANZA EPIDEMIOLOGICA", 
+                     "FORMAZIONE" = "FORMAZIONE E BIBLIOTECA"
+    )
+    ) %>% 
+    mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
+    group_by(Valorizzazione, Dipartimento, Reparto) %>%
+    summarise(FTED = sum(FTED, na.rm = T), 
+              FTEC = sum(FTEC, na.rm = T)) %>% 
+    rowwise() %>% 
+    mutate(FT = sum(FTED, FTEC)) %>% 
+    group_by( Dipartimento, Reparto) %>% 
+    # filter(Valorizzazione == "si") %>%   
+    mutate(FTp = round(100*prop.table(FT), 1)) %>%  
+    #select(-FTED, -FTEC) %>%  
+    group_by(Dipartimento,Reparto,  Valorizzazione) %>% 
+    filter(Valorizzazione== "si") %>%  
+    ungroup() #%>%
+   # select(Dipartimento,Reparto, FTp)
+  
+  
+  
+
+  ftepREPD %>% 
+    filter(Dipartimento == "DIPARTIMENTO SICUREZZA ALIMENTARE") %>% 
+    group_by(Valorizzazione) %>% 
+    summarise(ft= sum(FT)) %>%
+    mutate(FTp = round(prop.table(ft), 1)) %>%
+    filter(Valorizzazione=="si") %>% 
+    select(FTp)
+    
+    
+ 
+
+
+####################################################################################
+
+
+
+pubsdip <-  pub %>% 
+           filter(OA == 2021 & Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE ")
+
+prdip <-  
+  prj %>% 
+    mutate("Stato" = ifelse(annofine < 2021, "Archiviato", "Attivo")) %>% 
+    filter(Stato == "Attivo" & annoinizio <= 2021 & Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE")
+
+
+
+
+tdiprep <-  tabIZSLER %>% 
+     rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
+             "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
+     filter(Anno == 2021 & Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE") %>% 
+     
+     group_by(Reparto) %>%
+     summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+     mutate(RT = (Valorizzazione+VP+AI),
+            FTE_T = round((FTED+FTEC),1)) %>%
+     arrange(desc(Prestazioni))  %>% 
+     select(-FTED, -FTEC) %>% 
+    left_join(
+      (pubsdip %>%
+         filter(articoliif == "IF") %>%
+         count(Reparto, NR) %>%
+         group_by(Reparto) %>%  
+         count(NR) %>%
+         summarise("Pubblicazioni" = sum(n))), by = "Reparto") %>%    
+    left_join(
+      (prdip %>%
+         group_by(Reparto) %>%
+         summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
+      ), by = "Reparto") %>% 
+    left_join(
+      ftepREP, by = "Reparto"
+    ) %>% 
+  mutate(RFTE = RT/(FTE_T*(FTp/100)))
+  
+
+
+
+ftePrep <- ftepREPD %>% 
+                      filter(Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE" ) %>% 
+                      group_by(Valorizzazione) %>%  
+                      summarise(ft= sum(FT)) %>%
+                      mutate(FTp = round(prop.table(ft), 1)) %>%
+                      filter(Valorizzazione=="si") %>% 
+                      select(FTp)
+
+
+
+
+
+rfteDip <-  tdiprep %>%ungroup() %>% 
+                      summarise(rt=sum(RT),
+                                ft=sum(FTE_T))%>% 
+                      bind_cols(ftePrep) %>% 
+                      mutate(rfte=rt/(ft*FTp)) %>% 
+                      select(rfte) %>% 
+                      unlist()
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FTp <- dtProg %>% 
+  group_by(Valorizzazione) %>% 
+  summarise(FTED = sum(FTED, na.rm = T), 
+            FTEC = sum(FTEC, na.rm = T)) %>% 
+  rowwise() %>% 
+  mutate(FT = sum(FTED, FTEC)) %>% 
+  ungroup() %>% 
+  mutate(FTp = round(prop.table(FT), 1)) %>% 
+  filter(Valorizzazione == "si") %>% 
+  select(FTp) %>% 
+  as.vector()
+
+
+tdip%>% 
+    summarise(rfte = round(sum(tdip$RT)/sum(tdip$FTE_T)*FTp, 2)) %>% 
+    select(rfte)
+
+
+
+dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
+
+
+
+
+dtProg %>% 
+  group_by(Valorizzazione) %>% 
+  summarise(FTED = sum(FTED, na.rm = T), 
+            FTEC = sum(FTEC, na.rm = T)) %>% 
+  rowwise() %>% 
+  mutate(FT = sum(FTED, FTEC)) %>% 
+  ungroup() %>% 
+  mutate(FTp = round(prop.table(FT), 1)) %>% 
+  filter(Valorizzazione == "si") %>% 
+  select(FTp)
+ 
+
+
+
+
+
   
   
   

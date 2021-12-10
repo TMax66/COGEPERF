@@ -27,7 +27,7 @@ pubsdip <- reactive(pub %>%
 
 
 
-tdip <- reactive(
+tdip <- reactive(#questo codice prepara la tabella complessiva dei dipartimenti
   IZSLER() %>%
   left_join(
     (pubs() %>%
@@ -45,11 +45,11 @@ tdip <- reactive(
     left_join(#aggiungola tabella con i fte programmati per dipartimento
       ftepDIP, by="Dipartimento"
     ) %>% 
-    mutate(RFTE = RT/(FTE_T*(FTp/100)))#< questo calcola il ricavo fte usando solo la % di fte allocata alle atrtività istituzionali
+    mutate(RFTE = RT/(FTE_T*(FTp/100)))#< questo calcola il ricavo fte usando solo la % di fte allocata alle attività istituzionali
   )
 
 
-tdiprep <- reactive(
+tdiprep <- reactive(#questo codice prepara la tabella dei singoli dipartimenti con i dati dei reparti
   (tabIZSLER %>% 
      rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
                          "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
@@ -60,9 +60,6 @@ tdiprep <- reactive(
      mutate(RT = (Valorizzazione+VP+AI),
             FTE_T = round((FTED+FTEC),1)) %>%
      arrange(desc(Prestazioni)) %>%
-     mutate("R-FTE" = round(RT/FTE_T,0), 
-            "C-FTE" = round(COSTI/FTE_T, 0), 
-            "ROI" = round(RT/COSTI, 2)) %>% 
      select(-FTED, -FTEC)) %>% 
     left_join(
       (pubsdip() %>%
@@ -75,42 +72,12 @@ tdiprep <- reactive(
       (prdip() %>%
          group_by(Reparto) %>%
          summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
-      ), by = "Reparto")
+      ), by = "Reparto") %>% 
+    left_join(
+      ftepREP, by = "Reparto"
+    ) %>% 
+    mutate(RFTE = RT/(FTE_T*(FTp/100)))
 )
-
-
-
-
-
-# tdiprep <- reactive(
-#   (tabIZSLER %>% 
-#     filter(Anno == input$anno2 & Dipartimento == input$dip) %>% 
-#     rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
-#             "COSTI" = costi) %>%
-#     group_by(Reparto) %>%
-#     summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
-#     mutate(RT = (VALORE+VP+AI),
-#            FTE_T = round((FTED+FTEC),1)) %>%
-#     arrange(desc(ANALISI)) %>%
-#     mutate("R-FTE" = round(RT/FTE_T,0), 
-#            "C-FTE" = round(COSTI/FTE_T, 0), 
-#            "ROI" = round(RT/COSTI, 2)) %>% 
-#     select(-FTED, -FTEC)) %>% 
-#     left_join(
-#       (pubsdip() %>%
-#          filter(articoliif == "IF") %>%
-#          count(Reparto, NR) %>%
-#          group_by(Reparto) %>%  
-#          count(NR) %>%
-#          summarise("Pubblicazioni" = sum(n))), by = "Reparto") %>%    
-#     left_join(
-#       (prdip() %>%
-#          group_by(Reparto) %>%
-#          summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
-#       ), by = "Reparto")
-# )
-
-
 
 output$year <- renderText(input$anno)
 output$dipa <- renderText(input$dip)
@@ -135,9 +102,37 @@ output$rictot <- renderValueBox(
   ValueBOX(IZSLER(), "RT", Titolo = "Ricavi Totali", colore = "blue", icona = "euro")
 )
 
+# output$RFTE <- renderValueBox(
+#   ValueBOX(IZSLER(), Variabile = "RT", Variabile2 = "FTE_T",  Titolo = "Ricavo per Full Time Equivalente", colore = "blue", icona = "euro")
+# )
+
+
+ftp <- reactive(FTp)
+
+rfteDip <- reactive(tdip() %>%ungroup() %>% 
+                      summarise(rt=sum(RT),
+                                ft=sum(FTE_T))%>% 
+                      bind_cols(ftp()) %>% 
+                      mutate(rfte=rt/(ft*FTp)) %>% 
+                      select(rfte) %>% 
+                      unlist()
+)  
+                 
+  
+
+
+
 output$RFTE <- renderValueBox(
-  ValueBOX(IZSLER(), Variabile = "RT", Variabile2 = "FTE_T",  Titolo = "Ricavo per Full Time Equivalente", colore = "blue", icona = "euro")
+  valueBox( prettyNum(rfteDip(), big.mark = ".", decimal.mark = ",") , 
+            subtitle = "Ricavo Full Time Equivalente", color = "blue", 
+            icon = icon("euro")
+  )
 )
+
+
+
+
+
 
 output$Costi <- renderValueBox(
   ValueBOX(IZSLER(), Variabile = "COSTI",   Titolo = "Costi totali", colore = "blue", icona = "euro")
@@ -240,9 +235,35 @@ output$rictotdip <- renderValueBox(
   ValueBOX(tdiprep(), "RT", Titolo = "Ricavi Totali", colore = "blue", icona = "euro")
 )
 
-output$RFTEdip <- renderValueBox(
-  ValueBOX(tdiprep(), Variabile = "RT", Variabile2 = "FTE_T",  Titolo = "Ricavo per Full Time Equivalente", colore = "blue", icona = "euro")
+
+ftePrep <- reactive(ftepREPD %>% 
+                      filter(Dipartimento == input$dip) %>% 
+                      group_by(Valorizzazione) %>% 
+                      summarise(ft= sum(FT)) %>%
+                      mutate(FTp = round(prop.table(ft), 1)) %>%
+                      filter(Valorizzazione=="si") %>% 
+                      select(FTp)
 )
+
+
+rfteDip <- reactive(tdiprep() %>%ungroup() %>% 
+                      summarise(rt=sum(RT),
+                                ft=sum(FTE_T))%>% 
+                      bind_cols(ftePrep()) %>% 
+                      mutate(rfte=rt/(ft*FTp)) %>% 
+                      select(rfte) %>% 
+                      unlist()
+)  
+
+
+
+output$RFTEdip <- renderValueBox(
+  valueBox(rfteDip(), subtitle = "Ricavo Full Time Equivalente")
+)
+
+# output$RFTEdip <- renderValueBox(
+#   ValueBOX(tdiprep(), Variabile = "RT", Variabile2 = "FTE_T",  Titolo = "Ricavo per Full Time Equivalente", colore = "blue", icona = "euro")
+# )
 
 output$Costidip <- renderValueBox(
   ValueBOX(tdiprep(), Variabile = "COSTI",   Titolo = "Costi totali", colore = "blue", icona = "euro")
@@ -304,7 +325,8 @@ output$tr <- renderUI({
   border <- officer::fp_border()
   flextable(tdiprep(), 
             
-            col_keys = c("Reparto", "Prestazioni", "Valorizzazione", "VP", "AI", "RT",  "COSTI",  "FTE_T",  "R-FTE", "Pubblicazioni", "Progetti di Ricerca")
+            col_keys = c("Reparto", "Prestazioni", "Valorizzazione", "VP", "AI", "RT",  "COSTI",
+                         "FTE_T",  "FTp", "RFTE", "Pubblicazioni", "Progetti di Ricerca")
   ) %>%  
     theme_booktabs() %>% 
     color(i = 1, color = "blue", part = "header") %>%
@@ -313,8 +335,9 @@ output$tr <- renderUI({
     fontsize(part = "header", size = 15) %>%
     line_spacing(space = 2.5) %>% 
     autofit() %>%
-    colformat_num(j = c( "Valorizzazione", "VP", "AI", "COSTI",  "RT", "R-FTE"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
+    colformat_num(j = c( "Valorizzazione", "VP", "AI", "COSTI",  "RT", "RFTE"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
     colformat_num(j= c("Prestazioni"), big.mark = ".", decimal.mark = "," ) %>% 
+    colformat_num(j= c("FTp"), big.mark = ".", decimal.mark = ",", digits = 0, suffix = "%") %>% 
     # bg( i = ~ ROI >= 1, 
     #     j = ~ ROI, 
     #     bg="green") %>% 

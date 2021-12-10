@@ -46,10 +46,29 @@ tabIZSLER <- tabIZSLER %>%
                                )) %>% 
   filter(!Reparto %in% c("COSTI COMUNI LOMBARDIA")) 
   
+dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
 
+FTp <- dtProg %>% 
+  group_by(Valorizzazione) %>% 
+  summarise(FTED = sum(FTED, na.rm = T), 
+            FTEC = sum(FTEC, na.rm = T)) %>% 
+  rowwise() %>% 
+  mutate(FT = sum(FTED, FTEC)) %>% 
+  ungroup() %>% 
+  mutate(FTp = round(prop.table(FT), 1)) %>% 
+  filter(Valorizzazione == "si") %>%
+  select(FTp)  
+
+  
+  
+  
 
 ftepDIP <- readRDS(here("data", "processed", "ftepDIP.RDS"))
 ftepREP <- readRDS(here("data", "processed", "ftepREP.RDS"))
+ftepREPD <- readRDS(here("data", "processed", "ftepREPD.RDS"))
+
+
+
 
 prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
 pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazioni
