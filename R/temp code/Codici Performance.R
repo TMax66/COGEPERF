@@ -106,7 +106,8 @@ dt %>%
   filter(Periodo == 4 & Avanzamento != 0 ) %>% 
   group_by(Dipartimento) %>% 
   summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% View()
-  # filter(Dipartimento == "Direzione Generale")
+  
+# filter(Dipartimento == "Direzione Generale")
   
   
 

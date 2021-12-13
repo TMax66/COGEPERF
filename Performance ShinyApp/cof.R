@@ -1,14 +1,14 @@
 
 pr <-  prj %>% 
-                 mutate("Stato" = ifelse(annofine < 2019, "Archiviato", "Attivo")) %>% 
-                 filter(Stato == "Attivo" & annoinizio <= 2019)
+                 mutate("Stato" = ifelse(annofine < 2021, "Archiviato", "Attivo")) %>% 
+                 filter(Stato == "Attivo" & annoinizio <= 2021)
 
 pubs <- pub %>% 
-                   filter(OA == 2019)
+                   filter(OA == 2021)
 
 tdip <-  
   (tizsler %>% 
-    filter(Anno == 2019) %>% 
+    filter(Anno == 2021) %>% 
     left_join(
       (pubs %>%
          filter(articoliif == "IF") %>%
@@ -23,96 +23,194 @@ tdip <-
          summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
       ),  by = "Dipartimento" )) %>% 
   left_join(
-    ftepDIP, by="Dipartimento")
-  # ) %>% 
-  # mutate(RFTE = RT/(FTE_T*(FTp/100)))
+    ftepDIP, by="Dipartimento") %>%
+  mutate(RFTE = RT/(FTET*(FTp/100))) %>% 
+  select(-Anno) %>% 
+  ungroup()
 
-x <- tdip %>%ungroup() %>% 
-summarise(rt=sum(RT),
-          ft=sum(FTE_T))%>% 
-  bind_cols(ftp=FTp) %>%
-  mutate(rfte=rt/(ft*FTp)) %>% 
-  select(rfte) %>% 
-  unlist()
- 
+
+
+plot_dt <- tdip %>% ungroup() %>% 
+  mutate(Dipartimento = recode(Dipartimento,  "DIPARTIMENTO SICUREZZA ALIMENTARE"  = "DSA", 
+                               "DIPARTIMENTO TUTELA E SALUTE ANIMALE" = "DTSA", 
+                               "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA" = "ATLOMB", 
+                               "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA" = "ATER")) %>% 
+  mutate(Prestazioni = round(100*(Prestazioni/sum(Prestazioni)), 1), 
+         "RT" = round(100*(RT/sum(RT)),1),
+         "FTET" = round(100*(FTET/ sum(FTET)), 1), 
+         "FTED" = round(100*(FTED/ sum(FTED)), 1), 
+         "FTEC" = round(100*(FTEC/ sum(FTEC)), 1), 
+         Costi = round(100*(COSTI/sum(COSTI)), 1)) %>%  
+  select(Dipartimento, Prestazioni, RT, FTED, FTEC, FTET, Costi) %>% 
+  pivot_longer(!Dipartimento, names_to = "KPI", values_to = "valore") %>%  
+  mutate(KPI = factor(KPI, levels = c("Prestazioni", "RT", "FTED", "FTEC", "FTET", "Costi" ))) %>% 
+  filter(Dipartimento != "DIREZIONE SANITARIA") %>% 
+
+
+ggplot(aes( 
+  x = Dipartimento, 
+  y = valore, 
+  fill = Dipartimento
+)) + geom_col(width = 0.9, color = "black")+
+  coord_polar(theta = "x")+ facet_wrap(~KPI, nrow = 1)+
+  scale_fill_brewer(palette = "Blues")+
+  geom_text(aes(y = valore-8, label = paste0(valore, "%")), color = "black", size=3)+
+  theme(legend.position = "blank",
+        panel.background= element_blank(),
+        plot.background = element_blank(), 
+        strip.text.x = element_text(size = 15, colour = "blue"), 
+        axis.text.x = element_text(size = 10, color = "black"))+
+  labs(x = "", y = "")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+plt <- ggplot(plot_dt)+
+  geom_hline(
+    aes(yintercept = y),
+    data.frame(y = c(0, 25, 50, 75, 90, 100)), 
+    color = "lightgrey"
+  )+
   
-  
-  FTprep <- dtProg %>% 
-    group_by(Reparto, Valorizzazione) %>% 
-    summarise(FTED = sum(FTED, na.rm = T), 
-              FTEC = sum(FTEC, na.rm = T)) %>% 
-    rowwise() %>% 
-    mutate(FT = sum(FTED, FTEC)) %>% 
-    ungroup() %>% 
-    mutate(FTp = round(prop.table(FT), 1)) %>% 
-    filter(Valorizzazione == "si")
-  
-  
-  
-  
-  
-  dtProg %>% 
-    filter(Dipartimento != "Dipartimento Amministrativo") %>% 
-    mutate(Dipartimento = recode(Dipartimento, 
-                                 "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" , 
-                                 "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia", 
-                                 "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale", 
+  geom_col(
+    aes(x = reorder(str_wrap(Dipartimento, 1), valore), 
+        y = valore, 
+        fill = valore
     ), 
-    Reparto = recode(Reparto, 
-                     "STBO-FE-MO" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA", 
-                     "STPR-PC" = "SEDE TERRITORIALE DI PIACENZA - PARMA", 
-                     "STFO-RA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA", 
-                     "STRE" = "SEDE TERRITORIALE DI REGGIO EMILIA", 
-                     "STBG-BI-SO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO", 
-                     "STLO-MI" = "SEDE TERRITORIALE DI LODI - MILANO", 
-                     "STCR-MN" = "SEDE TERRITORIALE DI CREMONA - MANTOVA", 
-                     "STPV" = "SEDE TERRITORIALE DI PAVIA", 
-                     "STBS" = "SEDE TERRITORIALE DI BRESCIA",
-                     "RPP" = "REPARTO PRODUZIONE PRIMARIA", 
-                     "RCABO" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)", 
-                     "RCA" = "REPARTO CONTROLLO ALIMENTI", 
-                     "RCAM" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI", 
-                     "RVIR" = "REPARTO VIROLOGIA", 
-                     "RVVPB" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE", 
-                     "RTBA" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE", 
-                     "RPCMB" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO", 
-                     "AREG" = "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA", 
-                     "GESTCENT" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
-                     "SORVEPIDEM" = "SORVEGLIANZA EPIDEMIOLOGICA", 
-                     "FORMAZIONE" = "FORMAZIONE E BIBLIOTECA"
-    )
-    ) %>% 
-    mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
-    group_by(Valorizzazione, Dipartimento, Reparto) %>%
-    summarise(FTED = sum(FTED, na.rm = T), 
-              FTEC = sum(FTEC, na.rm = T)) %>% 
-    rowwise() %>% 
-    mutate(FT = sum(FTED, FTEC)) %>% 
-    group_by( Dipartimento, Reparto) %>% 
-    # filter(Valorizzazione == "si") %>%   
-    mutate(FTp = round(100*prop.table(FT), 1)) %>%  
-    #select(-FTED, -FTEC) %>%  
-    group_by(Dipartimento,Reparto,  Valorizzazione) %>% 
-    filter(Valorizzazione== "si") %>%  
-    ungroup() #%>%
-   # select(Dipartimento,Reparto, FTp)
+    position = "dodge2", 
+    show.legend = TRUE, 
+    alpha = .9
+  )+
   
+  geom_point(
+    aes(
+      x = reorder(str_wrap(Dipartimento, 1), valore),
+      y = valore
+    ), 
+    size = 3, color = "gray12"
+  )+ 
   
+  geom_segment(
+    aes(
+      x =  reorder(str_wrap(Dipartimento, 1), valore), 
+      y = 0, 
+      xend = reorder(str_wrap(Dipartimento, 1), valore), 
+      yend = 100
+    ), 
+    linetype = "dashed",
+    color = "gray12"
+  )+
+  coord_polar()+
   
-
-  ftepREPD %>% 
-    filter(Dipartimento == "DIPARTIMENTO SICUREZZA ALIMENTARE") %>% 
-    group_by(Valorizzazione) %>% 
-    summarise(ft= sum(FT)) %>%
-    mutate(FTp = round(prop.table(ft), 1)) %>%
-    filter(Valorizzazione=="si") %>% 
-    select(FTp)
+  facet_wrap(~KPI, nrow = 1)+
+  
+  scale_y_continuous(
+    limits = c(0,40),
+    expand = c(0, 0)
     
-    
- 
+  ) +
+  geom_text(
+    aes(
+      x = reorder(str_wrap(Dipartimento, 1), valore),
+      y = valore-8, 
+      label = paste0(valore, "%")), 
+    color = "black", 
+    size=2)+
+  
+  # annotate(
+  #   x = 0.5, 
+  #   y = 30, 
+  #   label = "25%", 
+  #   geom = "text", 
+  #   color = "red", 
+  #   family = "Bell MT"
+  # )  +
+ #  annotate(
+ #    x = 0.5, 
+ #    y = 55, 
+ #    label = "50%", 
+ #    geom = "text", 
+ #    color = "red", 
+ #    family = "Bell MT"
+ #  )  +
+ #  
+ #  annotate(
+ #    x = 0.5, 
+ #    y = 80, 
+ #    label = "75%", 
+ #    geom = "text", 
+ #    color = "red", 
+ #    family = "Bell MT"
+ #  )  +
+ #  
+ #  annotate(
+ #    x = 0.5, 
+ #    y = 110, 
+ #    label = "100%", 
+ #    geom = "text", 
+ #    color = "red", 
+ #    family = "Bell MT"
+ #  )  +
+ #  
+scale_fill_gradient(palette = "Blues")+
+ #  
+  theme(
+    # Remove axis ticks and text
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.y = element_blank(),
+    # Use gray text for the region names
+    axis.text.x = element_text(color = "gray12", size = 8),
+    # Move the legend to the bottom
+    legend.position = "blank",
+  )
 
 
-####################################################################################
+
+###grafici per polar plot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -155,154 +253,6 @@ tdiprep <-  tabIZSLER %>%
     ) %>% 
   mutate(RFTE = RT/(FTE_T*(FTp/100))) %>% View()
   
-
-
-
-    ftepREPD %>% 
-      filter(Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE" ) %>% 
-      group_by(valorizz) %>% 
-      summarise(ft= sum(FT)) %>%
-      mutate(FTp = round(prop.table(ft), 1)) %>%
-      filter(valorizz=="si") %>% 
-      select(FTp)
-
-
-
-
-
-tdiprep
-
-
-
-
-
-
-ftePrep <- ftepREPD %>% 
-                      filter(Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE" ) %>% 
-                      group_by(Valorizzazione) %>%  
-                      summarise(ft= sum(FT)) %>%
-                      mutate(FTp = round(prop.table(ft), 1)) %>%
-                      filter(Valorizzazione=="si") %>% 
-                      select(FTp)
-
-
-
-
-
-rfteDip <-  tdiprep %>%ungroup() %>% 
-                      summarise(rt=sum(RT),
-                                ft=sum(FTE_T))%>% 
-                      bind_cols(ftePrep) %>% 
-                      mutate(rfte=rt/(ft*FTp)) %>% 
-                      select(rfte) %>% 
-                      unlist()
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-FTp <- dtProg %>% 
-  group_by(Valorizzazione) %>% 
-  summarise(FTED = sum(FTED, na.rm = T), 
-            FTEC = sum(FTEC, na.rm = T)) %>% 
-  rowwise() %>% 
-  mutate(FT = sum(FTED, FTEC)) %>% 
-  ungroup() %>% 
-  mutate(FTp = round(prop.table(FT), 1)) %>% 
-  filter(Valorizzazione == "si") %>% 
-  select(FTp) %>% 
-  as.vector()
-
-
-tdip%>% 
-    summarise(rfte = round(sum(tdip$RT)/sum(tdip$FTE_T)*FTp, 2)) %>% 
-    select(rfte)
-
-
-
-dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
-
-
-
-
-dtProg %>% 
-  group_by(Valorizzazione) %>% 
-  summarise(FTED = sum(FTED, na.rm = T), 
-            FTEC = sum(FTEC, na.rm = T)) %>% 
-  rowwise() %>% 
-  mutate(FT = sum(FTED, FTEC)) %>% 
-  ungroup() %>% 
-  mutate(FTp = round(prop.table(FT), 1)) %>% 
-  filter(Valorizzazione == "si") %>% 
-  select(FTp)
- 
-
-
-
-
-
-  
-  
-  
-  
-  
-  
-  # left_join( 
-  #   ( 
-  #     tizsler %>% 
-  #       mutate(Dipartimento =casefold(Dipartimento, upper = TRUE)) %>% 
-  #       filter(Anno == 2021) #%>% View()
-  #       #select(Dipartimento, RT, FTE_T)   
-  #   ), by = "Dipartimento") %>% 
-  # mutate(FTEprogrammato = FTE_T*FTp, 
-  #        RFTE = RT/FTEprogrammato) %>%  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -382,7 +332,7 @@ tx <- tabIZSLER %>%
   mutate(RT = (Valorizzazione+VP+AI),
          FTE_T = round((FTED+FTEC),1)) %>%
   arrange(desc(Prestazioni)) %>%
-  mutate("R-FTE" = round(RT/FTE_T,0)) %>% 
+  
   select(-FTED, -FTEC) %>% 
   left_join(
     (pubsdip %>%

@@ -205,24 +205,105 @@ output$t <- renderUI({
                   "Fatturato da Vendita Prodotti",
                   "Valorizzazione dell'Attività Interna",
                   "Ricavo Totale",
-                  "Costi complessivi", 
-                  "Full Time Equivalenti Dirigenza", 
-                  "Full Time Equivalenti Comparto", 
-                  "Full Time Equivalenti Totale", 
+                  "Costi complessivi",
+                  "Full Time Equivalenti Dirigenza",
+                  "Full Time Equivalenti Comparto",
+                  "Full Time Equivalenti Totale",
                   "Full Time Equivalenti Programmati per l'attività analitica",
                   "Ricavo per Full Equivalenti Programmati")
               ),
               ref_symbols = c("a","b","c","d","e","f","g","h", "i", "l", "m"),
               part = "header", inline = T) %>%
-     fontsize( i = NULL, j = NULL, size = 13, part = "footer") %>% 
+     fontsize( i = NULL, j = NULL, size = 13, part = "footer") %>%
       htmltools_value() 
       
 })
 
 
+## Grafico coordinate polari Dipartimento-----
+
+plot_dt <- reactive(tdip() %>% ungroup() %>% 
+  mutate(Dipartimento = recode(Dipartimento,  "DIPARTIMENTO SICUREZZA ALIMENTARE"  = "DSA", 
+                               "DIPARTIMENTO TUTELA E SALUTE ANIMALE" = "DTSA", 
+                               "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA" = "ATLOMB", 
+                               "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA" = "ATER")) %>% 
+  mutate(Prestazioni = round(100*(Prestazioni/sum(Prestazioni)), 1), 
+         "RT" = round(100*(RT/sum(RT)),1),
+         "FTET" = round(100*(FTET/ sum(FTET)), 1), 
+         "FTED" = round(100*(FTED/ sum(FTED)), 1), 
+         "FTEC" = round(100*(FTEC/ sum(FTEC)), 1), 
+         Costi = round(100*(COSTI/sum(COSTI)), 1)) %>%  
+  select(Dipartimento, Prestazioni, RT, FTED, FTEC, FTET, Costi) %>% 
+  pivot_longer(!Dipartimento, names_to = "KPI", values_to = "valore") %>%  
+  mutate(KPI = factor(KPI, levels = c("Prestazioni", "RT", "FTED", "FTEC", "FTET", "Costi" ))) %>% 
+  filter(Dipartimento != "DIREZIONE SANITARIA") 
+)
 
 
-##ValueBOX Diaprtimento/Reparto----
+
+output$tbd <- renderPlot( 
+  
+  if(input$ind == "Dipartimento")
+    
+  {
+    
+    ggplot(plot_dt(),  aes( 
+      x = KPI, 
+      y = valore, 
+      fill = KPI
+    )) + geom_col(width = 0.9, color = "black")+
+      coord_polar(theta = "x")+ facet_wrap(~Dipartimento, nrow = 1)+
+      scale_fill_brewer(palette = "Blues")+
+      geom_text(aes(y = valore-8, label = paste0(valore, "%")), color = "black", size=3)+
+      theme(legend.position = "blank",
+            panel.background= element_blank(),
+            plot.background = element_blank(), 
+            strip.text.x = element_text(size = 15, colour = "blue"), 
+            axis.text.x = element_text(size = 10, color = "black"))+
+      labs(x = "", y = "") 
+    
+  }
+  
+  else
+    
+  {
+    plot_dt() %>% 
+      mutate(Dipartimento = recode(Dipartimento, "Dipartimento Sicurezza Alimentare" = "DSA", 
+                                   "Dipartimento Tutela e  Salute Animale" = "DTSA", 
+                                   "Area Territoriale Lombardia" = "ATLOMB", 
+                                   "Area Territoriale Emilia Romagna" = "ATER")) %>% 
+      ggplot(aes( 
+        x = Dipartimento, 
+        y = valore, 
+        fill = Dipartimento
+      )) + geom_col(width = 0.9, color = "black")+
+      coord_polar(theta = "x")+ facet_wrap(~KPI, nrow = 1)+
+      scale_fill_brewer(palette = "Blues")+
+      geom_text(aes(y = valore-8, label = paste0(valore, "%")), color = "black", size=3)+
+      theme(legend.position = "blank",
+            panel.background= element_blank(),
+            plot.background = element_blank(), 
+            strip.text.x = element_text(size = 15, colour = "blue"), 
+            axis.text.x = element_text(size = 10, color = "black"))+
+      labs(x = "", y = "")
+    
+  }, bg = "transparent")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##ValueBOX Dipartimento/Reparto----
 
 
 output$esamidip <- renderValueBox(
@@ -323,12 +404,6 @@ output$IFdip <- renderValueBox({
 # })
 
 
-
-
-
-
-
-
 ##tabella Dipartimento/Reparto####
 
  
@@ -357,16 +432,16 @@ output$tr <- renderUI({
                  "Fatturato da Vendita Prodotti",
                  "Valorizzazione dell'Attività Interna",
                  "Ricavo Totale",
-                 "Costi complessivi", 
-                 "Full Time Equivalenti Dirigenza", 
-                 "Full Time Equivalenti Comparto", 
-                 "Full Time Equivalenti Totale", 
+                 "Costi complessivi",
+                 "Full Time Equivalenti Dirigenza",
+                 "Full Time Equivalenti Comparto",
+                 "Full Time Equivalenti Totale",
                  "Full Time Equivalenti Programmati per l'attività analitica",
                  "Ricavo per Full Equivalenti Programmati")
              ),
              ref_symbols = c("a","b","c","d","e","f","g","h", "i", "l", "m"),
              part = "header", inline = T) %>%
-    fontsize( i = NULL, j = NULL, size = 13, part = "footer") %>% 
+    fontsize( i = NULL, j = NULL, size = 13, part = "footer") %>%
     
     
     htmltools_value() 

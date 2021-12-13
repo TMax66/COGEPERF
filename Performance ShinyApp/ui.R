@@ -77,14 +77,14 @@ ui <- dashboardPage(
             
             
             column(11, 
-                   div(id = 'clickdiv00'
-                       #plotOutput("tbd"))
+                   div(id = 'clickdiv00',
+                       plotOutput("tbd"))
                    # bsModal("TW", "Distribuzione percentuale degli Indicatori di performance  tra i Dipartimenti",  
                    #         'clickdiv00', tableOutput("tbw"))
                    )
             
           )
-          )), 
+          ), 
 #Dipartimenti----
         tabItem(
           tabName = "dipartimenti", 
