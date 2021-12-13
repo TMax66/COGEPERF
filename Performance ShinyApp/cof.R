@@ -228,12 +228,12 @@ prdip <-
 tdiprep <-  tabIZSLER %>% 
      rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
              "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
-     filter(Anno == 2021 & Dipartimento == "DIREZIONE SANITARIA") %>% 
+     filter(Anno == 2021 & Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE") %>% 
      
      group_by(Reparto) %>%
      summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
      mutate(RT = (Valorizzazione+VP+AI),
-            FTE_T = round((FTED+FTEC),1)) %>%
+            FTET = round((FTED+FTEC),1)) %>%
      arrange(desc(Prestazioni))  %>% 
      select(-FTED, -FTEC) %>% 
     left_join(
@@ -251,8 +251,61 @@ tdiprep <-  tabIZSLER %>%
     left_join(
       ftepREP, by = "Reparto"
     ) %>% 
-  mutate(RFTE = RT/(FTE_T*(FTp/100))) %>% View()
+  mutate(RFTE = RT/(FTET*(FTp/100))) 
   
+
+tdiprep %>% ungroup() %>% 
+  mutate(Reparto = recode(Reparto,  "REPARTO PRODUZIONE PRIMARIA" = "RPP", 
+                          "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI" = "RChAM", 
+                          "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)" = "RChAB", 
+                          "REPARTO CONTROLLO ALIMENTI" = "RCA", 
+                          "REPARTO VIROLOGIA" = "RVIR", 
+                          "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "RVVPB", 
+                          "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO" = "RPCB", 
+                          "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE" = "RTBA",
+                          "SEDE TERRITORIALE DI CREMONA - MANTOVA" = "CR-MN", 
+                          "SEDE TERRITORIALE DI BRESCIA" = "BS", 
+                          "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO" = "BG-BI-SO", 
+                          "SEDE TERRITORIALE DI LODI - MILANO" = "LO-MI", 
+                          "SEDE TERRITORIALE DI PAVIA" = "PV",
+                          "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA" = "BO-MO-FE", 
+                          "SEDE TERRITORIALE DI FORLÌ - RAVENNA" = "FO-RA", 
+                          "SEDE TERRITORIALE DI PIACENZA - PARMA" = "PC-PR", 
+                          "SEDE TERRITORIALE DI REGGIO EMILIA" = "RE",
+                          "GESTIONE CENTRALIZZATA DELLE RICHIESTE" = "GCR",
+                          "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA" = "AREG",
+                          "FORMAZIONE E BIBLIOTECA" = "FORMAZIONE", 
+                          "SORVEGLIANZA EPIDEMIOLOGICA" = "SORVEPID" )) %>% 
+  mutate(Prestazioni = round(100*(Prestazioni/sum(Prestazioni)), 1), 
+         "RT" = round(100*(RT/sum(RT)),1),
+         "FTET" = round(100*(FTET/ sum(FTET)), 1), 
+         "FTED" = round(100*(FTED/ sum(FTED)), 1), 
+         "FTEC" = round(100*(FTEC/ sum(FTEC)), 1), 
+         Costi = round(100*(COSTI/sum(COSTI)), 1)) %>%  
+  select(Reparto, Prestazioni, RT, FTED, FTEC, FTET, Costi) %>% 
+  pivot_longer(!Reparto, names_to = "KPI", values_to = "valore") %>%  
+  mutate(KPI = factor(KPI, levels = c("Prestazioni", "RT", "FTED", "FTEC", "FTET", "Costi" ))) %>% View()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

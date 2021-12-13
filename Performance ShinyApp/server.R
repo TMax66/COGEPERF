@@ -220,7 +220,7 @@ output$t <- renderUI({
 })
 
 
-## Grafico coordinate polari Dipartimento-----
+## grafico coordinate polari Dipartimento-----
 
 plot_dt <- reactive(tdip() %>% ungroup() %>% 
   mutate(Dipartimento = recode(Dipartimento,  "DIPARTIMENTO SICUREZZA ALIMENTARE"  = "DSA", 
@@ -288,18 +288,6 @@ output$tbd <- renderPlot(
       labs(x = "", y = "")
     
   }, bg = "transparent")
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -448,6 +436,113 @@ output$tr <- renderUI({
             
 
 })
+
+
+## grafico coordinate polari Reparti----
+
+
+plot_dt2 <- reactive(tdiprep() %>% ungroup() %>% 
+              mutate(Reparto = recode(Reparto,  "REPARTO PRODUZIONE PRIMARIA" = "RPP", 
+                                 "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI" = "RChAM", 
+                                 "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)" = "RChAB", 
+                                 "REPARTO CONTROLLO ALIMENTI" = "RCA", 
+                                 "REPARTO VIROLOGIA" = "RVIR", 
+                                 "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "RVVPB", 
+                                 "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO" = "RPCB", 
+                                 "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE" = "RTBA",
+                                 "SEDE TERRITORIALE DI CREMONA - MANTOVA" = "CR-MN", 
+                                 "SEDE TERRITORIALE DI BRESCIA" = "BS", 
+                                 "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO" = "BG-BI-SO", 
+                                 "SEDE TERRITORIALE DI LODI - MILANO" = "LO-MI", 
+                                 "SEDE TERRITORIALE DI PAVIA" = "PV",
+                                 "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA" = "BO-MO-FE", 
+                                 "SEDE TERRITORIALE DI FORLÌ - RAVENNA" = "FO-RA", 
+                                 "SEDE TERRITORIALE DI PIACENZA - PARMA" = "PC-PR", 
+                                 "SEDE TERRITORIALE DI REGGIO EMILIA" = "RE",
+                                 "GESTIONE CENTRALIZZATA DELLE RICHIESTE" = "GCR",
+                                 "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA" = "AREG",
+                                 "FORMAZIONE E BIBLIOTECA" = "FORMAZIONE", 
+                                 "SORVEGLIANZA EPIDEMIOLOGICA" = "SORVEPID" )) %>% 
+                      mutate(Prestazioni = round(100*(Prestazioni/sum(Prestazioni)), 1), 
+                             "RT" = round(100*(RT/sum(RT)),1),
+                             "FTET" = round(100*(FTET/ sum(FTET)), 1), 
+                             "FTED" = round(100*(FTED/ sum(FTED)), 1), 
+                             "FTEC" = round(100*(FTEC/ sum(FTEC)), 1), 
+                             Costi = round(100*(COSTI/sum(COSTI)), 1)) %>%  
+                      select(Dipartimento, Prestazioni, RT, FTED, FTEC, FTET, Costi) %>% 
+                      pivot_longer(!Dipartimento, names_to = "KPI", values_to = "valore") %>%  
+                      mutate(KPI = factor(KPI, levels = c("Prestazioni", "RT", "FTED", "FTEC", "FTET", "Costi" ))) %>% 
+                      filter(Dipartimento != "DIREZIONE SANITARIA") 
+)
+
+
+
+output$tbd2<- renderPlot( 
+  
+  if(input$ind2 == "Reparto")
+    
+  {
+    
+    ggplot(plot_dt2(),  aes( 
+      x = KPI, 
+      y = valore, 
+      fill = KPI
+    )) + geom_col(width = 0.9, color = "black")+
+      coord_polar(theta = "x")+ facet_wrap(~Reparto, nrow = 1)+
+      scale_fill_brewer(palette = "Blues")+
+      geom_text(aes(y = valore-8, label = paste0(valore, "%")), color = "black", size=3)+
+      theme(legend.position = "blank",
+            panel.background= element_blank(),
+            plot.background = element_blank(), 
+            strip.text.x = element_text(size = 15, colour = "blue"), 
+            axis.text.x = element_text(size = 10, color = "black"))+
+      labs(x = "", y = "") 
+    
+  }
+  
+  else
+    
+  {
+    plot_dt2() %>% 
+      ggplot(aes( 
+        x = Reparto, 
+        y = valore, 
+        fill = Reparto
+      )) + geom_col(width = 0.9, color = "black")+
+      coord_polar(theta = "x")+ facet_wrap(~KPI, nrow = 1)+
+      scale_fill_brewer(palette = "Blues")+
+      geom_text(aes(y = valore-8, label = paste0(valore, "%")), color = "black", size=3)+
+      theme(legend.position = "blank",
+            panel.background= element_blank(),
+            plot.background = element_blank(), 
+            strip.text.x = element_text(size = 15, colour = "blue"), 
+            axis.text.x = element_text(size = 10, color = "black"))+
+      labs(x = "", y = "")
+    
+  }, bg = "transparent")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ##tabelle modali DIPA------ 
 Prj <- reactive({

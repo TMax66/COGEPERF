@@ -101,15 +101,15 @@ ui <- dashboardPage(
                           valueBoxOutput("RFTEdip"),
                           valueBoxOutput("Costidip"),
                           valueBoxOutput("costiftedip"),
-                          valueBoxOutput("roidip"),
+                           
 
                          # div(id='clickdiv3',
                               valueBoxOutput("IFdip"), #),
                           #bsModal("P1", "Pubblicazioni IF", "clickdiv3",dataTableOutput("articoli"), size = "large"),
 
-                          #div(id='clickdiv4',
-                              valueBoxOutput("Intdip"), #),
-                          #bsModal("CI1", "Partecipazione a convegni internazionali", "clickdiv4", dataTableOutput("convegni"), size = "large"),
+                          # #div(id='clickdiv4',
+                          #     valueBoxOutput("Intdip"), #),
+                          # #bsModal("CI1", "Partecipazione a convegni internazionali", "clickdiv4", dataTableOutput("convegni"), size = "large"),
 
                           div(id='clickdiv5',
                               valueBoxOutput("PRdip")),
