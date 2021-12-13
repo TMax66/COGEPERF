@@ -273,7 +273,7 @@ dtProg %>%
   summarise(FTED = sum(FTED, na.rm = T), 
             FTEC = sum(FTEC, na.rm = T)) %>% 
   rowwise() %>% 
-  mutate(FT = sum(FTED, FTEC)) %>% 
+  mutate(FT = sum(FTED, FTEC)) %>%
   saveRDS(here("data", "processed", "ftepREPD.RDS"))
 
 

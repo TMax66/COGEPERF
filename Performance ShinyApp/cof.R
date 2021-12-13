@@ -1,14 +1,14 @@
 
 pr <-  prj %>% 
-                 mutate("Stato" = ifelse(annofine < 2021, "Archiviato", "Attivo")) %>% 
-                 filter(Stato == "Attivo" & annoinizio <= 2021)
+                 mutate("Stato" = ifelse(annofine < 2019, "Archiviato", "Attivo")) %>% 
+                 filter(Stato == "Attivo" & annoinizio <= 2019)
 
 pubs <- pub %>% 
-                   filter(OA == 2021)
+                   filter(OA == 2019)
 
 tdip <-  
   (tizsler %>% 
-    filter(Anno == 2021) %>% 
+    filter(Anno == 2019) %>% 
     left_join(
       (pubs %>%
          filter(articoliif == "IF") %>%
@@ -23,15 +23,15 @@ tdip <-
          summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
       ),  by = "Dipartimento" )) %>% 
   left_join(
-    ftepDIP, by="Dipartimento"
-  ) %>% 
-  mutate(RFTE = RT/(FTE_T*(FTp/100)))
+    ftepDIP, by="Dipartimento")
+  # ) %>% 
+  # mutate(RFTE = RT/(FTE_T*(FTp/100)))
 
 x <- tdip %>%ungroup() %>% 
 summarise(rt=sum(RT),
           ft=sum(FTE_T))%>% 
-  bind_cols(ftp=FTp) %>% View()
-  mutate(rfte=rt/(ft*ftp)) %>% 
+  bind_cols(ftp=FTp) %>%
+  mutate(rfte=rt/(ft*FTp)) %>% 
   select(rfte) %>% 
   unlist()
  
@@ -130,7 +130,7 @@ prdip <-
 tdiprep <-  tabIZSLER %>% 
      rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
              "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
-     filter(Anno == 2021 & Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE") %>% 
+     filter(Anno == 2021 & Dipartimento == "DIREZIONE SANITARIA") %>% 
      
      group_by(Reparto) %>%
      summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
@@ -153,8 +153,27 @@ tdiprep <-  tabIZSLER %>%
     left_join(
       ftepREP, by = "Reparto"
     ) %>% 
-  mutate(RFTE = RT/(FTE_T*(FTp/100)))
+  mutate(RFTE = RT/(FTE_T*(FTp/100))) %>% View()
   
+
+
+
+    ftepREPD %>% 
+      filter(Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE" ) %>% 
+      group_by(valorizz) %>% 
+      summarise(ft= sum(FT)) %>%
+      mutate(FTp = round(prop.table(ft), 1)) %>%
+      filter(valorizz=="si") %>% 
+      select(FTp)
+
+
+
+
+
+tdiprep
+
+
+
 
 
 

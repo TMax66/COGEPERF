@@ -59,14 +59,15 @@ FTp <- dtProg %>%
   filter(Valorizzazione == "si") %>%
   select(FTp)  
 
-  
-  
-  
 
 ftepDIP <- readRDS(here("data", "processed", "ftepDIP.RDS"))
 ftepREP <- readRDS(here("data", "processed", "ftepREP.RDS"))
-ftepREPD <- readRDS(here("data", "processed", "ftepREPD.RDS"))
+ftepREP <- ftepREP %>% 
+  rename( valorizz = Valorizzazione)
 
+ftepREPD <- readRDS(here("data", "processed", "ftepREPD.RDS"))
+ftepREPD <- ftepREPD %>% 
+  rename( valorizz = Valorizzazione)
 
 
 
@@ -101,7 +102,7 @@ tizsler <-  tabIZSLER %>%
   group_by(Anno, Dipartimento) %>% 
   summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>% 
   mutate(RT = (Valorizzazione+VP+AI),
-         FTE_T = round((FTED+FTEC),1)) %>%   
+         FTET = (FTED+FTEC)) %>%   
   arrange(desc(Prestazioni)) %>%  
   #mutate("R-FTE" = round(RT/FTE_T,0)) %>%  
   filter(Prestazioni >0)  

@@ -45,7 +45,7 @@ tdip <- reactive(#questo codice prepara la tabella complessiva dei dipartimenti
     left_join(#aggiungola tabella con i fte programmati per dipartimento
       ftepDIP, by="Dipartimento"
     ) %>% 
-    mutate(RFTE = RT/(FTE_T*(FTp/100)))#< questo calcola il ricavo fte usando solo la % di fte allocata alle attività istituzionali
+    mutate(RFTE = RT/(FTET*(FTp/100)))#< questo calcola il ricavo fte usando solo la % di fte allocata alle attività istituzionali
   )
 
 
@@ -58,7 +58,7 @@ tdiprep <- reactive(#questo codice prepara la tabella dei singoli dipartimenti c
      group_by(Reparto) %>%
      summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
      mutate(RT = (Valorizzazione+VP+AI),
-            FTE_T = round((FTED+FTEC),1)) %>%
+            FTET = round((FTED+FTEC),2)) %>%
      arrange(desc(Prestazioni)) %>%
      select(-FTED, -FTEC)) %>% 
     left_join(
@@ -76,7 +76,7 @@ tdiprep <- reactive(#questo codice prepara la tabella dei singoli dipartimenti c
     left_join(
       ftepREP, by = "Reparto"
     ) %>% 
-    mutate(RFTE = RT/(FTE_T*(FTp/100)))
+    mutate(RFTE = RT/(FTET*(FTp/100)))
 )
 
 output$year <- renderText(input$anno)
@@ -109,19 +109,15 @@ output$rictot <- renderValueBox(
 
 ftp <- reactive(FTp)
 
-rfteDip <- reactive(tdip() %>%ungroup() %>% 
+rfteDip <- reactive(tdip() %>% ungroup() %>% 
                       summarise(rt=sum(RT),
-                                ft=sum(FTE_T))%>% 
+                                ft=sum(FTET))%>% 
                       bind_cols(ftp()) %>% 
                       mutate(rfte=rt/(ft*FTp)) %>% 
                       select(rfte) %>% 
                       unlist()
 )  
                  
-  
-
-
-
 output$RFTE <- renderValueBox(
   valueBox( prettyNum(rfteDip(), big.mark = ".", decimal.mark = ",") , 
             subtitle = "Ricavo Full Time Equivalente", color = "blue", 
@@ -129,13 +125,8 @@ output$RFTE <- renderValueBox(
   )
 )
 
-
-
-
-
-
 output$Costi <- renderValueBox(
-  ValueBOX(IZSLER(), Variabile = "COSTI",   Titolo = "Costi totali", colore = "blue", icona = "euro")
+  ValueBOX(IZSLER(), Variabile = "COSTI", Titolo = "Costi totali", colore = "blue", icona = "euro")
 )
 
 # output$costifte <- renderValueBox(
@@ -187,7 +178,7 @@ output$t <- renderUI({
     border <- officer::fp_border()
    flextable(tdip(),
       col_keys = c("Dipartimento", "Prestazioni", "Valorizzazione", 
-                   "VP", "AI",  "RT","COSTI", "FTE_T", "FTp", "RFTE",
+                   "VP", "AI",  "RT","COSTI", "FTED", "FTEC","FTET", "FTp", "RFTE",
                    "Pubblicazioni", "Progetti di Ricerca")
       ) %>%  
       theme_booktabs() %>% 
@@ -198,7 +189,7 @@ output$t <- renderUI({
       line_spacing(space = 2.5) %>% 
       autofit() %>%
       colformat_double(j = c( "Valorizzazione", "VP", "AI", "COSTI",  "RT",  "RFTE"), big.mark = ".", decimal.mark = ",", prefix = "€", digits = 0) %>%
-      colformat_double(j= c("Prestazioni", "FTE_T"), big.mark = ".", decimal.mark = "," ,  digits = 0) %>% 
+      colformat_double(j= c("Prestazioni", "FTET"), big.mark = ".", decimal.mark = "," ,  digits = 2) %>% 
       colformat_double(j= c("FTp"), big.mark = ".", decimal.mark = "," ,  digits = 0, suffix = "%") %>% 
      # bg( i = ~ ROI >= 1, 
      #    j = ~ ROI, 
@@ -206,6 +197,24 @@ output$t <- renderUI({
      # bg( i = ~ ROI < 1, 
      #     j = ~ ROI, 
      #     bg="red") %>% 
+     # 
+     footnote(i=1, j=2:12,
+              value = as_paragraph(
+                c("Attività analitica",
+                  "Valorizzazione da Tariffario",
+                  "Fatturato da Vendita Prodotti",
+                  "Valorizzazione dell'Attività Interna",
+                  "Ricavo Totale",
+                  "Costi complessivi", 
+                  "Full Time Equivalenti Dirigenza", 
+                  "Full Time Equivalenti Comparto", 
+                  "Full Time Equivalenti Totale", 
+                  "Full Time Equivalenti Programmati per l'attività analitica",
+                  "Ricavo per Full Equivalenti Programmati")
+              ),
+              ref_symbols = c("a","b","c","d","e","f","g","h", "i", "l", "m"),
+              part = "header", inline = T) %>%
+     fontsize( i = NULL, j = NULL, size = 13, part = "footer") %>% 
       htmltools_value() 
       
 })
@@ -238,17 +247,17 @@ output$rictotdip <- renderValueBox(
 
 ftePrep <- reactive(ftepREPD %>% 
                       filter(Dipartimento == input$dip) %>% 
-                      group_by(Valorizzazione) %>% 
+                      group_by(valorizz) %>% 
                       summarise(ft= sum(FT)) %>%
                       mutate(FTp = round(prop.table(ft), 1)) %>%
-                      filter(Valorizzazione=="si") %>% 
+                      filter(valorizz=="si") %>% 
                       select(FTp)
 )
 
 
-rfteDip <- reactive(tdiprep() %>%ungroup() %>% 
+rfteDipr <- reactive(tdiprep() %>%ungroup() %>% 
                       summarise(rt=sum(RT),
-                                ft=sum(FTE_T))%>% 
+                                ft=sum(FTET))%>% 
                       bind_cols(ftePrep()) %>% 
                       mutate(rfte=rt/(ft*FTp)) %>% 
                       select(rfte) %>% 
@@ -258,7 +267,9 @@ rfteDip <- reactive(tdiprep() %>%ungroup() %>%
 
 
 output$RFTEdip <- renderValueBox(
-  valueBox(rfteDip(), subtitle = "Ricavo Full Time Equivalente")
+  valueBox(prettyNum(rfteDipr(), big.mark = ".", decimal.mark = ","),
+           subtitle = "Ricavo Full Time Equivalente",color = "blue", 
+           icon = icon("euro"))
 )
 
 # output$RFTEdip <- renderValueBox(
@@ -326,7 +337,7 @@ output$tr <- renderUI({
   flextable(tdiprep(), 
             
             col_keys = c("Reparto", "Prestazioni", "Valorizzazione", "VP", "AI", "RT",  "COSTI",
-                         "FTE_T",  "FTp", "RFTE", "Pubblicazioni", "Progetti di Ricerca")
+                         "FTED",  "FTEC",  "FTET",  "FTp",  "RFTE", "Pubblicazioni", "Progetti di Ricerca")
   ) %>%  
     theme_booktabs() %>% 
     color(i = 1, color = "blue", part = "header") %>%
@@ -335,15 +346,29 @@ output$tr <- renderUI({
     fontsize(part = "header", size = 15) %>%
     line_spacing(space = 2.5) %>% 
     autofit() %>%
-    colformat_num(j = c( "Valorizzazione", "VP", "AI", "COSTI",  "RT", "RFTE"), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
-    colformat_num(j= c("Prestazioni"), big.mark = ".", decimal.mark = "," ) %>% 
-    colformat_num(j= c("FTp"), big.mark = ".", decimal.mark = ",", digits = 0, suffix = "%") %>% 
-    # bg( i = ~ ROI >= 1, 
-    #     j = ~ ROI, 
-    #     bg="green") %>% 
-    # bg( i = ~ ROI < 1, 
-    #     j = ~ ROI, 
-    #     bg="red") %>% 
+    colformat_num(j = c( "Valorizzazione", "VP", "AI", "COSTI",  "RT", "RFTE" ), big.mark = ".", decimal.mark = ",", prefix = "€") %>%
+    colformat_num(j= c("Prestazioni", "FTET"), big.mark = ".", decimal.mark = "," , digits = 2) %>% 
+    colformat_num(j= c("FTp" ), big.mark = ".", decimal.mark = ",", digits = 2, suffix = "%") %>% 
+    
+    footnote(i=1, j=2:12,
+             value = as_paragraph(
+               c("Attività analitica",
+                 "Valorizzazione da Tariffario",
+                 "Fatturato da Vendita Prodotti",
+                 "Valorizzazione dell'Attività Interna",
+                 "Ricavo Totale",
+                 "Costi complessivi", 
+                 "Full Time Equivalenti Dirigenza", 
+                 "Full Time Equivalenti Comparto", 
+                 "Full Time Equivalenti Totale", 
+                 "Full Time Equivalenti Programmati per l'attività analitica",
+                 "Ricavo per Full Equivalenti Programmati")
+             ),
+             ref_symbols = c("a","b","c","d","e","f","g","h", "i", "l", "m"),
+             part = "header", inline = T) %>%
+    fontsize( i = NULL, j = NULL, size = 13, part = "footer") %>% 
+    
+    
     htmltools_value() 
             
 
