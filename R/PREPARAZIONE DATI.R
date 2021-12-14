@@ -185,7 +185,6 @@ dtProg %>%
 
 
 
-
 dtProg %>% 
   filter(Dipartimento != "Dipartimento Amministrativo") %>% 
   mutate(Dipartimento = recode(Dipartimento, 
@@ -216,7 +215,7 @@ dtProg %>%
                           "SORVEPIDEM" = "SORVEGLIANZA EPIDEMIOLOGICA", 
                           "FORMAZIONE" = "FORMAZIONE E BIBLIOTECA"
                           )
-  ) %>% 
+  ) %>%  
   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
   group_by(Valorizzazione, Dipartimento, Reparto) %>%
   summarise(FTED = sum(FTED, na.rm = T), 

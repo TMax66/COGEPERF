@@ -64,62 +64,13 @@ ggplot(aes(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 pubsdip <-  pub %>% 
-           filter(OA == 2021 & Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE ")
+           filter(OA == 2021 & Dipartimento == "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA")
 
 prdip <-  
   prj %>% 
     mutate("Stato" = ifelse(annofine < 2021, "Archiviato", "Attivo")) %>% 
-    filter(Stato == "Attivo" & annoinizio <= 2021 & Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE")
+    filter(Stato == "Attivo" & annoinizio <= 2021 & Dipartimento == "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA")
 
 
 
@@ -127,21 +78,21 @@ prdip <-
 tdiprep <-  tabIZSLER %>% 
      rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
              "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
-     filter(Anno == 2021 & Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE") %>% 
+     filter(Anno == 2021 & Dipartimento == "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA") %>%  
      
      group_by(Reparto) %>%
      summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
      mutate(RT = (Valorizzazione+VP+AI),
             FTET = round((FTED+FTEC),1)) %>%
      arrange(desc(Prestazioni))  %>% 
-     select(-FTED, -FTEC) %>% 
+     select(-FTED, -FTEC) %>%   
     left_join(
       (pubsdip %>%
          filter(articoliif == "IF") %>%
          count(Reparto, NR) %>%
          group_by(Reparto) %>%  
          count(NR) %>%
-         summarise("Pubblicazioni" = sum(n))), by = "Reparto") %>%    
+         summarise("Pubblicazioni" = sum(n))), by = "Reparto") %>%   
     left_join(
       (prdip %>%
          group_by(Reparto) %>%
