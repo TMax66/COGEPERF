@@ -108,24 +108,6 @@ tizsler <-  tabIZSLER %>%
   filter(Prestazioni >0)  
 
 
-
-
-
-
-# tizsler <-  tabIZSLER %>%  
-#   rename( "ANALISI" = esami, "VALORE" = valore, "VP" = ricavovp, "AI" = valoreai, 
-#           "COSTI" = costi) %>%
-#   group_by(Anno, Dipartimento) %>%
-#   summarise_at(c("ANALISI", "VALORE",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
-#   mutate(RT = (VALORE+VP+AI),
-#          FTE_T = round((FTED+FTEC),1)) %>%
-#   arrange(desc(ANALISI)) %>%
-#   mutate("R-FTE" = round(RT/FTE_T,0), 
-#          "C-FTE" = round(COSTI/FTE_T, 0), 
-#          "ROI" = round(RT/COSTI, 2)) %>% 
-#   select(-FTED, -FTEC)
-
-
 #Tabella pubblicazioni----
 
 pub <- pub %>% 

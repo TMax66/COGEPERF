@@ -1,3 +1,118 @@
+df <- tizsler %>% 
+  mutate(FTET = FTED+FTEC) %>%
+  pivot_longer(!c(Anno,Dipartimento), names_to = "KPI", values_to = "valore") %>%   
+  filter(KPI == "RT") %>%  
+  group_by(Dipartimento) %>% 
+  arrange(Dipartimento, Anno) %>% 
+  mutate(Var = round((valore/lag(valore)-1)*100, 2)) 
+  ggplot(df)+
+  aes(
+    y = .data[["valore"]],
+    x = .data[["Anno"]])+  
+  geom_ribbon(aes(ymin = 0, ymax = (.data[["valore"]])+0.1*(.data[["valore"]])), alpha=0.0)+
+  geom_point(aes(y = .data[["valore"]])) +
+  geom_line(aes(y = .data[["valore"]]))+
+  facet_wrap(facets = ~Dipartimento, nrow=1, scales = "free")+
+  scale_x_continuous(breaks = unique(df$Anno), expand=c(0.16, 0))+
+  geom_text(data = dplyr::filter(df, Anno == 2020), aes(label = sprintf('%+0.1f%%',.data[["Var"]])), 
+            x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+  geom_text(data = dplyr::filter(df, Anno == 2021), aes(label = sprintf('%+0.1f%%', .data[["Var"]])), 
+            x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+  geom_text(aes(label = sprintf('%0.1f',.data[["valore"]]), y = .data[["valore"]]), vjust = -1, size=3.5)+
+  labs(y = "", x = " ",
+       title = "")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        
+        axis.text.y = element_blank(),
+        axis.text.x = element_text(size = 10),
+        
+        strip.text.x = element_text(size = 9))+
+    geom_vline(xintercept = 2020 )
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+  ggplot(
+    aes(
+      x= Anno,
+      y= valore,
+    )
+  ) +
+  geom_point()+
+  geom_line()+
+  facet_wrap(~Dipartimento, nrow = 1)+
+  theme_bw()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 pr <-  prj %>% 
                  mutate("Stato" = ifelse(annofine < 2021, "Archiviato", "Attivo")) %>% 
