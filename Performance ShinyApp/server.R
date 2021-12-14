@@ -469,10 +469,10 @@ plot_dt2 <- reactive(tdiprep() %>% ungroup() %>%
                              "FTED" = round(100*(FTED/ sum(FTED)), 1), 
                              "FTEC" = round(100*(FTEC/ sum(FTEC)), 1), 
                              Costi = round(100*(COSTI/sum(COSTI)), 1)) %>%  
-                      select(Dipartimento, Prestazioni, RT, FTED, FTEC, FTET, Costi) %>% 
-                      pivot_longer(!Dipartimento, names_to = "KPI", values_to = "valore") %>%  
-                      mutate(KPI = factor(KPI, levels = c("Prestazioni", "RT", "FTED", "FTEC", "FTET", "Costi" ))) %>% 
-                      filter(Dipartimento != "DIREZIONE SANITARIA") 
+                      select(Reparto, Prestazioni, RT, FTED, FTEC, FTET, Costi) %>% 
+                      pivot_longer(!Reparto, names_to = "KPI", values_to = "valore") %>%  
+                      mutate(KPI = factor(KPI, levels = c("Prestazioni", "RT", "FTED", "FTEC", "FTET", "Costi" ))) #%>% 
+                      #filter(Dipartimento != "DIREZIONE SANITARIA") 
 )
 
 
@@ -520,27 +520,6 @@ output$tbd2<- renderPlot(
       labs(x = "", y = "")
     
   }, bg = "transparent")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

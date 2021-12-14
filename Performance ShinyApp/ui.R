@@ -100,9 +100,6 @@ ui <- dashboardPage(
                           valueBoxOutput("rictotdip"),
                           valueBoxOutput("RFTEdip"),
                           valueBoxOutput("Costidip"),
-                          valueBoxOutput("costiftedip"),
-                           
-
                          # div(id='clickdiv3',
                               valueBoxOutput("IFdip"), #),
                           #bsModal("P1", "Pubblicazioni IF", "clickdiv3",dataTableOutput("articoli"), size = "large"),
@@ -127,8 +124,21 @@ ui <- dashboardPage(
                 column(12,
                 box(title = h3(textOutput("dipa2")),  solidHeader = TRUE, collapsible = TRUE,status = "primary", width = 12, 
                     tableOutput("tr"))
-                )) 
-               ), 
+                )), 
+              
+            fluidRow(
+            column(1, 
+                   radioButtons("ind2", "", 
+                                c( "IP" = "IP","Reparto" = "Reparto"))),
+            
+            column(11, 
+                   div(id = 'clickdiv001',
+                       plotOutput("tbd2"))
+          
+          
+          
+          
+               ))), 
 tabItem(
   tabName = "Report Costi-Ricavi per Centri di Costo"
 ),
