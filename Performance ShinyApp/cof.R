@@ -1,11 +1,13 @@
-df <- tizsler %>% 
+trend <- tizsler %>% 
   mutate(FTET = FTED+FTEC) %>%
   pivot_longer(!c(Anno,Dipartimento), names_to = "KPI", values_to = "valore") %>%   
-  filter(KPI == "RT") %>%  
+  filter(KPI == input$kpi) %>%  
   group_by(Dipartimento) %>% 
   arrange(Dipartimento, Anno) %>% 
   mutate(Var = round((valore/lag(valore)-1)*100, 2)) 
-  ggplot(df)+
+  
+
+ggplot(trend)+
   aes(
     y = .data[["valore"]],
     x = .data[["Anno"]])+  
@@ -13,10 +15,10 @@ df <- tizsler %>%
   geom_point(aes(y = .data[["valore"]])) +
   geom_line(aes(y = .data[["valore"]]))+
   facet_wrap(facets = ~Dipartimento, nrow=1, scales = "free")+
-  scale_x_continuous(breaks = unique(df$Anno), expand=c(0.16, 0))+
-  geom_text(data = dplyr::filter(df, Anno == 2020), aes(label = sprintf('%+0.1f%%',.data[["Var"]])), 
+  scale_x_continuous(breaks = unique(trend$Anno), expand=c(0.16, 0))+
+  geom_text(data = dplyr::filter(trend, Anno == 2020), aes(label = sprintf('%+0.1f%%',.data[["Var"]])), 
             x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
-  geom_text(data = dplyr::filter(df, Anno == 2021), aes(label = sprintf('%+0.1f%%', .data[["Var"]])), 
+  geom_text(data = dplyr::filter(trend, Anno == 2021), aes(label = sprintf('%+0.1f%%', .data[["Var"]])), 
             x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
   geom_text(aes(label = sprintf('%0.1f',.data[["valore"]]), y = .data[["valore"]]), vjust = -1, size=3.5)+
   labs(y = "", x = " ",
@@ -32,7 +34,11 @@ df <- tizsler %>%
     geom_vline(xintercept = 2020 )
   
   
-  
+tizsler %>% 
+  mutate(Dipartimento = recode(Dipartimento, "Dipartimento Sicurezza Alimentare" = "DSA", 
+                               "Dipartimento Tutela e  Salute Animale" = "DTSA", 
+                               "Area Territoriale Lombardia" = "ATLOMB", 
+                               "Area Territoriale Emilia Romagna" = "ATER"))
   
   
   

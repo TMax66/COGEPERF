@@ -268,10 +268,10 @@ output$tbd <- renderPlot(
     
   {
     plot_dt() %>% 
-      mutate(Dipartimento = recode(Dipartimento, "Dipartimento Sicurezza Alimentare" = "DSA", 
-                                   "Dipartimento Tutela e  Salute Animale" = "DTSA", 
-                                   "Area Territoriale Lombardia" = "ATLOMB", 
-                                   "Area Territoriale Emilia Romagna" = "ATER")) %>% 
+      mutate(Dipartimento = recode(Dipartimento,  "DIPARTIMENTO SICUREZZA ALIMENTARE"  = "DSA", 
+                                   "DIPARTIMENTO TUTELA E SALUTE ANIMALE" = "DTSA", 
+                                   "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA" = "ATLOMB", 
+                                   "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA" = "ATER")) %>% 
       ggplot(aes( 
         x = Dipartimento, 
         y = valore, 
@@ -290,6 +290,58 @@ output$tbd <- renderPlot(
   }, bg = "transparent")
 
 
+##TrendPlot----
+
+trend <- reactive(
+  tizsler %>% 
+    filter(Dipartimento != "DIREZIONE SANITARIA") %>% 
+    mutate(Dipartimento = recode(Dipartimento,  "DIPARTIMENTO SICUREZZA ALIMENTARE"  = "DSA", 
+                                 "DIPARTIMENTO TUTELA E SALUTE ANIMALE" = "DTSA", 
+                                 "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA" = "ATLOMB", 
+                                 "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA" = "ATER")) %>% 
+  mutate(FTET = FTED+FTEC) %>%
+  pivot_longer(!c(Anno,Dipartimento), names_to = "KPI", values_to = "valore") %>%   
+  filter(KPI == input$kpi) %>%  
+  group_by(Dipartimento) %>% 
+  arrange(Dipartimento, Anno) %>% 
+  mutate(Var = round((valore/lag(valore)-1)*100, 2)) 
+)
+
+
+output$ptrend <- renderPlot({  
+  req(input$kpi)
+  ggplot(trend())+
+    aes(
+      y = .data[["valore"]],
+      x = .data[["Anno"]])+  
+    geom_ribbon(aes(ymin = 0, ymax = (.data[["valore"]])+0.1*(.data[["valore"]])), alpha=0.0)+
+    geom_point(aes(y = .data[["valore"]]), size= 10, color = "blue", alpha = 0.2) +
+    geom_line(aes(y = .data[["valore"]]))+
+    facet_wrap(facets = ~Dipartimento, nrow=1, scales = "free")+
+    scale_x_continuous(breaks = unique(trend()$Anno), expand=c(0.16, 0))+
+    geom_text(data = dplyr::filter(trend(), Anno == 2020), aes(label = sprintf('%+0.1f%%',.data[["Var"]])), 
+              x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+    geom_text(data = dplyr::filter(trend(), Anno == 2021), aes(label = sprintf('%+0.1f%%', .data[["Var"]])), 
+              x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+    geom_text(aes(label = sprintf('%0.1f',.data[["valore"]]), y = .data[["valore"]]), vjust = -1, 
+              size=4, color="blue", fontface = "bold")+
+    labs(y = "", x = " ",
+         title = "")+
+    theme_bw()+
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          
+          axis.text.y = element_blank(),
+          axis.text.x = element_text(size = 10),
+          
+          strip.text.x = element_text(size = 15, color = "blue"), 
+          panel.background= element_blank(),
+          panel.border = element_blank(),
+          plot.background = element_blank()
+          )
+
+}, bg="transparent"
+)
 
 ##ValueBOX Dipartimento/Reparto----
 

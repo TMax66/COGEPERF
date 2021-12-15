@@ -83,7 +83,19 @@ ui <- dashboardPage(
                    #         'clickdiv00', tableOutput("tbw"))
                    )
             
+          ), 
+          fluidRow(
+            column(2, 
+            selectInput("kpi", "Selziona l'Indicatore", 
+                        choices = c("","Prestazioni",
+                                    "Valorizzazione", 
+                                    "VP","AI","RT", "FTED", 
+                                    "FTEC","FTET"))
+            ), 
+            column(10, 
+                   plotOutput("ptrend"))
           )
+          
           ), 
 #Dipartimenti----
         tabItem(
