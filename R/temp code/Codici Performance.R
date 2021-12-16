@@ -1,101 +1,102 @@
-library(tidyverse)
-library(readr)
-library(readxl)
-library(here)
-library(lubridate)
-library(DBI)
-library(odbc)
-library(knitr)
-library(kableExtra)
-library(formattable)
-library(fmsb)
+# library(tidyverse)
+# library(readr)
+# library(readxl)
+# library(here)
+# library(lubridate)
+# library(DBI)
+# library(odbc)
+# library(knitr)
+# library(kableExtra)
+# library(formattable)
+# library(fmsb)
+# 
+# #perf <- readRDS(here("data", "processed", "performance.RDS"))
+# 
+# con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
+#                       Database = "ObiettiviStrategiciV2018", Port = 1433)
+# 
+# queryPERF <- "SELECT
+# Avanzamento,
+# Valore,
+# Anno,
+# TipoObiettivo,
+# Periodo,
+# MacroArea,Obiettivo,
+# Azione,
+# Indicatore,
+# StrutturaAssegnataria
+# 
+# FROM ObiettiviStrategiciV2018.dbo.v_EstrazioneObiettivi
+# WHERE Anno > 2020"
+# 
+# perf <- con %>% tbl(sql(queryPERF)) %>% as_tibble()
+# 
+# strutture <- read_excel(here("data", "raw", "strutture.xlsx"))
+# 
+# 
+# dip <- c("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA", "DIPARTIMENTO SICUREZZA ALIMENTARE",
+#          "DIPARTIMENTO TUTELA SALUTE ANIMALE", "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA",
+#          "DIPARTIMENTO AMMINISTRATIVO", "CONTROLLO DI GESTIONE")
+# 
+# 
+# ##ricordificare le strutture
+# 
+# dt <- perf %>%
+#   filter(!StrutturaAssegnataria %in% dip & TipoObiettivo == "Operativo" ) %>% 
+#   mutate(Struttura = recode(StrutturaAssegnataria,
+#                             "S.T. PIACENZA E PARMA" = "SEDE TERRITORIALE DI PIACENZA - PARMA",
+#                             "REP. CHIM. DEGLI ALIMENTI E MANGIMI" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI",
+#                             "REP. CHIMICO ALIMENTI BOLOGNA" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)",
+#                             "REP. PRODUZIONE PRIMARIA" = "REPARTO PRODUZIONE PRIMARIA",
+#                             "S.T. BOLOGNA, FERRARA E MODENA" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
+#                             "S.T. REGGIO EMILIA" = "SEDE TERRITORIALE DI REGGIO EMILIA",
+#                             "REP. VIROLOGIA" = "REPARTO VIROLOGIA",
+#                             "REP. VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE",
+#                             "S.T. BERGAMO, SONDRIO E BINAGO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
+#                             "S.T. BRESCIA" = "SEDE TERRITORIALE DI BRESCIA",
+#                             "S.T. CREMONA, MANTOVA" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",
+#                             "S.T. FORLI' E RAVENNA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA",
+#                             "S.T. LODI E MILANO" = "SEDE TERRITORIALE DI LODI - MILANO",
+#                             "S.T. PAVIA" = "SEDE TERRITORIALE DI PAVIA",
+#                             "U.O. PROVV. ECONOMATO E VENDITE" = "UO PROVVEDITORATO ECONOMATO E VENDITE",
+#                             "SERVIZIO ASSICURAZIONE QUALITA" = "SERVIZIO ASSICURAZIONE QUALITA'",
+#                             "U.O. AFFARI GENERALI E LEGALI" = "U.O. AFFARI GENERALI E LEGALI",
+#                             "U.O. TECNICO PATRIMONIALE" = "UO TECNICO PATRIMONIALE",
+#                             "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE" = "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE",
+#                             "U.O. GESTIONE SERVIZI CONTABILI" = "U.O. GESTIONE SERVIZI CONTABILI",
+#                             "PROGRAMMAZIONE DEI SERVIZI TECNICI E CONTROLLO DI GESTIONE" = "Programmazione dei servizi tecnici e controllo di gestione",
+#                             "FORMAZIONE" =  "FORMAZIONE E BIBLIOTECA",
+#                             "SISTEMI INFORMATIVI" = "Programmazione dei servizi tecnici e controllo di gestione",
+#                             "SEGRETERIA DIREZIONALE" = "DIREZIONE GENERALE",
+#                             "GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE")
+#          
+#   )
+# 
+# dt <- dt %>% rename( Reparto = Struttura ) %>%
+#   left_join(
+#     
+#     (strutture %>% select(Dipartimento, Reparto) %>%
+#        unique())
+#     
+#     
+#     ,  by = c("Reparto"))  
 
-#perf <- readRDS(here("data", "processed", "performance.RDS"))
 
-con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
-                      Database = "ObiettiviStrategiciV2018", Port = 1433)
-
-queryPERF <- "SELECT
-Avanzamento,
-Valore,
-Anno,
-TipoObiettivo,
-Periodo,
-MacroArea,Obiettivo,
-Azione,
-Indicatore,
-StrutturaAssegnataria
-
-FROM ObiettiviStrategiciV2018.dbo.v_EstrazioneObiettivi
-WHERE Anno > 2020"
-
-perf <- con %>% tbl(sql(queryPERF)) %>% as_tibble()
-
-strutture <- read_excel(here("data", "raw", "strutture.xlsx"))
-
-
-dip <- c("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA", "DIPARTIMENTO SICUREZZA ALIMENTARE",
-         "DIPARTIMENTO TUTELA SALUTE ANIMALE", "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA",
-         "DIPARTIMENTO AMMINISTRATIVO", "CONTROLLO DI GESTIONE")
-
-
-##ricordificare le strutture
-
-dt <- perf %>%
-  filter(!StrutturaAssegnataria %in% dip & TipoObiettivo == "Operativo" ) %>% 
-  mutate(Struttura = recode(StrutturaAssegnataria,
-                            "S.T. PIACENZA E PARMA" = "SEDE TERRITORIALE DI PIACENZA - PARMA",
-                            "REP. CHIM. DEGLI ALIMENTI E MANGIMI" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI",
-                            "REP. CHIMICO ALIMENTI BOLOGNA" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)",
-                            "REP. PRODUZIONE PRIMARIA" = "REPARTO PRODUZIONE PRIMARIA",
-                            "S.T. BOLOGNA, FERRARA E MODENA" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
-                            "S.T. REGGIO EMILIA" = "SEDE TERRITORIALE DI REGGIO EMILIA",
-                            "REP. VIROLOGIA" = "REPARTO VIROLOGIA",
-                            "REP. VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE",
-                            "S.T. BERGAMO, SONDRIO E BINAGO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
-                            "S.T. BRESCIA" = "SEDE TERRITORIALE DI BRESCIA",
-                            "S.T. CREMONA, MANTOVA" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",
-                            "S.T. FORLI' E RAVENNA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA",
-                            "S.T. LODI E MILANO" = "SEDE TERRITORIALE DI LODI - MILANO",
-                            "S.T. PAVIA" = "SEDE TERRITORIALE DI PAVIA",
-                            "U.O. PROVV. ECONOMATO E VENDITE" = "UO PROVVEDITORATO ECONOMATO E VENDITE",
-                            "SERVIZIO ASSICURAZIONE QUALITA" = "SERVIZIO ASSICURAZIONE QUALITA'",
-                            "U.O. AFFARI GENERALI E LEGALI" = "U.O. AFFARI GENERALI E LEGALI",
-                            "U.O. TECNICO PATRIMONIALE" = "UO TECNICO PATRIMONIALE",
-                            "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE" = "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE",
-                            "U.O. GESTIONE SERVIZI CONTABILI" = "U.O. GESTIONE SERVIZI CONTABILI",
-                            "PROGRAMMAZIONE DEI SERVIZI TECNICI E CONTROLLO DI GESTIONE" = "Programmazione dei servizi tecnici e controllo di gestione",
-                            "FORMAZIONE" =  "FORMAZIONE E BIBLIOTECA",
-                            "SISTEMI INFORMATIVI" = "Programmazione dei servizi tecnici e controllo di gestione",
-                            "SEGRETERIA DIREZIONALE" = "DIREZIONE GENERALE",
-                            "GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE")
-         
-  )
-
-dt <- dt %>% rename( Reparto = Struttura ) %>%
-  left_join(
-    
-    (strutture %>% select(Dipartimento, Reparto) %>%
-       unique())
-    
-    
-    ,  by = c("Reparto"))  
-
-  
+dt <- perf
 
 AV <- 
  dt %>% 
   filter(Periodo == 4 & Avanzamento != 0 ) %>% 
   summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))
 
-# library(flexdashboard)
-#   
-# x <- gauge(74, min= 0, max = 100, symbol = '%', 
-#       gaugeSectors(success = c(0,100),   colors = "steelblue"))
-# 
-# x %>% 
-#   knit_print()
-#  
+library(flexdashboard)
+
+x <- gauge(74, min= 0, max = 100, symbol = '%',
+      gaugeSectors(success = c(0,100),   colors = "steelblue"))
+
+x %>%
+  knit_print()
+
 
 
 
@@ -259,13 +260,8 @@ plt <- ggplot(plot_dt)+
     axis.text.x = element_text(color = "gray12", size = 8),
     # Move the legend to the bottom
     legend.position = "blank",
-  )
-  
+  )+
 
-plt <- plt
-  labs(
-    caption = "Analisi dati a cura dell'U.O. Controllo di Gestione e Performances")+
-     
   # Customize general theme
   theme(
     

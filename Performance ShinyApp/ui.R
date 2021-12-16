@@ -85,6 +85,7 @@ ui <- dashboardPage(
             
           ), 
           fluidRow(
+            
             column(1, 
                    radioButtons("kpi", "",
                                 c("Prestazioni",

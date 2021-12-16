@@ -197,61 +197,7 @@ tabIZSLER %>% ungroup() %>%
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 pr <-  prj %>% 
                  mutate("Stato" = ifelse(annofine < 2021, "Archiviato", "Attivo")) %>% 
                  filter(Stato == "Attivo" & annoinizio <= 2021)
@@ -455,7 +401,7 @@ pubblicazioni %>% filter(OA >= 2019) %>%
                           "COSCIANI_CUNICO" = "COSCIANI CUNICO",
   )) %>%
   left_join(anag, by = c("Cognome" = "Cognome")) %>%
-  filter(Dirigente == "S") %>% 
+  filter(Dirigente == "S")  
 
 
 
@@ -464,11 +410,10 @@ pubblicazioni %>% filter(OA >= 2019) %>%
 pubs <-  pub %>% 
   filter(OA == 2021)
 
-pubs %>% filter(IF == "IF") %>% 
-  select("AUTORI" = AU, "JOURNAL" = `TITOLO RIVISTA`, "TITOLO" = titinglese, "IF" = impf) %>%
+pubs %>% filter(IF == "IF") %>%  
+  select(AU, `TI-INGLESE`, JO, IF) %>%  
   unique() %>% 
-  arrange(desc(IF)) %>% View()
-
+  arrange(desc(IF))  
 
 
 

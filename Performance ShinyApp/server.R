@@ -576,7 +576,7 @@ output$tbd2<- renderPlot(
   }, bg = "transparent")
 
 
-## TrenPlot Reparti----
+## TrendPlot Reparti----
 
 trendRep <- reactive(tabIZSLER %>% 
   mutate(Reparto = recode(Reparto,  "REPARTO PRODUZIONE PRIMARIA" = "RPP", 
