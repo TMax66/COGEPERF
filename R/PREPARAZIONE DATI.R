@@ -424,7 +424,7 @@ prj %>%
 
 ##DATI DA PUBBLICAZIONI####
 
-pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
+pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni21.xlsx"))
 pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
 pubblicazioni$AU <- gsub(",.*$", "", pubblicazioni$AU)
 pubblicazioni %>% filter(OA >= 2019) %>%
