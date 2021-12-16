@@ -4,7 +4,7 @@ trend <- tizsler %>%
   filter(KPI == input$kpi) %>%  
   group_by(Dipartimento) %>% 
   arrange(Dipartimento, Anno) %>% 
-  mutate(Var = round((valore/lag(valore)-1)*100, 2)) 
+  mutate(Var = round((valore/lag(valore)-1)*100, 2)) %>% View()
   
 
 ggplot(trend)+
@@ -41,9 +41,141 @@ tizsler %>%
                                "Area Territoriale Emilia Romagna" = "ATER"))
   
   
+
+
+
+trendRep <- tabIZSLER %>% 
+  mutate(Reparto = recode(Reparto,  "REPARTO PRODUZIONE PRIMARIA" = "RPP", 
+                          "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI" = "RChAM", 
+                          "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)" = "RChAB", 
+                          "REPARTO CONTROLLO ALIMENTI" = "RCA", 
+                          "REPARTO VIROLOGIA" = "RVIR", 
+                          "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "RVVPB", 
+                          "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO" = "RPCB", 
+                          "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE" = "RTBA",
+                          "SEDE TERRITORIALE DI CREMONA - MANTOVA" = "CR-MN", 
+                          "SEDE TERRITORIALE DI BRESCIA" = "BS", 
+                          "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO" = "BG-BI-SO", 
+                          "SEDE TERRITORIALE DI LODI - MILANO" = "LO-MI", 
+                          "SEDE TERRITORIALE DI PAVIA" = "PV",
+                          "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA" = "BO-MO-FE", 
+                          "SEDE TERRITORIALE DI FORLÌ - RAVENNA" = "FO-RA", 
+                          "SEDE TERRITORIALE DI PIACENZA - PARMA" = "PC-PR", 
+                          "SEDE TERRITORIALE DI REGGIO EMILIA" = "RE",
+                          "GESTIONE CENTRALIZZATA DELLE RICHIESTE" = "GCR",
+                          "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA" = "AREG",
+                          "FORMAZIONE E BIBLIOTECA" = "FORMAZIONE", 
+                          "SORVEGLIANZA EPIDEMIOLOGICA" = "SORVEPID" )) %>% 
+  rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
+          "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
+  filter( Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA") %>% 
+  
+  group_by(Anno,Reparto) %>%
+  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+  mutate(RT = (Valorizzazione+VP+AI),
+         FTET = round((FTED+FTEC),2)) %>%   
+  #arrange(desc(Prestazioni)) %>%
+  #mutate(RFTE = RT/(FTET*(FTp/100))) %>% View()
+  pivot_longer(!c(Anno,Reparto), names_to = "KPI", values_to = "valore") %>%
+  filter(KPI == "RT") %>%  
+  group_by(Reparto) %>% 
+  arrange(Reparto, Anno) %>% 
+  mutate(Var = round((valore/lag(valore)-1)*100, 2))  
+  
+  ggplot(trendRep)+
+  aes(
+    y = .data[["valore"]],
+    x = .data[["Anno"]])+  
+  geom_ribbon(aes(ymin = 0, ymax = (.data[["valore"]])+0.1*(.data[["valore"]])), alpha=0.0)+
+  geom_point(aes(y = .data[["valore"]])) +
+  geom_line(aes(y = .data[["valore"]]))+
+  facet_wrap(facets = ~Reparto, nrow=1, scales = "free")+
+  scale_x_continuous(breaks = unique(trendRep$Anno), expand=c(0.16, 0))+
+  geom_text(data = dplyr::filter(trendRep, Anno == 2020), aes(label = sprintf('%+0.1f%%',.data[["Var"]])), 
+            x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+  geom_text(data = dplyr::filter(trendRep, Anno == 2021), aes(label = sprintf('%+0.1f%%', .data[["Var"]])), 
+            x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+  geom_text(aes(label = sprintf('%0.1f',.data[["valore"]]), y = .data[["valore"]]), vjust = -1, size=3.5)+
+  labs(y = "", x = " ",
+       title = "")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        
+        axis.text.y = element_blank(),
+        axis.text.x = element_text(size = 10),
+        
+        strip.text.x = element_text(size = 9))
   
   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tabIZSLER %>% ungroup() %>% 
+                       mutate(Reparto = recode(Reparto,  "REPARTO PRODUZIONE PRIMARIA" = "RPP", 
+                                               "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI" = "RChAM", 
+                                               "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)" = "RChAB", 
+                                               "REPARTO CONTROLLO ALIMENTI" = "RCA", 
+                                               "REPARTO VIROLOGIA" = "RVIR", 
+                                               "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "RVVPB", 
+                                               "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO" = "RPCB", 
+                                               "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE" = "RTBA",
+                                               "SEDE TERRITORIALE DI CREMONA - MANTOVA" = "CR-MN", 
+                                               "SEDE TERRITORIALE DI BRESCIA" = "BS", 
+                                               "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO" = "BG-BI-SO", 
+                                               "SEDE TERRITORIALE DI LODI - MILANO" = "LO-MI", 
+                                               "SEDE TERRITORIALE DI PAVIA" = "PV",
+                                               "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA" = "BO-MO-FE", 
+                                               "SEDE TERRITORIALE DI FORLÌ - RAVENNA" = "FO-RA", 
+                                               "SEDE TERRITORIALE DI PIACENZA - PARMA" = "PC-PR", 
+                                               "SEDE TERRITORIALE DI REGGIO EMILIA" = "RE",
+                                               "GESTIONE CENTRALIZZATA DELLE RICHIESTE" = "GCR",
+                                               "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA" = "AREG",
+                                               "FORMAZIONE E BIBLIOTECA" = "FORMAZIONE", 
+                                               "SORVEGLIANZA EPIDEMIOLOGICA" = "SORVEPID" )) %>% View()
+
+                       pivot_longer(!Reparto, names_to = "KPI", values_to = "valore") %>%  
+                       mutate(KPI = factor(KPI, levels = c("Prestazioni", "RT", "FTED", "FTEC", "FTET", "Costi" ))) #%>% 
+                    
   
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -128,30 +260,30 @@ pubs <- pub %>%
                    filter(OA == 2021)
 
 tdip <-  
-  (tizsler %>% 
-    filter(Anno == 2021) %>% 
-    left_join(
-      (pubs %>%
-         filter(articoliif == "IF") %>%
-         # count(Dipartimento, NR) %>%
-         group_by(Dipartimento) %>%  
-         # count(NR) %>%
-         summarise("Pubblicazioni" = nlevels(factor(NR)), 
-                   "Impact Factor" = sum(IF, na.rm = TRUE))), by = "Dipartimento") %>%    
-    left_join(
-      (pr %>%
-         group_by(Dipartimento) %>%
-         summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
-      ),  by = "Dipartimento" )) %>% 
-  left_join(
-    ftepDIP, by="Dipartimento") %>%
-  mutate(RFTE = RT/(FTET*(FTp/100))) %>% 
+ # (
+    tizsler %>% 
+  #   left_join(
+  #     (pubs %>%
+  #        filter(articoliif == "IF") %>%
+  #        # count(Dipartimento, NR) %>%
+  #        group_by(Dipartimento) %>%  
+  #        # count(NR) %>%
+  #        summarise("Pubblicazioni" = nlevels(factor(NR)), 
+  #                  "Impact Factor" = sum(IF, na.rm = TRUE))), by = "Dipartimento") %>%    
+  #   left_join(
+  #     (pr %>%
+  #        group_by(Dipartimento) %>%
+  #        summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
+  #     ),  by = "Dipartimento" )) %>% 
+  # left_join(
+  #   ftepDIP, by="Dipartimento") %>%
+  mutate(RFTE = RT/(FTET*(FTp/100))) %>% View()
   select(-Anno) %>% 
   ungroup()
 
 
 
-plot_dt <- tdip %>% ungroup() %>% 
+plot_dt <- tdip %>%  
   mutate(Dipartimento = recode(Dipartimento,  "DIPARTIMENTO SICUREZZA ALIMENTARE"  = "DSA", 
                                "DIPARTIMENTO TUTELA E SALUTE ANIMALE" = "DTSA", 
                                "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA" = "ATLOMB", 
@@ -167,6 +299,22 @@ plot_dt <- tdip %>% ungroup() %>%
   mutate(KPI = factor(KPI, levels = c("Prestazioni", "RT", "FTED", "FTEC", "FTET", "Costi" ))) %>% 
   filter(Dipartimento != "DIREZIONE SANITARIA") %>% 
 
+  
+ plot_dip <-  tizsler %>% ungroup() %>% 
+  mutate(Dipartimento = recode(Dipartimento,  "DIPARTIMENTO SICUREZZA ALIMENTARE"  = "DSA", 
+                               "DIPARTIMENTO TUTELA E SALUTE ANIMALE" = "DTSA", 
+                               "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA" = "ATLOMB", 
+                               "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA" = "ATER")) %>% 
+  mutate(RFTE = RT/(FTET*(FTp/100))) %>%   
+  pivot_longer(!Dipartimento, names_to = "KPI", values_to = "valore") %>%   
+  mutate(KPI = factor(KPI, levels = c("Prestazioni", "RT", "FTED", "FTEC", "FTET", "Costi", "RFTE.FTp" ))) %>% 
+  filter(Dipartimento != "DIREZIONE SANITARIA")  
+  
+  
+  
+  
+  
+  
 
 ggplot(aes( 
   x = Dipartimento, 

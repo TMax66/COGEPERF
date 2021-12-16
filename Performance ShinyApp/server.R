@@ -320,11 +320,11 @@ output$ptrend <- renderPlot({
     facet_wrap(facets = ~Dipartimento, nrow=1, scales = "free")+
     scale_x_continuous(breaks = unique(trend()$Anno), expand=c(0.16, 0))+
     geom_text(data = dplyr::filter(trend(), Anno == 2020), aes(label = sprintf('%+0.1f%%',.data[["Var"]])), 
-              x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+              x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=8)+
     geom_text(data = dplyr::filter(trend(), Anno == 2021), aes(label = sprintf('%+0.1f%%', .data[["Var"]])), 
-              x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+              x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=8)+
     geom_text(aes(label = sprintf('%0.1f',.data[["valore"]]), y = .data[["valore"]]), vjust = -1, 
-              size=4, color="blue", fontface = "bold")+
+              size=6, color="blue", fontface = "bold")+
     labs(y = "", x = " ",
          title = "")+
     theme_bw()+
@@ -332,12 +332,14 @@ output$ptrend <- renderPlot({
           panel.grid.minor = element_blank(),
           
           axis.text.y = element_blank(),
-          axis.text.x = element_text(size = 10),
+          axis.text.x = element_text(size = 20, color = "blue"),
+          axis.line.x = element_line(),
           
           strip.text.x = element_text(size = 15, color = "blue"), 
           panel.background= element_blank(),
           panel.border = element_blank(),
-          plot.background = element_blank()
+          plot.background = element_blank(),
+          
           )
 
 }, bg="transparent"
@@ -572,6 +574,87 @@ output$tbd2<- renderPlot(
       labs(x = "", y = "")
     
   }, bg = "transparent")
+
+
+## TrenPlot Reparti----
+
+trendRep <- reactive(tabIZSLER %>% 
+  mutate(Reparto = recode(Reparto,  "REPARTO PRODUZIONE PRIMARIA" = "RPP", 
+                          "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI" = "RChAM", 
+                          "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)" = "RChAB", 
+                          "REPARTO CONTROLLO ALIMENTI" = "RCA", 
+                          "REPARTO VIROLOGIA" = "RVIR", 
+                          "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "RVVPB", 
+                          "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO" = "RPCB", 
+                          "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE" = "RTBA",
+                          "SEDE TERRITORIALE DI CREMONA - MANTOVA" = "CR-MN", 
+                          "SEDE TERRITORIALE DI BRESCIA" = "BS", 
+                          "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO" = "BG-BI-SO", 
+                          "SEDE TERRITORIALE DI LODI - MILANO" = "LO-MI", 
+                          "SEDE TERRITORIALE DI PAVIA" = "PV",
+                          "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA" = "BO-MO-FE", 
+                          "SEDE TERRITORIALE DI FORLÌ - RAVENNA" = "FO-RA", 
+                          "SEDE TERRITORIALE DI PIACENZA - PARMA" = "PC-PR", 
+                          "SEDE TERRITORIALE DI REGGIO EMILIA" = "RE",
+                          "GESTIONE CENTRALIZZATA DELLE RICHIESTE" = "GCR",
+                          "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA" = "AREG",
+                          "FORMAZIONE E BIBLIOTECA" = "FORMAZIONE", 
+                          "SORVEGLIANZA EPIDEMIOLOGICA" = "SORVEPID" )) %>% 
+  rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
+          "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
+  filter( Dipartimento == input$dip) %>% 
+  
+  group_by(Anno,Reparto) %>%
+  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+  mutate(RT = (Valorizzazione+VP+AI),
+         FTET = round((FTED+FTEC),2)) %>%   
+  pivot_longer(!c(Anno,Reparto), names_to = "KPI", values_to = "valore") %>%
+  filter(KPI == input$kpi2) %>%  
+  group_by(Reparto) %>% 
+  arrange(Reparto, Anno) %>% 
+  mutate(Var = round((valore/lag(valore)-1)*100, 2)) 
+)
+
+output$ptrendRep <- renderPlot({ 
+  req(input$kpi2)
+  ggplot(trendRep())+
+    aes(
+      y = .data[["valore"]],
+      x = .data[["Anno"]])+  
+    geom_ribbon(aes(ymin = 0, ymax = (.data[["valore"]])+0.1*(.data[["valore"]])), alpha=0.0)+
+    geom_point(aes(y = .data[["valore"]]), size= 10, color = "blue", alpha = 0.2) +
+    geom_line(aes(y = .data[["valore"]]))+
+    facet_wrap(facets = ~Reparto, nrow=1, scales = "free")+
+    scale_x_continuous(breaks = unique(trendRep()$Anno), expand=c(0.16, 0))+
+    geom_text(data = dplyr::filter(trendRep(), Anno == 2020), aes(label = sprintf('%+0.1f%%',.data[["Var"]])), 
+              x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=8)+
+    geom_text(data = dplyr::filter(trendRep(), Anno == 2021), aes(label = sprintf('%+0.1f%%', .data[["Var"]])), 
+              x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=8)+
+    geom_text(aes(label = sprintf('%0.1f',.data[["valore"]]), y = .data[["valore"]]), vjust = -1, 
+              size=6, color="blue", fontface = "bold")+
+    labs(y = "", x = " ",
+         title = "")+
+    theme_bw()+
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          
+          axis.text.y = element_blank(),
+          axis.text.x = element_text(size = 20, color = "blue"),
+          axis.line.x = element_line(),
+          
+          strip.text.x = element_text(size = 15, color = "blue"), 
+          panel.background= element_blank(),
+          panel.border = element_blank(),
+          plot.background = element_blank(),
+          
+    )
+  
+}, bg="transparent"
+)
+
+
+
+
 
 
 

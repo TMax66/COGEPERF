@@ -85,14 +85,14 @@ ui <- dashboardPage(
             
           ), 
           fluidRow(
-            column(2, 
-            selectInput("kpi", "Selziona l'Indicatore", 
-                        choices = c("","Prestazioni",
-                                    "Valorizzazione", 
-                                    "VP","AI","RT", "FTED", 
-                                    "FTEC","FTET"))
-            ), 
-            column(10, 
+            column(1, 
+                   radioButtons("kpi", "",
+                                c("Prestazioni",
+                                "Valorizzazione", 
+                                 "VP","AI","RT", "FTED", 
+                                "FTEC","FTET")
+            )), 
+            column(11, 
                    plotOutput("ptrend"))
           )
           
@@ -150,7 +150,26 @@ ui <- dashboardPage(
           
           
           
-               ))), 
+               )), 
+          
+          fluidRow(
+            
+            column(1, 
+                   radioButtons("kpi2", "",
+                                c("Prestazioni",
+                                  "Valorizzazione", 
+                                  "VP","AI","RT", "FTED", 
+                                  "FTEC","FTET")
+                   )), 
+            column(11, 
+                   plotOutput("ptrendRep"))
+            
+            
+          )
+          
+          
+          
+          ), 
 tabItem(
   tabName = "Report Costi-Ricavi per Centri di Costo"
 ),
