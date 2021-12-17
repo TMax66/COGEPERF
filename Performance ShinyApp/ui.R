@@ -173,123 +173,123 @@ ui <- dashboardPage(
           ), 
 tabItem(
   tabName = "Report Costi-Ricavi per Centri di Costo"
-),
+)#,
 # Performance----
-tabItem(
-  tabName = "Performance", 
-  fluidPage( 
-    tabBox(title = "", width = 12, 
-           tabPanel("Performance Organizzativa", 
-                    fluidRow(
-                      column(4,
-                             box(width = 6,
-                                 title = "Performance Organizzativa dell'Ente", 
-                                 status = "primary", solidHeader = TRUE,
-                                 loadEChartsLibrary(), 
-                                 loadEChartsTheme("shine"),
-                                 tags$div(id="perfIZSLER", style="width:100%;height:400px;"),
-                                 deliverChart(div_id = "perfIZSLER")
-                             )), 
-                      
-                      column( 4, 
-                              box( width = 6,
-                                   title = "Direzione Generale", 
-                                   status = "primary", solidHeader = TRUE,
-                                   loadEChartsLibrary(), 
-                                   loadEChartsTheme("london"),
-                                   tags$div(id="dirgen", style="width:100%;height:400px;"),
-                                   deliverChart(div_id = "dirgen")
-                              )), 
-                      column( 4, 
-                              box(  width = 6,
-                                    title = "Direzione Sanitaria", 
-                                    status = "primary", solidHeader = TRUE,
-                                    loadEChartsLibrary(), 
-                                    loadEChartsTheme("london"),
-                                    tags$div(id="dirsan", style="width:100%;height:400px;"),
-                                    deliverChart(div_id = "dirsan")
-                              )
-                              
-                      )
-                    ), 
-                    fluidRow(
-                      
-                      column(2.5, 
-                             box(width = 2,
-                                 title = "Dipartimento Amministrativo", 
-                                 status = "primary", solidHeader = TRUE,
-                                 loadEChartsLibrary(), 
-                                 loadEChartsTheme("london"),
-                                 tags$div(id="dipamm", style="width:100%;height:400px;"),
-                                 deliverChart(div_id = "dipamm")
-                             )
-                      ), 
-                      column(2.5, 
-                             box(width = 2,
-                                 title = "Dipartimento Tutela e Salute animale", 
-                                 status = "primary", solidHeader = TRUE,
-                                 loadEChartsLibrary(), 
-                                 loadEChartsTheme("london"),
-                                 tags$div(id="dipTSA", style="width:100%;height:400px;"),
-                                 deliverChart(div_id = "dipTSA")
-                             )
-                      ), 
-                      
-                      column(2.5, 
-                             box(width = 2,
-                                 title = "Dipartimento Sicurezza Alimentare", 
-                                 status = "primary", solidHeader = TRUE,
-                                 loadEChartsLibrary(), 
-                                 loadEChartsTheme("london"),
-                                 tags$div(id="dipSA", style="width:100%;height:400px;"),
-                                 deliverChart(div_id = "dipSA")
-                             )
-                      ), 
-                      column(2.5, 
-                             box(width = 2,
-                                 title = "Area Territoriale Lombardia", 
-                                 status = "primary", solidHeader = TRUE,
-                                 loadEChartsLibrary(), 
-                                 loadEChartsTheme("london"),
-                                 tags$div(id="LOMB", style="width:100%;height:400px;"),
-                                 deliverChart(div_id = "LOMB")
-                             )
-                      ), 
-                      column(2.5, 
-                             box(width = 2,
-                                 title = "Area Territoriale Emilia Romagna", 
-                                 status = "primary", solidHeader = TRUE,
-                                 loadEChartsLibrary(), 
-                                 loadEChartsTheme("london"),
-                                 tags$div(id="EMR", style="width:100%;height:400px;"),
-                                 deliverChart(div_id = "EMR")
-                             )
-                      )
-                      
-                      
-                    )
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    ), 
-tabPanel(" Aree "), 
-tabPanel("Obiettivi"), 
-tabPanel("Azioni"), 
-tabPanel("Indicatori")
-           )
-    )
-  
-  
- 
- 
-
-  
-  )
+# tabItem(
+#   tabName = "Performance", 
+#   fluidPage( 
+#     tabBox(title = "", width = 12, 
+#            tabPanel("Performance Organizzativa", 
+#                     fluidRow(
+#                       column(4,
+#                              box(width = 6,
+#                                  title = "Performance Organizzativa dell'Ente", 
+#                                  status = "primary", solidHeader = TRUE,
+#                                  loadEChartsLibrary(), 
+#                                  loadEChartsTheme("shine"),
+#                                  tags$div(id="perfIZSLER", style="width:100%;height:400px;"),
+#                                  deliverChart(div_id = "perfIZSLER")
+#                              )), 
+#                       
+#                       column( 4, 
+#                               box( width = 6,
+#                                    title = "Direzione Generale", 
+#                                    status = "primary", solidHeader = TRUE,
+#                                    loadEChartsLibrary(), 
+#                                    loadEChartsTheme("london"),
+#                                    tags$div(id="dirgen", style="width:100%;height:400px;"),
+#                                    deliverChart(div_id = "dirgen")
+#                               )), 
+#                       column( 4, 
+#                               box(  width = 6,
+#                                     title = "Direzione Sanitaria", 
+#                                     status = "primary", solidHeader = TRUE,
+#                                     loadEChartsLibrary(), 
+#                                     loadEChartsTheme("london"),
+#                                     tags$div(id="dirsan", style="width:100%;height:400px;"),
+#                                     deliverChart(div_id = "dirsan")
+#                               )
+#                               
+#                       )
+#                     ), 
+#                     fluidRow(
+#                       
+#                       column(2.5, 
+#                              box(width = 2,
+#                                  title = "Dipartimento Amministrativo", 
+#                                  status = "primary", solidHeader = TRUE,
+#                                  loadEChartsLibrary(), 
+#                                  loadEChartsTheme("london"),
+#                                  tags$div(id="dipamm", style="width:100%;height:400px;"),
+#                                  deliverChart(div_id = "dipamm")
+#                              )
+#                       ), 
+#                       column(2.5, 
+#                              box(width = 2,
+#                                  title = "Dipartimento Tutela e Salute animale", 
+#                                  status = "primary", solidHeader = TRUE,
+#                                  loadEChartsLibrary(), 
+#                                  loadEChartsTheme("london"),
+#                                  tags$div(id="dipTSA", style="width:100%;height:400px;"),
+#                                  deliverChart(div_id = "dipTSA")
+#                              )
+#                       ), 
+#                       
+#                       column(2.5, 
+#                              box(width = 2,
+#                                  title = "Dipartimento Sicurezza Alimentare", 
+#                                  status = "primary", solidHeader = TRUE,
+#                                  loadEChartsLibrary(), 
+#                                  loadEChartsTheme("london"),
+#                                  tags$div(id="dipSA", style="width:100%;height:400px;"),
+#                                  deliverChart(div_id = "dipSA")
+#                              )
+#                       ), 
+#                       column(2.5, 
+#                              box(width = 2,
+#                                  title = "Area Territoriale Lombardia", 
+#                                  status = "primary", solidHeader = TRUE,
+#                                  loadEChartsLibrary(), 
+#                                  loadEChartsTheme("london"),
+#                                  tags$div(id="LOMB", style="width:100%;height:400px;"),
+#                                  deliverChart(div_id = "LOMB")
+#                              )
+#                       ), 
+#                       column(2.5, 
+#                              box(width = 2,
+#                                  title = "Area Territoriale Emilia Romagna", 
+#                                  status = "primary", solidHeader = TRUE,
+#                                  loadEChartsLibrary(), 
+#                                  loadEChartsTheme("london"),
+#                                  tags$div(id="EMR", style="width:100%;height:400px;"),
+#                                  deliverChart(div_id = "EMR")
+#                              )
+#                       )
+#                       
+#                       
+#                     )
+#                     
+#                     
+#                     
+#                     
+#                     
+#                     
+#                     
+#                     
+#                     ), 
+# tabPanel(" Aree "), 
+# tabPanel("Obiettivi"), 
+# tabPanel("Azioni"), 
+# tabPanel("Indicatori")
+#            )
+#     )
+#   
+#   
+#  
+#  
+# 
+#   
+#   )
 )
              )
             )
