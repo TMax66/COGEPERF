@@ -1,3 +1,210 @@
+
+perf <- readRDS(here("data", "processed", "performance.RDS"))
+
+
+plot_dt <- perf %>%  
+  filter(Periodo == 4 ) %>% 
+  mutate(MacroArea = factor(MacroArea)) %>% 
+  group_by(MacroArea) %>%  
+  summarise(mediana =  100*round(median(Avanzamento, na.rm = T),2),
+            media = 100*round(mean(Avanzamento, na.rm = T),2), 
+            n = n()) %>% 
+  mutate(target = 100) %>% 
+  mutate(MacroArea = as.character(MacroArea)) %>% 
+  mutate(MacroArea = gsub("\\d+", "", MacroArea), 
+         MacroArea = gsub("\"", "", MacroArea))
+
+
+
+  plt <- ggplot(plot_dt)+
+    geom_hline(
+      aes(yintercept = y),
+      data.frame(y = c(0, 25, 50, 75, 90, 100)), 
+      color = "lightgrey"
+    )+
+    geom_col(
+      aes(x = reorder(str_wrap(MacroArea, 1), media), 
+          y = media, 
+          fill = media
+      ), 
+      position = "dodge2", 
+      show.legend = TRUE, 
+      alpha = .9
+    )+
+    
+    geom_point(
+      aes(
+        x = reorder(str_wrap(MacroArea, 1), media),
+        y = media
+      ), 
+      size = 3, color = "gray12"
+    )+
+    
+    geom_segment(
+      aes(
+        x =  reorder(str_wrap(MacroArea, 1), media), 
+        y = 0, 
+        xend = reorder(str_wrap(MacroArea, 1), media), 
+        yend = 100
+      ), 
+      linetype = "dashed",
+      color = "gray12"
+    )+
+    coord_polar()+
+    
+    scale_y_continuous(
+      limits = c(-20,110),
+      expand = c(0, 0)
+      
+    ) +
+    geom_text(
+      aes(
+        x = reorder(str_wrap(MacroArea, 1), media),
+        y = media-10, 
+        label = paste0(media, "%")), 
+      color = "black", 
+      size=5)+
+    
+    annotate(
+      x = 0.5, 
+      y = 30, 
+      label = "25%", 
+      geom = "text", 
+      color = "red", 
+      family = "Bell MT"
+    )  +
+    annotate(
+      x = 0.5, 
+      y = 55, 
+      label = "50%", 
+      geom = "text", 
+      color = "red", 
+      family = "Bell MT"
+    )  +
+    
+    annotate(
+      x = 0.5, 
+      y = 80, 
+      label = "75%", 
+      geom = "text", 
+      color = "red", 
+      family = "Bell MT"
+    )  +
+    
+    annotate(
+      x = 0.5, 
+      y = 110, 
+      label = "100%", 
+      geom = "text", 
+      color = "red", 
+      family = "Bell MT"
+    )  +
+    
+    scale_fill_gradientn(colours = gray.colors(7))+
+    
+    theme(
+      # Remove axis ticks and text
+      axis.title = element_blank(),
+      axis.ticks = element_blank(),
+      axis.text.y = element_blank(),
+      # Use gray text for the region names
+      axis.text.x = element_text(color = "gray12", size = 8),
+      # Move the legend to the bottom
+      legend.position = "blank",
+    )+
+    
+    # Customize general theme
+    theme(
+      
+      # Set default color and font family for the text
+      text = element_text(color = "gray12", family = "Bell MT"),
+      
+      # Customize the text in the title, subtitle, and caption
+      plot.title = element_text(face = "bold", size = 18),
+      plot.subtitle = element_text(size = 14, hjust = 0.05),
+      plot.caption = element_text(size = 10, hjust = .5),
+      
+      # Make the background white and remove extra grid lines
+      panel.background = element_rect(fill = "white", color = "white"),
+      panel.grid = element_blank(),
+      panel.grid.major.x = element_blank()
+    )
+  
+ 
+  
+  AreaDip <-  perf %>%  
+    filter(Periodo == 4 ) %>% 
+    mutate(MacroArea = factor(MacroArea)) %>% 
+    group_by(Dipartimento,  MacroArea) %>% 
+    summarise(media =  round(mean(Avanzamento, na.rm = T),2)) %>%  
+    mutate(media = percent(media), 
+           media = as.character(media)) %>%   
+    pivot_wider(names_from = "Dipartimento", values_from = "media", values_fill = " ") %>%  
+    select("MacroArea","Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale", 
+           "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
+           "Dipartimento area territoriale Emilia Romagna",
+           "Dipartimento amministrativo") %>% 
+    arrange(MacroArea) %>% 
+    mutate(MacroArea = as.character(MacroArea)) %>% 
+    mutate(MacroArea = gsub("\\d+", "", MacroArea), 
+           MacroArea = gsub("\"", "", MacroArea))  %>% 
+    rename("Macro Area" = "MacroArea") %>% View()
+    kbl( ) %>% 
+    kable_styling() %>% 
+    kable_paper(bootstrap_options = "striped", full_width = F) %>% 
+    save_kable(file = "tab1.png")
+    
+
+
+
+
+
+    perf %>%
+      filter(Periodo == 2 & Avanzamento!=0  ) %>%
+      mutate(MacroArea = factor(MacroArea)) %>%
+      group_by(Dipartimento,  MacroArea) %>%
+      summarise(media =  round(mean(Avanzamento, na.rm = T),2)) %>%
+      mutate(media = percent(media),
+             media = as.character(media)) %>%
+      pivot_wider(names_from = "Dipartimento", values_from = "media", values_fill = " ") %>%
+      select("MacroArea","Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale",
+             "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
+             "Dipartimento area territoriale Emilia Romagna",
+             "Dipartimento amministrativo") %>%
+      arrange(MacroArea) %>%
+      mutate(MacroArea = as.character(MacroArea)) %>%
+      mutate(MacroArea = gsub("\\d+", "", MacroArea),
+             MacroArea = gsub("\"", "", MacroArea))  %>%
+      rename("Macro Area" = "MacroArea") %>% View()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 trend <- tizsler %>% 
   mutate(FTET = FTED+FTEC) %>%
   pivot_longer(!c(Anno,Dipartimento), names_to = "KPI", values_to = "valore") %>%   

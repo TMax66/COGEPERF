@@ -215,7 +215,7 @@ output$t <- renderUI({
               ref_symbols = c("a","b","c","d","e","f","g","h", "i", "l", "m"),
               part = "header", inline = T) %>%
      fontsize( i = NULL, j = NULL, size = 13, part = "footer") %>%
-      htmltools_value() 
+     htmltools_value() 
       
 })
 
@@ -732,133 +732,244 @@ output$projrep <- renderDataTable(Prjdip(), server = FALSE, class = 'cell-border
 
 # Performance----
 
-# plot_dt <- reactive(perf %>%  
-#   filter(Periodo == 4 & Avanzamento != 0 ) %>% 
-#   mutate(MacroArea = factor(MacroArea)) %>% 
-#   group_by(MacroArea) %>% 
-#   summarise(mediana =  100*round(median(Avanzamento, na.rm = T),2),
-#             media = 100*round(mean(Avanzamento, na.rm = T),2), 
-#             n = n()) %>% 
-#   mutate(target = 100) %>% 
-#   mutate(MacroArea = as.character(MacroArea)) %>% 
-#   mutate(MacroArea = gsub("\\d+", "", MacroArea), 
-#          MacroArea = gsub("\"", "", MacroArea))
-# )
-# 
-# plt <- ggplot(plot_dt)+
-#   geom_hline(
-#     aes(yintercept = y),
-#     data.frame(y = c(0, 25, 50, 75, 90, 100)), 
-#     color = "lightgrey"
-#   )+
-#   geom_col(
-#     aes(x = reorder(str_wrap(MacroArea, 1), media), 
-#         y = media, 
-#         fill = media
-#     ), 
-#     position = "dodge2", 
-#     show.legend = TRUE, 
-#     alpha = .9
-#   )+
-#   
-#   geom_point(
-#     aes(
-#       x = reorder(str_wrap(MacroArea, 1), media),
-#       y = media
-#     ), 
-#     size = 3, color = "gray12"
-#   )+
-#   
-#   geom_segment(
-#     aes(
-#       x =  reorder(str_wrap(MacroArea, 1), media), 
-#       y = 0, 
-#       xend = reorder(str_wrap(MacroArea, 1), media), 
-#       yend = 100
-#     ), 
-#     linetype = "dashed",
-#     color = "gray12"
-#   )+
-#   coord_polar()+
-#   
-#   scale_y_continuous(
-#     limits = c(-20,110),
-#     expand = c(0, 0)
-#     
-#   ) +
-#   geom_text(
-#     aes(
-#       x = reorder(str_wrap(MacroArea, 1), media),
-#       y = media-10, 
-#       label = paste0(media, "%")), 
-#     color = "black", 
-#     size=5)+
-#   
-#   annotate(
-#     x = 0.5, 
-#     y = 30, 
-#     label = "25%", 
-#     geom = "text", 
-#     color = "red", 
-#     family = "Bell MT"
-#   )  +
-#   annotate(
-#     x = 0.5, 
-#     y = 55, 
-#     label = "50%", 
-#     geom = "text", 
-#     color = "red", 
-#     family = "Bell MT"
-#   )  +
-#   
-#   annotate(
-#     x = 0.5, 
-#     y = 80, 
-#     label = "75%", 
-#     geom = "text", 
-#     color = "red", 
-#     family = "Bell MT"
-#   )  +
-#   
-#   annotate(
-#     x = 0.5, 
-#     y = 110, 
-#     label = "100%", 
-#     geom = "text", 
-#     color = "red", 
-#     family = "Bell MT"
-#   )  +
-#   
-#   scale_fill_gradientn(colours = gray.colors(7))+
-#   
-#   theme(
-#     # Remove axis ticks and text
-#     axis.title = element_blank(),
-#     axis.ticks = element_blank(),
-#     axis.text.y = element_blank(),
-#     # Use gray text for the region names
-#     axis.text.x = element_text(color = "gray12", size = 8),
-#     # Move the legend to the bottom
-#     legend.position = "blank",
-#   )+
-#   
-#   # Customize general theme
-#   theme(
-#     
-#     # Set default color and font family for the text
-#     text = element_text(color = "gray12", family = "Bell MT"),
-#     
-#     # Customize the text in the title, subtitle, and caption
-#     plot.title = element_text(face = "bold", size = 18),
-#     plot.subtitle = element_text(size = 14, hjust = 0.05),
-#     plot.caption = element_text(size = 10, hjust = .5),
-#     
-#     # Make the background white and remove extra grid lines
-#     panel.background = element_rect(fill = "white", color = "white"),
-#     panel.grid = element_blank(),
-#     panel.grid.major.x = element_blank()
-#   )
-# 
+pPerf <- reactive(perf %>%
+  filter(Periodo == 2 & Avanzamento != 0 ) %>%
+  mutate(MacroArea = factor(MacroArea)) %>%
+  group_by(MacroArea) %>%
+  summarise(mediana =  100*round(median(Avanzamento, na.rm = T),2),
+            media = 100*round(mean(Avanzamento, na.rm = T),2),
+            n = n()) %>%
+  mutate(target = 100) %>%
+  mutate(MacroArea = as.character(MacroArea)) %>%
+  mutate(MacroArea = gsub("\\d+", "", MacroArea),
+         MacroArea = gsub("\"", "", MacroArea))
+)
+
+output$pltArea <- renderPlot({  
+  ggplot(pPerf())+
+  geom_hline(
+    aes(yintercept = y),
+    data.frame(y = c(0, 25, 50, 75, 90, 100)),
+    color = "lightgrey"
+  )+
+  geom_col(
+    aes(x = reorder(str_wrap(MacroArea, 1), media),
+        y = media,
+        fill = media
+    ),
+    position = "dodge2",
+    show.legend = TRUE,
+    alpha = .6
+  )+
+
+  geom_point(
+    aes(
+      x = reorder(str_wrap(MacroArea, 1), media),
+      y = media
+    ),
+    size = 3, color = "gray12"
+  )+
+
+  geom_segment(
+    aes(
+      x =  reorder(str_wrap(MacroArea, 1), media),
+      y = 0,
+      xend = reorder(str_wrap(MacroArea, 1), media),
+      yend = 100
+    ),
+    linetype = "dashed",
+    color = "gray12"
+  )+
+  coord_polar()+
+
+  scale_y_continuous(
+    limits = c(-20,110),
+    expand = c(0, 0)
+
+  ) +
+  geom_text(
+    aes(
+      x = reorder(str_wrap(MacroArea, 1), media),
+      y = media-10,
+      label = paste0(media, "%")),
+    color = "black",
+    size=9)+
+
+  annotate(
+    x = 0.5,
+    y = 30,
+    label = "25%",
+    geom = "text",
+    color = "red",
+    family = "Bell MT", 
+    size= 9
+  )  +
+  annotate(
+    x = 0.5,
+    y = 55,
+    label = "50%",
+    geom = "text",
+    color = "red",
+    family = "Bell MT",
+    size= 9
+  )  +
+
+  annotate(
+    x = 0.5,
+    y = 80,
+    label = "75%",
+    geom = "text",
+    color = "red",
+    family = "Bell MT",
+    size= 9
+  )  +
+
+  annotate(
+    x = 0.5,
+    y = 110,
+    label = "100%",
+    geom = "text",
+    color = "red",
+    family = "Bell MT",
+    size= 9
+  )  +
+
+  #scale_fill_gradientn(colours = gray.colors(7))+
+
+  theme(
+    # Remove axis ticks and text
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.y = element_blank(),
+    # Use gray text for the region names
+    axis.text.x = element_text(color = "gray12", size = 16),
+    # Move the legend to the bottom
+    legend.position = "blank",
+  )+
+
+  # Customize general theme
+  theme(
+
+    # Set default color and font family for the text
+    text = element_text(color = "gray12", family = "Bell MT"),
+
+    # Customize the text in the title, subtitle, and caption
+    #plot.title = element_text(face = "bold", size = 18),
+    #plot.subtitle = element_text(size = 14, hjust = 0.05),
+   # plot.caption = element_text(size = 10, hjust = .5),
+
+    # Make the background white and remove extra grid lines
+    # panel.background = element_rect(fill = "white", color = "white"),
+    panel.grid = element_blank(),
+    panel.grid.major.x = element_blank()
+  )
+}, bg = "transparent")
+
+
+
+##tabella Area x Dip----
+
+tArea <- reactive(perf %>%
+                    filter(Periodo == 2 & Avanzamento!=0  ) %>%
+                    mutate(MacroArea = factor(MacroArea)) %>%
+                    group_by(Dipartimento,  MacroArea) %>%
+                    summarise(media =  round(mean(Avanzamento, na.rm = T),2)) %>%
+                    mutate(media = percent(media),
+                           media = as.character(media)) %>%
+                    pivot_wider(names_from = "Dipartimento", values_from = "media", values_fill = " ") %>%
+                    select("MacroArea","Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale",
+                           "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
+                           "Dipartimento area territoriale Emilia Romagna",
+                           "Dipartimento amministrativo") %>%
+                    arrange(MacroArea) %>%
+                    mutate(MacroArea = as.character(MacroArea)) %>%
+                    mutate(MacroArea = gsub("\\d+", "", MacroArea),
+                           MacroArea = gsub("\"", "", MacroArea))  %>%
+                    rename("Macro Area" = "MacroArea")  )
+
+
+
+
+output$AreaDip <- renderUI({
+  border <- officer::fp_border()
+  flextable(tArea() ,
+            col_keys = c("Macro Area", "Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale",
+                         "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
+                         "Dipartimento area territoriale Emilia Romagna",
+                         "Dipartimento amministrativo")
+  ) %>%  
+    theme_box() %>% 
+    color(i = 1, color = "blue", part = "header") %>%
+    bold( part = "header") %>%
+    fontsize(size=15) %>%
+    fontsize(part = "header", size = 15) %>%
+    line_spacing(space = 2.5) %>% 
+    autofit() %>%
+    colformat_double(j= c("Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale",
+                          "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
+                          "Dipartimento area territoriale Emilia Romagna",
+                          "Dipartimento amministrativo"), decimal.mark = "," , digits = 0, suffix = "%") %>% 
+    htmltools_value() 
+  
+})
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ tArea <- reactive(perf %>%
+  filter(Periodo == 2 & Avanzamento!=0  ) %>%
+  mutate(MacroArea = factor(MacroArea)) %>%
+  group_by(Dipartimento,  MacroArea) %>%
+  summarise(media =  round(mean(Avanzamento, na.rm = T),2)) %>%
+  mutate(media = percent(media),
+         media = as.character(media)) %>%
+  pivot_wider(names_from = "Dipartimento", values_from = "media", values_fill = " ") %>%
+  select("MacroArea","Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale",
+         "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
+         "Dipartimento area territoriale Emilia Romagna",
+         "Dipartimento amministrativo") %>%
+  arrange(MacroArea) %>%
+  mutate(MacroArea = as.character(MacroArea)) %>%
+  mutate(MacroArea = gsub("\\d+", "", MacroArea),
+         MacroArea = gsub("\"", "", MacroArea))  %>%
+  rename("Macro Area" = "MacroArea")  )
+  
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
 
 
 
@@ -944,33 +1055,6 @@ output$projrep <- renderDataTable(Prjdip(), server = FALSE, class = 'cell-border
 
 
 
-###Aree performance----
-
-# Area <-  perf %>%
-#   mutate(MacroArea = factor(MacroArea)) %>%
-#   group_by(MacroArea) %>%
-#   summarise(mediana =  round(median(Avanzamento, na.rm = T),2),
-#             media = round(mean(Avanzamento,na.rm  = T),2),
-#             n = n()) %>%  
-#   mutate(mediana = percent(mediana),
-#          mediana = as.character(mediana),
-#          media = percent(media),
-#          media = as.character(media)) %>%  
-#   #pivot_wider(names_from = "Dipartimento", values_from = "mediana", values_fill = " ") %>%  View()
-#   arrange(MacroArea) %>%
-#   mutate(MacroArea = as.character(MacroArea)) %>%
-#   mutate(MacroArea = gsub("\\d+", "", MacroArea),
-#          MacroArea = gsub("\"", "", MacroArea))  %>%
-#   kbl( ) %>%
-#   kable_styling() %>%
-#   kable_paper(bootstrap_options = "striped", full_width = F)
-
-
-### Obiettivi----
-
-### Azioni----
-
-### Indicatori----
 
 
 
@@ -979,31 +1063,7 @@ output$projrep <- renderDataTable(Prjdip(), server = FALSE, class = 'cell-border
 
 
 
-}
+
+
      
-      
-      # 
-      
-      # color(j= "R/FTET", color = "red", part = "all") %>%
-      # color(j= "Pubblicazioni",color = "red", part = "all" ) %>%
-      # color(j= "Progetti di Ricerca", color = "red", part = "all") %>%
-      # vline(j= "RT", border = border, part = "all") %>%
-      # footnote(i=1, j=3:10,
-      #          value = as_paragraph(
-      #            c("Full Time Equivalenti Dirigenza",
-      #              "Full Time Equivalenti Comparto",
-      #              "Full Time Equivalenti Totale",
-      #              "Ricavo da Analisi",
-      #              "Ricavo Vendita Prodotti",
-      #              "Ricavo Attività Interna",
-      #              "Ricavo Totale",
-      #              "Ricavo per Full Equivalenti Totale")
-      #          ),
-      #          ref_symbols = c("a","b","c","d","e","f","g","h"),
-      #          part = "header", inline = T) %>%
-      # fontsize( i = NULL, j = NULL, size = 13, part = "footer") %>%
-      # htmltools_value()
-  
-
- #}
-
+     

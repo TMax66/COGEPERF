@@ -72,8 +72,9 @@ ui <- dashboardPage(
           ),
           fluidRow(
             column(1, 
+                   div(style = "font-size: 30px",
                    radioButtons("ind", "", 
-                                c("IP" = "IP","Dipartimento" = "Dipartimento" ))),
+                                c("IP" = "IP","Dipartimento" = "Dipartimento" )))),
             
             
             column(11, 
@@ -85,14 +86,15 @@ ui <- dashboardPage(
             
           ), 
           fluidRow(
-            
+           
             column(1, 
+                   div(style = "font-size: 30px",
                    radioButtons("kpi", "",
                                 c("Prestazioni",
                                 "Valorizzazione", 
                                  "VP","AI","RT", "FTED", 
                                 "FTEC","FTET")
-            )), 
+            ))), 
             column(11, 
                    plotOutput("ptrend"))
           )
@@ -141,8 +143,9 @@ ui <- dashboardPage(
               
             fluidRow(
             column(1, 
+                   div(style = "font-size: 30px",
                    radioButtons("ind2", "", 
-                                c( "IP" = "IP","Reparto" = "Reparto"))),
+                                c( "IP" = "IP","Reparto" = "Reparto")))),
             
             column(11, 
                    div(id = 'clickdiv001',
@@ -156,12 +159,13 @@ ui <- dashboardPage(
           fluidRow(
             
             column(1, 
+                   div(style = "font-size: 30px",
                    radioButtons("kpi2", "",
                                 c("Prestazioni",
                                   "Valorizzazione", 
                                   "VP","AI","RT", "FTED", 
                                   "FTEC","FTET")
-                   )), 
+                   ))), 
             column(11, 
                    plotOutput("ptrendRep"))
             
@@ -173,8 +177,32 @@ ui <- dashboardPage(
           ), 
 tabItem(
   tabName = "Report Costi-Ricavi per Centri di Costo"
-)#,
+),
 # Performance----
+tabItem(
+  tabName = "Performance",
+  fluidPage(
+    column(6,  
+           plotOutput("pltArea",  width = "1500px",
+                      height = "1500px",)
+          ), 
+    column(6, 
+            tableOutput("AreaDip")
+           )
+  
+  
+))
+
+
+        )
+      )
+)
+
+
+
+
+
+
 # tabItem(
 #   tabName = "Performance", 
 #   fluidPage( 
@@ -290,11 +318,7 @@ tabItem(
 # 
 #   
 #   )
-)
-             )
-            )
 
-     
 
           
           
