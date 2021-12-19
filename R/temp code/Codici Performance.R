@@ -86,7 +86,7 @@ dt <- perf
 
 AV <- 
  dt %>% 
-  filter(Periodo == 4 & Avanzamento != 0 ) %>% 
+  filter(Periodo == 2 & Avanzamento != 0 ) %>% 
   summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))
 
 library(flexdashboard)
@@ -104,7 +104,7 @@ x %>%
 #Dipartimenti----
 
 dt %>% 
-  filter(Periodo == 4 & Avanzamento != 0 ) %>% 
+  filter(Periodo == 2 & Avanzamento != 0 ) %>% 
   group_by(Dipartimento) %>% 
   summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% View()
   
@@ -113,9 +113,9 @@ dt %>%
   
 
 #Avanzamento per Area----
-Area <-  dt %>%
+Area <-  perf %>%
     filter(Periodo == 2 & Avanzamento != 0 ) %>% 
-  mutate(MacroArea = factor(MacroArea)) %>% 
+  mutate(MacroArea = factor(MacroArea)) %>%  
   group_by(MacroArea) %>% 
   summarise(mediana =  round(median(Avanzamento, na.rm = T),2),
             media = round(mean(Avanzamento,na.rm  = T),2), 
@@ -124,11 +124,11 @@ Area <-  dt %>%
          mediana = as.character(mediana), 
          media = percent(media),
          media = as.character(media)) %>%   
-  #pivot_wider(names_from = "Dipartimento", values_from = "mediana", values_fill = " ") %>%  View()
+  #pivot_wider(names_from = "Dipartimento", values_from = "mediana", values_fill = " ") %>%  
   arrange(MacroArea) %>% 
   mutate(MacroArea = as.character(MacroArea)) %>% 
   mutate(MacroArea = gsub("\\d+", "", MacroArea), 
-         MacroArea = gsub("\"", "", MacroArea))  %>% View()
+         MacroArea = gsub("\"", "", MacroArea))  %>%  
   kbl( ) %>% 
   kable_styling() %>% 
   kable_paper(bootstrap_options = "striped", full_width = F)
@@ -137,7 +137,7 @@ Area <-  dt %>%
 #Polar plot avanzamento per Area----
 
 plot_dt <- dt %>%  
-    filter(Periodo == 4 & Avanzamento != 0 ) %>% 
+    filter(Periodo == 2 & Avanzamento != 0 ) %>% 
   mutate(MacroArea = factor(MacroArea)) %>% 
   group_by(MacroArea) %>% 
   summarise(mediana =  100*round(median(Avanzamento, na.rm = T),2),
@@ -249,7 +249,7 @@ plt <- ggplot(plot_dt)+
     family = "Bell MT"
   )  +
   
-  scale_fill_gradientn(colours = gray.colors(7))+
+ # scale_fill_gradientn(colours = gray.colors(7))+
   
   theme(
     # Remove axis ticks and text
@@ -283,7 +283,8 @@ plt <- ggplot(plot_dt)+
 
 
 ##AreaDip-----
-AreaDip <-  dt %>%  
+AreaDip <-  perf %>%  
+  filter(Periodo == 4  ) %>% 
   mutate(MacroArea = factor(MacroArea)) %>% 
   group_by(Dipartimento,  MacroArea) %>% 
   summarise(media =  round(mean(Avanzamento, na.rm = T),2)) %>%  
@@ -301,7 +302,7 @@ AreaDip <-  dt %>%
   rename("Macro Area" = "MacroArea") %>% 
   kbl( ) %>% 
   kable_styling() %>% 
-  kable_paper(bootstrap_options = "striped", full_width = F) %>% 
+  kable_paper(bootstrap_options = "striped", full_width = F)# %>% 
   save_kable(file = "tab1.png")
 
 
