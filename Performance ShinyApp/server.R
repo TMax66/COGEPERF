@@ -126,7 +126,7 @@ output$RFTE <- renderValueBox(
 )
 
 output$Costi <- renderValueBox(
-  ValueBOX(IZSLER(), Variabile = "COSTI", Titolo = "Costi totali", colore = "blue", icona = "euro")
+  ValueBOX(IZSLER(), Variabile = "COSTI", Titolo = "Costi", colore = "blue", icona = "euro")
 )
 
 # output$costifte <- renderValueBox(
@@ -200,7 +200,7 @@ output$t <- renderUI({
      # 
      footnote(i=1, j=2:12,
               value = as_paragraph(
-                c("Attività analitica",
+                c("Attività analitica/Altre Prestazioni",
                   "Valorizzazione da Tariffario",
                   "Fatturato da Vendita Prodotti",
                   "Valorizzazione dell'Attività Interna",
@@ -400,7 +400,7 @@ output$RFTEdip <- renderValueBox(
 # )
 
 output$Costidip <- renderValueBox(
-  ValueBOX(tdiprep(), Variabile = "COSTI",   Titolo = "Costi totali", colore = "blue", icona = "euro")
+  ValueBOX(tdiprep(), Variabile = "COSTI",   Titolo = "Costi", colore = "blue", icona = "euro")
 )
 
 # output$costiftedip <- renderValueBox(
@@ -469,7 +469,7 @@ output$tr <- renderUI({
     
     footnote(i=1, j=2:12,
              value = as_paragraph(
-               c("Attività analitica",
+               c("Attività analitica/Altre Prestazioni",
                  "Valorizzazione da Tariffario",
                  "Fatturato da Vendita Prodotti",
                  "Valorizzazione dell'Attività Interna",
@@ -659,6 +659,7 @@ output$ptrendRep <- renderPlot({
 
 
 ##tabelle modali DIPA------ 
+##tabella progetti di ricerca IZSLER----
 Prj <- reactive({
   pr() %>%
     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient) %>%
@@ -680,12 +681,25 @@ output$projr <- renderDataTable(Prj(), server = FALSE, class = 'cell-border stri
                               extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
                                                                   paging = TRUE,autoWidth = TRUE,
                                                               buttons = c('excel')))
+##tabella pubblicazioni IZSLER----
+ 
+paper <- reactive({
+  pubs() %>%  
+    select( Autori = "CAU" , `TITOLO RIVISTA`= "JO","TITOLO" = `TI-INGLESE`,  "IF" ) %>% 
+    unique() %>%  
+    arrange(desc(IF))
+})
+
+output$articoli <- renderDataTable(paper(),server = FALSE, class = 'cell-border stripe', rownames=FALSE,
+                                   extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
+                                                                         paging = TRUE,autoWidth = TRUE,
+                                                                         buttons = c('excel')))
 
 
 
 ##tabelle modali DIPA/REP----
 
-###tabella modale progetti di ricerca----
+##tabella modale progetti di ricerca----
 Prjdip <- reactive({
   prdip() %>%
     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient) %>%
@@ -708,21 +722,19 @@ output$projrep <- renderDataTable(Prjdip(), server = FALSE, class = 'cell-border
                                                                       paging = TRUE,autoWidth = TRUE,
                                                                       buttons = c('excel')))
 
+##tabella modale pubblicazioni dip----
 
+paper <- reactive({
+  pubsdip() %>%  
+    select( Autori = "CAU" , `TITOLO RIVISTA`= "JO","TITOLO" = `TI-INGLESE`,  "IF" ) %>% 
+    unique() %>%  
+    arrange(desc(IF))
+})
 
-###tabella modale pubblicazioni----
-# paper <- reactive({
-#   
-#   pubs %>% filter(IF == "IF") %>% 
-#     select("AUTORI" = autori, "JOURNAL" = `TITOLO RIVISTA`, "TITOLO" = titinglese, "IF" = impf) %>%
-#     unique() %>% 
-#     arrange(desc(IF))
-# })
-# 
-# output$articoli <- renderDataTable(paper(),server = FALSE, class = 'cell-border stripe', rownames=FALSE,
-#                                    extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
-#                                                                          paging = TRUE,autoWidth = TRUE,
-#                                                                          buttons = c('excel')))
+output$articolidip <- renderDataTable(paper(),server = FALSE, class = 'cell-border stripe', rownames=FALSE,
+                                   extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
+                                                                         paging = TRUE,autoWidth = TRUE,
+                                                                         buttons = c('excel')))
 
 
 
@@ -732,12 +744,42 @@ output$projrep <- renderDataTable(Prjdip(), server = FALSE, class = 'cell-border
 
 # Performance----
 
+
+# output$lseDip <- renderPlot({ 
+#   perf %>%
+#     filter(Periodo == 4 & Avanzamento != 0 ) %>%
+#     mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
+#     group_by(Dipartimento) %>%  
+#     summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
+#     ggplot(aes(x= fct_reorder(Dipartimento, media), y = media, label= media))+
+#     geom_point(size=10, col="lightblue")+geom_text()+
+#     geom_segment(aes(xend=Dipartimento, yend = 0))+
+#     coord_flip()+ labs(x = "", y= "media % di raggiugimento obiettivi")
+# }, bg= "transparent"
+# )
+
+
+
+#valuebox performance ---
+
+# output$perfdg <- renderValueBox(
+#   
+#   ValueBox2(Dipartimento = "Direzione Generale", 
+#             Titolo =  "Direzione Generale", colore = "green")
+#   
+#   )
+
+
+
+
+
+
+
 pPerf <- reactive(perf %>%
   filter(Periodo == 2 & Avanzamento != 0 ) %>%
   mutate(MacroArea = factor(MacroArea)) %>%
   group_by(MacroArea) %>%
-  summarise(mediana =  100*round(median(Avanzamento, na.rm = T),2),
-            media = 100*round(mean(Avanzamento, na.rm = T),2),
+  summarise(media = 100*round(mean(Avanzamento, na.rm = T),2),
             n = n()) %>%
   mutate(target = 100) %>%
   mutate(MacroArea = as.character(MacroArea)) %>%
@@ -914,40 +956,23 @@ output$AreaDip <- renderUI({
 })
  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- tArea <- reactive(perf %>%
-  filter(Periodo == 2 & Avanzamento!=0  ) %>%
-  mutate(MacroArea = factor(MacroArea)) %>%
-  group_by(Dipartimento,  MacroArea) %>%
-  summarise(media =  round(mean(Avanzamento, na.rm = T),2)) %>%
-  mutate(media = percent(media),
-         media = as.character(media)) %>%
-  pivot_wider(names_from = "Dipartimento", values_from = "media", values_fill = " ") %>%
-  select("MacroArea","Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale",
-         "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
-         "Dipartimento area territoriale Emilia Romagna",
-         "Dipartimento amministrativo") %>%
-  arrange(MacroArea) %>%
-  mutate(MacroArea = as.character(MacroArea)) %>%
-  mutate(MacroArea = gsub("\\d+", "", MacroArea),
-         MacroArea = gsub("\"", "", MacroArea))  %>%
-  rename("Macro Area" = "MacroArea")  )
+ # tArea <- reactive(perf %>%
+ #  filter(Periodo == 2 & Avanzamento!=0  ) %>%
+ #  mutate(MacroArea = factor(MacroArea)) %>%
+ #  group_by(Dipartimento,  MacroArea) %>%
+ #  summarise(media =  round(mean(Avanzamento, na.rm = T),2)) %>%
+ #  mutate(media = percent(media),
+ #         media = as.character(media)) %>%
+ #  pivot_wider(names_from = "Dipartimento", values_from = "media", values_fill = " ") %>%
+ #  select("MacroArea","Direzione Generale", "Direzione Sanitaria", "Dipartimento tutela e salute animale",
+ #         "Dipartimento sicurezza alimentare","Dipartimento area territoriale Lombardia",
+ #         "Dipartimento area territoriale Emilia Romagna",
+ #         "Dipartimento amministrativo") %>%
+ #  arrange(MacroArea) %>%
+ #  mutate(MacroArea = as.character(MacroArea)) %>%
+ #  mutate(MacroArea = gsub("\\d+", "", MacroArea),
+ #         MacroArea = gsub("\"", "", MacroArea))  %>%
+ #  rename("Macro Area" = "MacroArea")  )
   
  
 

@@ -92,6 +92,25 @@ ValueBOX <- function(dt, Variabile, Variabile2 = NULL, Titolo, colore, icona){
   valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona), color = colore)
 }
 
+# ValueBox2 <- function(Dipartimento, Titolo, colore ){
+#   
+#   valueBox(
+#     paste0((perf %>% 
+#     filter(Dipartimento == Dipartimento) %>% 
+#     filter(Periodo == 4 & Avanzamento != 0 ) %>%
+#     summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))),"%"),
+#  
+#    Titolo, color = colore)
+#   
+# }
+
+
+
+
+
+ 
+
+
 #TABELLA IZSLER aggregato per dipartimenti con FTE----
 
 tizsler <-  tabIZSLER %>% 
@@ -113,5 +132,5 @@ pub <- pub %>%
          INT = ifelse(Congr == "IF ; Int" | Congr == "Int",  "Int", NA ), 
          NAZ = ifelse(Congr == "Naz", "Naz", NA), 
          Oth = ifelse(Congr == "Others" , "Others", NA), 
-         IF = as.numeric(IF))
+         IF = as.numeric(IF))  
 

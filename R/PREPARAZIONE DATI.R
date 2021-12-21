@@ -501,14 +501,14 @@ dt <- perf %>%
 
   )
 
-dt <- dt %>% rename( Reparto = Struttura ) %>%
+dt %>% rename( Reparto = Struttura ) %>%
   left_join(
 
     (strutture %>% select(Dipartimento, Reparto) %>%
        unique())
 
 
-    ,  by = c("Reparto")) %>%
+    ,  by = c("Reparto")) %>%  
 
   saveRDS(here("data", "processed", "performance.RDS"))
  

@@ -1,4 +1,38 @@
 
+pubs <-  pub %>% filter(OA == 2021)
+
+
+
+paper <-  
+
+    pubs %>%  
+      select(NR, Autori = "CAU" , `TITOLO RIVISTA`= "JO","TITOLO" = `TI-INGLESE`,  "IF" ) %>% 
+      unique() %>%  
+      arrange(desc(IF))
+ 
+
+  output$articoli <- renderDataTable(paper(),server = FALSE, class = 'cell-border stripe', rownames=FALSE,
+                                     extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
+                                                                           paging = TRUE,autoWidth = TRUE)
+  )
+
+
+  
+  perf %>%
+        filter(Periodo == 4 & Avanzamento != 0 ) %>%
+        mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
+        group_by(Dipartimento) %>%  
+        summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2)) %>% 
+    ggplot(aes(x= fct_reorder(Dipartimento, media), y = media, label= media))+
+    geom_point(size=10, col="lightblue")+geom_text()+
+    geom_segment(aes(xend=Dipartimento, yend = 0))+
+    coord_flip()+ labs(x = "", y= "media % di raggiugimento obiettivi")+
+    theme_bw()
+    
+
+
+
+
 perf <- readRDS(here("data", "processed", "performance.RDS"))
 
 

@@ -56,9 +56,9 @@ ui <- dashboardPage(
                             valueBoxOutput("IF")),
                         bsModal("P", "Pubblicazioni IF", "clickdiv0",dataTableOutput("articoli"), size = "large"),
 
-                        div(id='clickdiv1',
-                            valueBoxOutput("Int")),
-                        bsModal("CI", "Partecipazione a convegni internazionali", "clickdiv1", dataTableOutput("convegni"), size = "large"),
+                        # div(id='clickdiv1',
+                        #     valueBoxOutput("Int")),
+                        # bsModal("CI", "Partecipazione a convegni internazionali", "clickdiv1", dataTableOutput("convegni"), size = "large"),
 
                         div(id='clickdiv2',
                           valueBoxOutput("PR")),
@@ -72,7 +72,7 @@ ui <- dashboardPage(
           ),
           fluidRow(
             column(1, 
-                   div(style = "font-size: 30px",
+                   div(style = "font-size: 25px",
                    radioButtons("ind", "", 
                                 c("IP" = "IP","Dipartimento" = "Dipartimento" )))),
             
@@ -88,7 +88,7 @@ ui <- dashboardPage(
           fluidRow(
            
             column(1, 
-                   div(style = "font-size: 30px",
+                   div(style = "font-size: 25px",
                    radioButtons("kpi", "",
                                 c("Prestazioni",
                                 "Valorizzazione", 
@@ -115,9 +115,9 @@ ui <- dashboardPage(
                           valueBoxOutput("rictotdip"),
                           valueBoxOutput("RFTEdip"),
                           valueBoxOutput("Costidip"),
-                         # div(id='clickdiv3',
-                              valueBoxOutput("IFdip"), #),
-                          #bsModal("P1", "Pubblicazioni IF", "clickdiv3",dataTableOutput("articoli"), size = "large"),
+                         div(id='clickdiv3',
+                              valueBoxOutput("IFdip")),
+                          bsModal("P1", "Pubblicazioni IF", "clickdiv3",dataTableOutput("articolidip"), size = "large"),
 
                           # #div(id='clickdiv4',
                           #     valueBoxOutput("Intdip"), #),
@@ -143,7 +143,7 @@ ui <- dashboardPage(
               
             fluidRow(
             column(1, 
-                   div(style = "font-size: 30px",
+                   div(style = "font-size: 25px",
                    radioButtons("ind2", "", 
                                 c( "IP" = "IP","Reparto" = "Reparto")))),
             
@@ -159,7 +159,7 @@ ui <- dashboardPage(
           fluidRow(
             
             column(1, 
-                   div(style = "font-size: 30px",
+                   div(style = "font-size: 25px",
                    radioButtons("kpi2", "",
                                 c("Prestazioni",
                                   "Valorizzazione", 
@@ -182,16 +182,28 @@ tabItem(
 tabItem(
   tabName = "Performance",
   fluidPage(
+    fluidRow( align = "center", 
+    
+    h1("Grado di raggiungimento degli obiettivi di performance organizzativa 
+       ( aggiornamento al 30/06/2021)")),
+    # fluidRow(
+    #   valueBoxOutput("perfdg")
+    # ), 
+    br(), br(),
+    fluidRow(   
     column(6,  
            plotOutput("pltArea",  width = "1500px",
-                      height = "1500px",)
+                      height = "1500px")
           ), 
-    column(6, 
+    column(6,
+           box(width =12,
             tableOutput("AreaDip")
+           )
            )
   
   
 ))
+)
 
 
         )
