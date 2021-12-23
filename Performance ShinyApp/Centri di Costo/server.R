@@ -625,7 +625,7 @@ output$dettcostigest <- renderUI({
 })
 
 
-#COSTI COMUNI----
+##COSTI COMUNI----
 
 
 dtCostiCom <- reactive(dtanalisi %>% filter(CDC== input$CC3 & Costi=="Costo") %>% 
@@ -687,7 +687,7 @@ output$dettcosticom <- renderUI({
 
 
 
-
+## Tabella PIVOT----
 output$pivot <- renderRpivotTable({
   rpivotTable( dtanalisi %>% 
                  select(Anno = ANNO,
@@ -695,7 +695,7 @@ output$pivot <- renderRpivotTable({
                         Mese = MESE,
                         Dipartimento, Reparto, Laboratorio, "Centro di Costo" = CDC,
                         Fatturato, Tariffario, Costo,
-                        "ANALISI" = Determinazioni, Numero,
+                        "ANALISI" = Determinazioni,  
                         "Tipologia Analisi" = ClassAnalisi,
                         Categoria, Classificazione, Classe, Area, CodiceCDC),
               aggregatorName="Sum", vals = "",
