@@ -8,7 +8,10 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                 # choices = c("", as.character(unique(factor(dtanalisi$CDC))), 
                                   choices = c("", produzione          
                                              )),
-                     uiOutput("parametri")
+                     uiOutput("parametri"), 
+                     radioButtons("tipoconteggio", "seleziona tipo di conteggio", 
+                                  c("Nominale",
+                                    "Progressivo" ))
                  ),
                mainPanel(
                    tabsetPanel(id = "tabs",

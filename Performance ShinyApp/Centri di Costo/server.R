@@ -66,57 +66,89 @@ output$parametri <- renderUI({
 
 ##Tabelle reattive----
 dtAtt <- reactive (dtanalisi %>% filter(CDC == input$CC & Costi=="Ricavo") %>% 
-         group_by(CDC,  ANNO,  Quarter) %>% 
-             summarise(N.Esami = sum(Determinazioni, na.rm = TRUE), 
-                     EUff = sum(AttUff, na.rm = TRUE), 
-                     ENUff =sum(AttNUff, na.rm = TRUE), 
-                     EPag = sum(AttPag, na.rm = TRUE), 
-                     Egrat = sum(AttGrat, na.rm = TRUE), 
-                     PI = sum(AI , na.rm = TRUE), 
-                     Prodv = sum(VP, na.rm = TRUE)) %>% 
-          ungroup() %>% 
-           arrange(Quarter) %>%  
-           mutate(VarEsami = round((N.Esami/lag(N.Esami)-1)*100, 2), 
-                  VarEUff = round((EUff/lag(EUff)-1)*100, 2), 
-                  VarENUff = round((ENUff/lag(ENUff)-1)*100, 2), 
-                  VarEPag = round((EPag/lag(EPag)-1)*100, 2),
-                  VarEgrat = round((Egrat/lag(Egrat)-1)*100, 2),
-                  VarPI = round((PI/lag(PI)-1)*100, 2), 
-                  VarProdv = round((Prodv/lag(Prodv)-1)*100, 2)
-           ) 
+                     group_by(CDC,  ANNO,  Quarter) %>% 
+                     summarise(N.Esami = sum(Determinazioni, na.rm = TRUE), 
+                               EUff = sum(AttUff, na.rm = TRUE), 
+                               ENUff =sum(AttNUff, na.rm = TRUE), 
+                               EPag = sum(AttPag, na.rm = TRUE), 
+                               Egrat = sum(AttGrat, na.rm = TRUE), 
+                               PI = sum(AI , na.rm = TRUE), 
+                               Prodv = sum(VP, na.rm = TRUE)) %>% 
+                     mutate(CumEsami = cumsum(N.Esami), 
+                            CumEUff = cumsum(EUff), 
+                            CumENUff = cumsum(ENUff), 
+                            CumEPag = cumsum(EPag), 
+                            CumEgrat = cumsum(Egrat), 
+                            CumPI = cumsum(PI), 
+                            CumProdv = cumsum(Prodv)) %>% 
+                     ungroup() %>% 
+                     arrange(Quarter) %>%  
+                     mutate(VarEsami = round((N.Esami/lag(N.Esami)-1)*100, 2), 
+                            VarEUff = round((EUff/lag(EUff)-1)*100, 2), 
+                            VarENUff = round((ENUff/lag(ENUff)-1)*100, 2), 
+                            VarEPag = round((EPag/lag(EPag)-1)*100, 2),
+                            VarEgrat = round((Egrat/lag(Egrat)-1)*100, 2),
+                            VarPI = round((PI/lag(PI)-1)*100, 2), 
+                            VarProdv = round((Prodv/lag(Prodv)-1)*100, 2), 
+                            VarCumEs = round((CumEsami/lag(CumEsami)-1)*100,2), 
+                            VarCumEUff = round((CumEUff/lag(CumEUff)-1)*100,2), 
+                            VarCumENUff = round((CumENUff/lag(CumENUff)-1)*100,2), 
+                            VarCumEPag = round((CumEPag/lag(CumEPag)-1)*100,2),
+                            VarCumEgrat = round((CumEgrat/lag(CumEgrat)-1)*100,2),
+                            VarCumPI = round((CumPI/lag(CumPI)-1)*100,2),
+                            VarCumProdv = round((CumProdv/lag(CumProdv)-1)*100,2)
+                     )
            
 )
 
   
 dtT <- reactive(dtanalisi %>% filter(CDC == input$CC & Costi=="Ricavo") %>% 
-    group_by(CDC,  ANNO,  Quarter) %>% 
-    summarise(Ufficiali = sum(TUff, na.rm = T), 
-              NonUfficiali = sum(TNonUff, na.rm = T), 
-              Gratuiti = sum(TGratuito, na.rm = T),
-              Pagamento = sum(TPagamento, na.rm = T), 
-              Vprod = sum(TVP, na.rm= T), 
-              AI = sum(TAI, na.rm = T)) %>% ungroup() %>% 
-    ungroup %>% 
-    arrange(Quarter) %>% 
-    mutate(VarUff = round((Ufficiali/lag(Ufficiali)-1)*100, 2), 
-           VarNUff = round((NonUfficiali/lag(NonUfficiali)-1)*100, 2), 
-           VarGrat = round((Gratuiti/lag(Gratuiti)-1)*100, 2), 
-           VarPag = round((Pagamento/lag(Pagamento)-1)*100, 2), 
-           VarVP = round((Vprod/lag(Vprod)-1)*100, 2), 
-           VarAI = round((AI/lag(AI)-1)*100,2)) %>% 
-    rowwise() %>% 
-    mutate(TotRic = round(sum(Ufficiali, NonUfficiali, na.rm = T),2)) %>% ungroup() %>% 
-    mutate(VarTot = round((TotRic/lag(TotRic)-1)*100, 2))
+                  group_by(CDC,  ANNO,  Quarter) %>% 
+                  summarise(Ufficiali = sum(TUff, na.rm = T), 
+                            NonUfficiali = sum(TNonUff, na.rm = T), 
+                            Gratuiti = sum(TGratuito, na.rm = T),
+                            Pagamento = sum(TPagamento, na.rm = T), 
+                            Vprod = sum(TVP, na.rm= T), 
+                            AI = sum(TAI, na.rm = T)) %>%
+                  mutate(CumUff = cumsum(Ufficiali),
+                         CumNonUff = cumsum(NonUfficiali), 
+                         CumGrat = cumsum(Gratuiti), 
+                         CumPag = cumsum(Pagamento), 
+                         CumVprod = cumsum(Vprod), 
+                         CumAI = cumsum(AI)) %>% 
+                  rowwise() %>% 
+                  mutate(TotRic = round(sum(Ufficiali, NonUfficiali, na.rm = T),2)) %>%
+                  ungroup %>% 
+                  mutate(CumTotRic = cumsum(TotRic)) %>% 
+                  ungroup() %>% 
+                  
+                  arrange(Quarter) %>% 
+                  mutate(VarUff = round((Ufficiali/lag(Ufficiali)-1)*100, 2), 
+                         VarNUff = round((NonUfficiali/lag(NonUfficiali)-1)*100, 2), 
+                         VarGrat = round((Gratuiti/lag(Gratuiti)-1)*100, 2), 
+                         VarPag = round((Pagamento/lag(Pagamento)-1)*100, 2), 
+                         VarVP = round((Vprod/lag(Vprod)-1)*100, 2), 
+                         VarAI = round((AI/lag(AI)-1)*100,2), 
+                         VarTot = round((TotRic/lag(TotRic)-1)*100, 2),
+                         
+                         VarCumUff = round((CumUff/lag(CumUff)-1)*100, 2), 
+                         VarCumNonUff = round((CumNonUff/lag(CumNonUff)-1)*100, 2), 
+                         VarCumGrat = round((CumGrat/lag(CumGrat)-1)*100, 2), 
+                         VarCumPag = round((CumPag/lag(CumPag)-1)*100, 2), 
+                         VarCumVprod = round((CumVprod/lag(CumVprod)-1)*100, 2), 
+                         VarCumAI = round((CumAI/lag(CumAI)-1)*100, 2), 
+                         VarCumTotRic = round((CumTotRic/lag(CumTotRic)-1)*100, 2) )
 )
   
   
 dtCostiT <- reactive(dtanalisi %>% filter(CDC== input$CC & Costi=="Costo") %>% 
-         group_by(CDC,  ANNO,  Quarter) %>% 
-           summarise(Costi = round(sum(Costo, na.rm = TRUE),2)) %>% 
-           ungroup %>% 
-           arrange(Quarter) %>% 
-           mutate(VarCosti = round((Costi/lag(Costi)-1)*100),2)
-                     )
+                       group_by(CDC,  ANNO,  Quarter) %>% 
+                       summarise(Costi = round(sum(Costo, na.rm = TRUE),2)) %>% 
+                       mutate(CumCosti = cumsum(Costi)) %>% 
+                       ungroup () %>% 
+                       arrange(Quarter) %>% 
+                       mutate(VarCosti = round((Costi/lag(Costi)-1)*100),2, 
+                              VarCumCosti = round((CumCosti/lag(CumCosti)-1)*100), 2) )
 
 
  
@@ -146,21 +178,49 @@ output$PLOT <- renderPlot({
   
   if (input$par == "Attività Complessiva")
     {   
-    Tplot(dtAtt(), "N.Esami", "VarEsami")#, euro = "")
-    
-    }else
+        if(input$tipoconteggio== "Nominale")
+        {   
+          Tplot(dtAtt(), "N.Esami", "VarEsami")#, euro = "")
+
+        } else
+        
+        if(input$tipoconteggio == "Progressivo")
+        {
+          Tplot(dtAtt(), "CumEsami", "VarCumEs")#, euro = "")
+        }
+
+     }else
            
-           if(input$par == "Attività Ufficiale") {
-              Tplot(dtAtt(), "EUff", "VarEUff")#, euro = "")
-           }
+  if(input$par == "Attività Ufficiale") 
+   {
+    
+        if(input$tipoconteggio == "Nominale")
+        {  
+          Tplot(dtAtt(), "EUff", "VarEUff")#, euro = "")
+          
+        } else
+          
+        if(input$tipoconteggio == "Progressivo")
+        {
+          Tplot(dtAtt(), "CumEUff", "VarCumEUff")#, euro = "")
+        }
 
+    }else
 
-          else
+  if(input$par == "Attività Non Ufficiale")
+   {
+    
+        if(input$tipoconteggio == "Nominale")
+        { 
+          Tplot(dtAtt(), "ENUff", "VarENUff")#, euro = "")
+        } else
+        
+        if(input$tipoconteggio == "Progressivo")
+        { 
+        Tplot(dtAtt(), "CumENUff", "VarCumENUff")#, euro = "")
+        }
 
-            if(input$par == "Attività Non Ufficiale"){
-               Tplot(dtAtt(), "ENUff", "VarENUff")#, euro = "")
-
-            }
+    }
 
 
           # else
@@ -171,7 +231,6 @@ output$PLOT <- renderPlot({
           #   }
             
           }
-
 )
 
 ##tabella dettaglio prestazioni----

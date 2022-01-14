@@ -88,16 +88,6 @@ Tplot <- function(df, y_par, y_par2)
 
 
 
-
-
-
-
-
-
-
-
-
-
 # Tplot <- function(df, y_par, y_par2, euro)
 # {    
 #   p1 <- ggplot(df)+ 
