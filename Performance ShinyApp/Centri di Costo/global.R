@@ -86,60 +86,141 @@ Tplot <- function(df, y_par, y_par2)
 }
 
 
+## Funzioni per tabelle----
 
 
-# Tplot <- function(df, y_par, y_par2, euro)
-# {    
-#   p1 <- ggplot(df)+ 
-#     aes(
-#       y = .data[[y_par]],
-#       x = .data[["Quarter"]],  
-#       label=paste(as.character(.data[[y_par]]), euro))+
-#     geom_line(group = 1, aes(color = ANNO == max(ANNO)), size= 1.1,  )+
-#     geom_label(size = 4.5, aes(color = ANNO == max(ANNO)))+
-#     scale_color_manual(values = c("grey", "blue"), guide = "none") +
-#     facet_grid(~ANNO, switch = "x", scales = "free")+
-#     geom_hline(yintercept = 0, size = 0.5)+
-#     labs(y = "", x = " ",
-#          title = "")+
-#     theme_ipsum_rc()+
-#     theme(panel.grid.major = element_blank(),
-#           panel.grid.minor = element_blank(),
-#           
-#           axis.text.y = element_blank(),
-#           axis.text.x = element_text(size = 15),
-#           
-#           strip.text.x = element_text(size = 18))
-#   
-#   # p2 <- ggplot(df)+ 
-#   #   aes(
-#   #     y = .data[[y_par2]],
-#   #     x = .data[["Quarter"]],  
-#   #     label=paste(as.character(.data[[y_par2]]), "%"))+
-#   #   geom_line(group = 1, aes(color = ANNO == max(ANNO)), size= 1.1,  )+
-#   #   geom_label(size = 4.5, aes(color = ANNO == max(ANNO)))+
-#   #   scale_color_manual(values = c("grey", "blue"), guide = "none") +
-#   #   facet_grid(~ANNO, switch = "x", scales = "free")+
-#   #   geom_hline(yintercept = 0, size = 0.5)+
-#   #   labs(y = "", x = " ",
-#   #        title = "")+
-#   #   theme_ipsum_rc()+
-#   #   theme(panel.grid.major = element_blank(),
-#   #         panel.grid.minor = element_blank(),
-#   #         
-#   #         axis.text.y = element_blank(),
-#   #         axis.text.x = element_text(size = 15),
-#   #         
-#   #         strip.text.x = element_text(size = 18))
-#   
-#   p1
-#   #|p2
-#   
-#   
-# }
+AC <- function(CC = input$CC ){ 
+  dtanalisi %>%  
+    dplyr::filter(Costi== "Ricavo") %>% 
+    group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
+    filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
+    summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
+              N_Num = sum(Numero, na.rm = TRUE), 
+              S_Tariffa = sum(Tariffario, na.rm = TRUE), 
+              S_Fatturato = sum(Fatturato, na.rm = TRUE))  %>% 
+    dplyr::filter(CDC == CC & Classe == "Prestazioni") %>% 
+    group_by(ANNO, Quarter, Area) %>% 
+    summarise(N = sum(N_Det, na.rm=TRUE)) %>% 
+    mutate(YQ = paste(ANNO, "-", Quarter)) %>% ungroup() %>% 
+    select(-ANNO, -Quarter) %>% 
+    pivot_wider( names_from = YQ,  values_from = N, values_fill = 0) %>%   
+    left_join(  
+      
+      (dtanalisi %>% 
+         dplyr::filter(Costi == "Ricavo") %>% 
+         group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC,ClassAnalisi, Classe, Area) %>% 
+         filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
+         summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
+                   N_Num = sum(Numero, na.rm = TRUE), 
+                   S_Tariffa = sum(Tariffario, na.rm = TRUE), 
+                   S_Fatturato = sum(Fatturato, na.rm = TRUE))  %>% 
+         dplyr::filter(CDC == CC & Classe == "Prestazioni") %>% 
+         group_by(ANNO, Quarter, Area) %>% 
+         summarise(N = sum(N_Det, na.rm=TRUE)) %>% 
+         mutate(YQ = paste(ANNO, "-", Quarter)) %>%
+         select(-ANNO, -Quarter) %>% 
+         group_by(Area) %>%
+         summarise(trend = spk_chr(N, type= "line", options =
+                                     list(paging = FALSE)))
+      )) %>% rename("Prestazioni" = Area) %>% 
+    
+    format_table()  %>% 
+    htmltools::HTML() %>% 
+    div() %>% 
+    spk_add_deps()
+}
+
+AC2 <- function(CC = input$CC){
+  dtanalisi %>%  
+    filter(Costi== "Ricavo") %>% 
+    group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
+    filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
+    summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
+              N_Num = sum(Numero, na.rm = TRUE), 
+              S_Tariffa = sum(Tariffario, na.rm = TRUE), 
+              S_Fatturato = sum(Fatturato, na.rm = TRUE))  %>% 
+    filter(CDC == CC & Classe == "Prestazioni") %>% 
+    group_by(ANNO, Quarter, Area) %>% 
+    summarise(N = sum(N_Det, na.rm=TRUE)) %>% 
+    mutate(YQ = paste(ANNO, "-", Quarter)) %>% ungroup() %>% 
+    group_by(ANNO, Area) %>% 
+    arrange(Area) %>% 
+    mutate(cs = cumsum(N)) %>% 
+    ungroup() %>% 
+    select(-ANNO, -Quarter, -N) %>%
+    pivot_wider( names_from = YQ,  values_from = cs, values_fill = 0) %>% 
+    format_table() %>% 
+    htmltools::HTML() 
+}
 
 
+AU <- function(CC = input$CC, Uff){
+  
+  dtanalisi %>% 
+  filter(Uff == Uff & Costi == "Ricavo") %>% 
+    group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC,ClassAnalisi, Classe, Area) %>% 
+    filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
+    summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
+              N_Num = sum(Numero, na.rm = TRUE), 
+              S_Tariffa = sum(Tariffario, na.rm = TRUE), 
+              S_Fatturato = sum(Fatturato, na.rm = TRUE))  %>% 
+    filter(CDC == CC & Classe == "Prestazioni") %>% 
+    group_by(ANNO, Quarter, Area) %>% 
+    summarise(N = sum(N_Det, na.rm=TRUE)) %>% 
+    mutate(YQ = paste(ANNO, "-", Quarter)) %>% ungroup() %>% 
+    select(-ANNO, -Quarter) %>% 
+    pivot_wider( names_from = YQ,  values_from = N, values_fill = 0) %>%   
+    left_join(  
+      
+      (dtanalisi %>% 
+         filter(Uff == Uff & Costi == "Ricavo") %>% 
+         group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC,ClassAnalisi, Classe, Area) %>% 
+         filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
+         summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
+                   N_Num = sum(Numero, na.rm = TRUE), 
+                   S_Tariffa = sum(Tariffario, na.rm = TRUE), 
+                   S_Fatturato = sum(Fatturato, na.rm = TRUE))  %>% 
+         filter(CDC == CC & Classe == "Prestazioni") %>% 
+         group_by(ANNO, Quarter, Area) %>% 
+         summarise(N = sum(N_Det, na.rm=TRUE)) %>% 
+         mutate(YQ = paste(ANNO, "-", Quarter)) %>%
+         select(-ANNO, -Quarter) %>% 
+         group_by(Area) %>%
+         summarise(trend = spk_chr(N, type= "line", options =
+                                     list(paging = FALSE)))
+      )) %>% rename("Prestazioni" = Area) %>% 
+    
+    format_table()  %>% 
+    htmltools::HTML() %>% 
+    div() %>% 
+    spk_add_deps()
+  
+  
+}
 
+
+AU2 <- function(CC = input$CC, Uff){
+  dtanalisi %>%  
+    filter(Uff == Uff & Costi == "Ricavo") %>% 
+    group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
+    filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
+    summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
+              N_Num = sum(Numero, na.rm = TRUE), 
+              S_Tariffa = sum(Tariffario, na.rm = TRUE), 
+              S_Fatturato = sum(Fatturato, na.rm = TRUE))  %>% 
+    filter(CDC == CC & Classe == "Prestazioni") %>% 
+    group_by(ANNO, Quarter, Area) %>% 
+    summarise(N = sum(N_Det, na.rm=TRUE)) %>% 
+    mutate(YQ = paste(ANNO, "-", Quarter)) %>% ungroup() %>% 
+    group_by(ANNO, Area) %>% 
+    arrange(Area) %>% 
+    mutate(cs = cumsum(N)) %>% 
+    ungroup() %>% 
+    select(-ANNO, -Quarter, -N) %>%
+    pivot_wider( names_from = YQ,  values_from = cs, values_fill = 0) %>% 
+    format_table() %>% 
+    htmltools::HTML() 
+}
 
 
 #OLD STUFF----
@@ -224,5 +305,57 @@ Tplot <- function(df, y_par, y_par2)
 #   else filter(df, Parametro %in% c("Tariffato","VarVal"))
 # }
 
- 
+# Tplot <- function(df, y_par, y_par2, euro)
+# {    
+#   p1 <- ggplot(df)+ 
+#     aes(
+#       y = .data[[y_par]],
+#       x = .data[["Quarter"]],  
+#       label=paste(as.character(.data[[y_par]]), euro))+
+#     geom_line(group = 1, aes(color = ANNO == max(ANNO)), size= 1.1,  )+
+#     geom_label(size = 4.5, aes(color = ANNO == max(ANNO)))+
+#     scale_color_manual(values = c("grey", "blue"), guide = "none") +
+#     facet_grid(~ANNO, switch = "x", scales = "free")+
+#     geom_hline(yintercept = 0, size = 0.5)+
+#     labs(y = "", x = " ",
+#          title = "")+
+#     theme_ipsum_rc()+
+#     theme(panel.grid.major = element_blank(),
+#           panel.grid.minor = element_blank(),
+#           
+#           axis.text.y = element_blank(),
+#           axis.text.x = element_text(size = 15),
+#           
+#           strip.text.x = element_text(size = 18))
+#   
+#   # p2 <- ggplot(df)+ 
+#   #   aes(
+#   #     y = .data[[y_par2]],
+#   #     x = .data[["Quarter"]],  
+#   #     label=paste(as.character(.data[[y_par2]]), "%"))+
+#   #   geom_line(group = 1, aes(color = ANNO == max(ANNO)), size= 1.1,  )+
+#   #   geom_label(size = 4.5, aes(color = ANNO == max(ANNO)))+
+#   #   scale_color_manual(values = c("grey", "blue"), guide = "none") +
+#   #   facet_grid(~ANNO, switch = "x", scales = "free")+
+#   #   geom_hline(yintercept = 0, size = 0.5)+
+#   #   labs(y = "", x = " ",
+#   #        title = "")+
+#   #   theme_ipsum_rc()+
+#   #   theme(panel.grid.major = element_blank(),
+#   #         panel.grid.minor = element_blank(),
+#   #         
+#   #         axis.text.y = element_blank(),
+#   #         axis.text.x = element_text(size = 15),
+#   #         
+#   #         strip.text.x = element_text(size = 18))
+#   
+#   p1
+#   #|p2
+#   
+#   
+# }
+
+
+
+
  
