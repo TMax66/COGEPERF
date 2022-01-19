@@ -59,8 +59,9 @@ tdiprep <- reactive(#questo codice prepara la tabella dei singoli dipartimenti c
      summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
      mutate(RT = (Valorizzazione+VP+AI),
             FTET = round((FTED+FTEC),2)) %>%
-     arrange(desc(Prestazioni)) %>%
-     select(-FTED, -FTEC)) %>% 
+     arrange(desc(Prestazioni)) 
+   ) %>%
+     #select(-FTED, -FTEC)) %>% 
     left_join(
       (pubsdip() %>%
          filter(articoliif == "IF") %>%

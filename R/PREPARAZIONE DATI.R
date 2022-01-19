@@ -133,7 +133,7 @@ fte <- ore %>%
   filter(Dipartimento != "Non applicabile") %>% 
   group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente) %>%   
   filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
-  summarise(hworked = sum(Ore, na.rm = T)) %>% 
+  summarise(hworked = sum(Ore, na.rm = T)) %>% View()
   mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(36*47.4), hworked/(38*47.4))) %>% 
   pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE"))  %>% 
   select(-hworked_, -FTE_)  
@@ -219,7 +219,7 @@ dtProg %>%
   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
   group_by(Valorizzazione, Dipartimento, Reparto) %>%
   summarise(FTED = sum(FTED, na.rm = T), 
-            FTEC = sum(FTEC, na.rm = T)) %>% 
+            FTEC = sum(FTEC, na.rm = T)) %>%   
   rowwise() %>% 
   mutate(FT = sum(FTED, FTEC)) %>% 
   group_by( Dipartimento, Reparto) %>% 
@@ -228,8 +228,8 @@ dtProg %>%
   #select(-FTED, -FTEC) %>%  
   group_by(Dipartimento,Reparto,  Valorizzazione) %>% 
   filter(Valorizzazione== "si") %>%  
-  ungroup() %>%
-  #select(Dipartimento,Reparto, FTp) %>% 
+  ungroup() %>% 
+  select(Dipartimento,Reparto, Valorizzazione, FTp) %>% 
   saveRDS(here("data", "processed", "ftepREP.RDS"))
 
 

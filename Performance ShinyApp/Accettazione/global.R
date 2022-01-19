@@ -70,9 +70,11 @@ WHERE
   {fn year(dbo.Conferimenti.Data_Accettazione)}  =  2021
   AND  dbo.Conferimenti.Nome_Stazione_Inserimento  IN  ('ACC-CENTR2', 'PC-47326', 'PC-40780','MP-ACC3', 'BS-ASS-N',
                                                         'PC-47327', 'CH-ACC4-N','CH-ACC2-N', 'MP-SIVARS7','PC-47499', 
-                                                        'MP-SIVARS7-N')
+                                                        'MP-SIVARS7-N', 'PC-49702')
   )
 ")
+
+ 
 
 acc <- conAcc%>% tbl(sql(queryAcc)) %>% as_tibble()
 acc[,"Finalità"] <- sapply(acc[, "Finalità"], iconv, from = "latin1", to = "UTF-8", sub = "")
