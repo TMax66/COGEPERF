@@ -101,57 +101,58 @@ tabPanel("Gestione",
              
              
            ))
- ), 
-tabPanel("Costi Comuni", 
-         
-         sidebarLayout(
-           sidebarPanel(width = 3,
-                        selectInput("CC3", "Seleziona il Centro di Costo", 
-                                    choices = c("", cscomuni          
-                                    ))
-           ),
-           mainPanel( 
-             tabsetPanel(id = "tabscosticom",
-                         tabPanel("Costi", value = 4,
-                                  fluidRow(
-                                    column(12,  
-                                           h2(textOutput("titoloCosti4")),
-                                           plotOutput("PLOT5",height = "500px" ))
-                                    
-                                  ), 
-                                  hr(), 
-                                  fluidRow(
-                                    column(11, 
-                                           htmlOutput("dettcosticom")
-                                    ))
-                         )
-                         
-                         
-                         
-                         
-             )
-             
-             
-             
-             
-             
-           ))
-         
-         
-         
-         
-         
-         ), 
+ )
+, 
+# tabPanel("Costi Comuni", 
+#          
+#          sidebarLayout(
+#            sidebarPanel(width = 3,
+#                         selectInput("CC3", "Seleziona il Centro di Costo", 
+#                                     choices = c("", cscomuni          
+#                                     ))
+#            ),
+#            mainPanel( 
+#              tabsetPanel(id = "tabscosticom",
+#                          tabPanel("Costi", value = 4,
+#                                   fluidRow(
+#                                     column(12,  
+#                                            h2(textOutput("titoloCosti4")),
+#                                            plotOutput("PLOT5",height = "500px" ))
+#                                     
+#                                   ), 
+#                                   hr(), 
+#                                   fluidRow(
+#                                     column(11, 
+#                                            htmlOutput("dettcosticom")
+#                                     ))
+#                          )
+#                          
+#                          
+#                          
+#                          
+#              )
+#              
+#              
+#              
+#              
+#              
+#            ))
+#          
+#          
+#          
+#          
+#          
+#          ), 
 
 
 
-tabPanel("TABELLA PIVOT", 
+tabPanel("TABELLE PIVOT", 
          
          fluidPage(
-           radioButtons(inputId = "format", label = "Enter the format to download", 
-                        choices = c( "csv", "excel"), inline = FALSE, selected = "csv"),
-           downloadButton("download_pivot"),
-           actionButton("copy_pivot", "Copy"),
+           # radioButtons(inputId = "format", label = "Enter the format to download", 
+           #              choices = c( "csv", "excel"), inline = FALSE, selected = "csv"),
+           # downloadButton("download_pivot"),
+           # actionButton("copy_pivot", "Copy"),
            fluidRow(rpivotTableOutput("pivot") %>% 
                       withSpinner(color="blue", type=8)))
          )
