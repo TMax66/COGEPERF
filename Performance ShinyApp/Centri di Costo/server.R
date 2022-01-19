@@ -338,7 +338,10 @@ output$PLOT2 <- renderPlot({
   
   if (input$par == "Attività Complessiva")
   {   
-    Tplot(dtT(), "TotRic", "VarTot" )
+    if(input$tipoconteggio == "Nominale")
+    {Tplot(dtT(), "TotRic", "VarTot" )} else
+    if(input$tipoconteggio == "Progressivo")
+    {Tplot(dtT(), "CumTotRic", "VarCumTotRic" )}
     
   }else
     

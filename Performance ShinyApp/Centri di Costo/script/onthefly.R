@@ -1,96 +1,81 @@
 
-dtanalisi %>%  
-  filter(Costi== "Ricavo") %>% 
-  group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
-  filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
-  summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
-            N_Num = sum(Numero, na.rm = TRUE), 
-            S_Tariffa = sum(Tariffario, na.rm = TRUE), 
-            S_Fatturato = sum(Fatturato, na.rm = TRUE))  %>% 
-  filter(CDC == CC & Classe == "Prestazioni") %>% 
-  group_by(ANNO, Quarter, Area) %>% 
-  summarise(N = sum(N_Det, na.rm=TRUE)) %>% 
-  mutate(YQ = paste(ANNO, "-", Quarter)) %>% ungroup() %>% 
-  group_by(ANNO, Area) %>% 
-  arrange(Area) %>% 
-  mutate(cs = cumsum(N)) %>% 
-  ungroup() %>% 
-  select(-ANNO, -Quarter, -N) %>%
-  pivot_wider( names_from = YQ,  values_from = cs, values_fill = 0) %>% 
-  format_table() %>% 
-  htmltools::HTML() 
 
-
-
-dtanalisi %>%  
-  filter(Costi == "Ricavo") %>% 
-  filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
-  group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
-  summarise(TUff= sum(TUff, na.rm = TRUE)) %>% 
-  filter(CDC == "SEDE TERRITORIALE DI BERGAMO" & Classe == "Prestazioni") %>%  
-  group_by(ANNO, Quarter, Area) %>% 
-  summarise(N = sum(TUff, na.rm=TRUE)) %>% 
-  mutate(YQ = paste(ANNO, "-", Quarter)) %>% ungroup() %>% 
-  group_by(ANNO, Area) %>% 
-  arrange(Area) %>% 
-  mutate(cs = cumsum(N)) %>% 
-  ungroup() %>% 
-  select(-ANNO, -Quarter, -N) %>%
-  pivot_wider( names_from = YQ,  values_from = cs, values_fill = 0) %>% View()
-  
-  
-  
-  
-  
-  pivot_wider( names_from = YQ,  values_from = N, values_fill = 0) %>% 
-
-
-
-
-
-
-
-
-  dtanalisi %>%  
-    filter(Costi== "Ricavo") %>%
-    filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
-    group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
-    summarise(TNonUff= sum(TNonUff, na.rm = TRUE)) %>% 
-    filter(CDC == "SEDE TERRITORIALE DI BERGAMO" & Classe == "Prestazioni") %>%  
-    group_by(ANNO, Quarter, Area) %>% 
-    summarise(N = sum(TNonUff, na.rm=TRUE)) %>% 
-    mutate(YQ = paste(ANNO, "-", Quarter)) %>% ungroup() %>% 
-    select(-ANNO, -Quarter) %>% 
-    pivot_wider( names_from = YQ,  values_from = N, values_fill = 0) %>%   
+Tplot <- function(df, y_par, y_par2)
+{    
+  ggplot(df)+ 
+    aes(
+      y = .data[[y_par]],
+      x = .data[["ANNO"]])+  
     
-    left_join(  
-      (dtanalisi %>%  
-         filter(Costi== "Ricavo") %>% 
-         filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
+    geom_ribbon(aes(ymin = 0, ymax = (.data[[y_par]])+0.1*(.data[[y_par]])), alpha=0.05)+
+    geom_point(aes(y = .data[[y_par]])) +
+    geom_line(aes(y = .data[[y_par]]))+
+    facet_wrap(facets = ~Quarter, nrow=1, scales = "free")+
+    scale_x_continuous(breaks = unique(df$ANNO), expand=c(0.16, 0))+
+    geom_text(data = dplyr::filter(df, ANNO == 2020), aes(label = sprintf('%+0.1f%%',.data[[y_par2]])), 
+              x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+    geom_text(data = dplyr::filter(df, ANNO == 2021), aes(label = sprintf('%+0.1f%%', .data[[y_par2]])), 
+              x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+    geom_text(aes(label = sprintf('%0.1f',.data[[y_par]]), y = .data[[y_par]]), vjust = -1, size=3.5)+
+    labs(y = "", x = " ",
+         title = "")+
+    theme_bw()+
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          
+          axis.text.y = element_blank(),
+          axis.text.x = element_text(size = 15),
+          
+          strip.text.x = element_text(size = 15))
+}
+
+
+
+
+
+df <- dtanalisi %>% filter(CDC == "SEDE TERRITORIALE DI BERGAMO" & Costi=="Ricavo") %>% 
+  group_by(CDC,  ANNO,  Quarter) %>% 
+  summarise(Ufficiali = sum(TUff, na.rm = T), 
+            NonUfficiali = sum(TNonUff, na.rm = T), 
+            Gratuiti = sum(TGratuito, na.rm = T),
+            Pagamento = sum(TPagamento, na.rm = T), 
+            Vprod = sum(TVP, na.rm= T), 
+            AI = sum(TAI, na.rm = T)) %>%
+  mutate(CumUff = cumsum(Ufficiali),
+         CumNonUff = cumsum(NonUfficiali), 
+         CumGrat = cumsum(Gratuiti), 
+         CumPag = cumsum(Pagamento), 
+         CumVprod = cumsum(Vprod), 
+         CumAI = cumsum(AI)) %>% 
+  rowwise() %>% 
+  mutate(TotRic = round(sum(Ufficiali, NonUfficiali, na.rm = T),2)) %>% 
+  ungroup %>% 
+  mutate(CumTotRic = cumsum(TotRic)) %>% View()
+  ungroup() %>% 
+  
+  arrange(Quarter) %>% 
+  mutate(VarUff = round((Ufficiali/lag(Ufficiali)-1)*100, 2), 
+         VarNUff = round((NonUfficiali/lag(NonUfficiali)-1)*100, 2), 
+         VarGrat = round((Gratuiti/lag(Gratuiti)-1)*100, 2), 
+         VarPag = round((Pagamento/lag(Pagamento)-1)*100, 2), 
+         VarVP = round((Vprod/lag(Vprod)-1)*100, 2), 
+         VarAI = round((AI/lag(AI)-1)*100,2), 
+         VarTot = round((TotRic/lag(TotRic)-1)*100, 2),
          
-         group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
-         summarise(TNonUff= sum(TNonUff, na.rm = TRUE)) %>% 
-         filter(CDC == "SEDE TERRITORIALE DI BERGAMO" & Classe == "Prestazioni") %>%  
-         group_by(ANNO, Quarter, Area) %>% 
-         summarise(N = sum(TNonUff, na.rm=TRUE)) %>% 
-         mutate(YQ = paste(ANNO, "-", Quarter)) %>%
-         select(-ANNO, -Quarter) %>% 
-         group_by(Area) %>%
-         summarise(trend = spk_chr(N, type= "line", options =
-                                     list(paging = FALSE)))
-      )) %>% 
-    
-    rename("Prestazioni" = Area) %>%  
+         VarCumUff = round((CumUff/lag(CumUff)-1)*100, 2), 
+         VarCumNonUff = round((CumNonUff/lag(CumNonUff)-1)*100, 2), 
+         VarCumGrat = round((CumGrat/lag(CumGrat)-1)*100, 2), 
+         VarCumPag = round((CumPag/lag(CumPag)-1)*100, 2), 
+         VarCumVprod = round((CumVprod/lag(CumVprod)-1)*100, 2), 
+         VarCumAI = round((CumAI/lag(CumAI)-1)*100, 2), 
+         VarCumTotRic = round((CumTotRic/lag(CumTotRic)-1)*100, 2) )  
 
 
 
 
 
 
-
-
-
-
+Tplot(df,"CumTotRic","VarCumTotRic"  )
 
 
 
