@@ -13,12 +13,6 @@ output$parametri <- renderUI({
       } else {}
     })
 
-
-
-
-
-
-
   # output$butt1 <- renderUI({
   #   req(input$CC, input$par)
   #   div( align = "center", 
@@ -31,7 +25,7 @@ output$parametri <- renderUI({
   #        downloadButton("down", "Scarica i dati in formato .tsv"))
   # })
   
-
+##intestazioni pagine----
   titolo <- reactive(
     paste(input$CC,":",input$par)
   )
@@ -40,7 +34,6 @@ output$parametri <- renderUI({
     req(input$par)
     titolo()} 
   )
-  
   
   
   output$titoloRic <- renderText({
@@ -62,6 +55,7 @@ output$parametri <- renderUI({
     req(input$CC3)
     paste(input$CC3, ": Costi complessivi" )} 
   )
+  
 #PRODUZIONE----
 
 ##Tabelle reattive----
