@@ -1,6 +1,6 @@
 ui <- dashboardPage(
   
-      dashboardHeader(title = "Controllo di gestione e performances", titleWidth = 500),
+      dashboardHeader(title = "Controllo di gestione e performances- Versione TEST", titleWidth = 520),
 #Sidebar
       dashboardSidebar(
         width = 500,

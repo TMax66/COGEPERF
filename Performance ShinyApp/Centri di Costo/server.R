@@ -222,14 +222,6 @@ output$PLOT <- renderPlot({
 
     }
 
-
-          # else
-          # 
-          #   if(input$par == "Produzione Interna"){
-          #      Tplot(dtAtt(), "Prodv", "VarProdv", euro = "")
-          # 
-          #   }
-            
           }
 )
 
@@ -263,9 +255,9 @@ output$dtprestazioni <- renderUI({
       {
       
       if (input$tipoconteggio == "Nominale")
-      { AU(CC = input$CC, Uff = "Non Ufficiale") } else
+      { AU(CC = input$CC, Uff == "Non Ufficiale") } else
         if (input$tipoconteggio == "Progressivo")
-        { AU2(CC = input$CC, Uff = "Non Ufficiale") }
+        { AU2(CC = input$CC, Uff == "Non Ufficiale") }
       
     }
   
@@ -341,32 +333,33 @@ output$PLOT2 <- renderPlot({
     if(input$tipoconteggio == "Nominale")
     {Tplot(dtT(), "TotRic", "VarTot" )} else
     if(input$tipoconteggio == "Progressivo")
-    {Tplot(dtT(), "CumTotRic", "VarCumTotRic" )}
+    {Tplot(plotRC2(CC=input$CC), "CumTotRic", "VarCumTotRic" )}
     
   }else
     
-    if(input$par == "Attività Ufficiale") {
-      Tplot(dtT(), "Ufficiali", "VarUff" )
-    }
-  
-  
-  else
-    
-    if(input$par == "Attività Non Ufficiale"){
-      Tplot(dtT(), "NonUfficiali", "VarNUff" )
-      
-    }
-  
-  
-  else
-    
-    if(input$par == "Produzione Interna"){
-      Tplot(dtT(), "Vprod", "VarVP" )
-      
-    }
+    if(input$par == "Attività Ufficiale") 
+  {
+    if(input$tipoconteggio == "Nominale")
+      {Tplot(dtT(), "Ufficiali", "VarUff" )} else
+    if(input$tipoconteggio == "Progressivo")
+    {Tplot(dtT(), "CumUff", "VarCumUff")}
   
 }
+  
+  else
+    
+    if(input$par == "Attività Non Ufficiale")
+      
+    {
+      
+      if(input$tipoconteggio == "Nominale")
+     {Tplot(dtT(), "NonUfficiali", "VarNUff" )} else
+      if(input$tipoconteggio == "Progressivo")
+      {Tplot(dtT(), "CumNonUff", "VarCumNonUff")}
+      
+    }
 
+    }
 )
 
 ##grafici costi----
@@ -376,6 +369,13 @@ output$PLOT3 <- renderPlot({
   Tplot(dtCostiT(), "Costi", "VarCosti")
 
 })
+
+
+
+
+
+
+
 
 ##tabella dettaglio costi----
 

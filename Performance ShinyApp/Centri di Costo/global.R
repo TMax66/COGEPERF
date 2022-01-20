@@ -294,6 +294,25 @@ RC2 <- function(CC = input$CC)
   
 }
 
+plotRC2 <-function(CC = input$CC)
+{
+  dtanalisi %>% filter(CDC == CC & Costi=="Ricavo") %>% 
+    rowwise() %>% 
+    mutate(totRic = round(sum(TUff, TNonUff, na.rm = T),2)) %>% ungroup() %>%  
+    group_by(CDC,  ANNO,  Quarter) %>% 
+    summarise(TotRic = sum(totRic, na.rm= TRUE)) %>%  
+    arrange(Quarter) %>%
+    #group_by(CDC,  ANNO,  Quarter) %>%
+    mutate(CumTotRic = cumsum(TotRic)) %>% 
+    ungroup() %>% 
+    mutate(VarTot = round((TotRic/lag(TotRic)-1)*100, 2),
+           VarCumTotRic = round((CumTotRic/lag(CumTotRic)-1)*100, 2))
+  
+}
+
+
+
+
 
 RUf <- function(CC = input$CC){
   dtanalisi %>%  

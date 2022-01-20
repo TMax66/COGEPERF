@@ -35,17 +35,7 @@ FROM
   
 WHERE
   dbo.Personale_V2020.Anno  >=  2019"
-#ore <- con %>% tbl(sql(query)) %>% as_tibble()  
 
-
-#DATI DA COGE----
-# ccx <- read_delim(here("data", "raw", "coge1921.txt"), 
-               # "\t", escape_double = FALSE, locale = locale(decimal_mark = ",",
-                                                              # grouping_mark = "."), trim_ws = TRUE)
-
-# names(cc)[5:7] <- c("Dipartimento", "Reparto", "Laboratorio")
-# 
-# names(cc)[20:21] <- c("Centro di Costo", "CodCC")
 
 
 # Dati da Controllo di Gestione per Dashboard Performance e APP Centri di Costo
@@ -89,10 +79,6 @@ cc <- con %>% tbl(sql(queryCoge)) %>% as_tibble()
 
 
 
-
-
-
-
 #PREPARAZIONE DATI PER DASHBOARD PERFORMANCES----
 
 ###TABELLE-----
@@ -133,7 +119,7 @@ fte <- ore %>%
   filter(Dipartimento != "Non applicabile") %>% 
   group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente) %>%   
   filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
-  summarise(hworked = sum(Ore, na.rm = T)) %>% View()
+  summarise(hworked = sum(Ore, na.rm = T)) %>%  
   mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(36*47.4), hworked/(38*47.4))) %>% 
   pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE"))  %>% 
   select(-hworked_, -FTE_)  
@@ -424,7 +410,7 @@ prj %>%
 
 ##DATI DA PUBBLICAZIONI####
 
-pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni21.xlsx"))
+pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
 pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
 pubblicazioni$AU <- gsub(",.*$", "", pubblicazioni$AU)
 pubblicazioni %>% filter(OA >= 2019) %>%
