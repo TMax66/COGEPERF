@@ -76,7 +76,11 @@ tabPanel("Gestione",
            sidebarPanel(width = 3,
                         selectInput("CC2", "Seleziona il Centro di Costo", 
                                     choices = c("", gestionale          
-                                    ))
+                                    )),
+                       
+                        radioButtons("tipoconteggio2", "seleziona tipo di conteggio", 
+                                     c("Nominale",
+                                       "Progressivo" ))
            ),
            mainPanel( 
              tabsetPanel(id = "tabsgest",
