@@ -442,9 +442,65 @@ RNUf2 <- function(CC = input$CC){
 
 
 
+CostiN <- function(CC = input$CC){
+  dtanalisi %>%  
+    filter(Costi== "Costo") %>% 
+    group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
+    
+    summarise(costidett = sum(Costo, na.rm = TRUE),
+    )  %>%  
+    filter(CDC == CC  ) %>% 
+    group_by(ANNO, Quarter,Classe) %>%  
+    summarise(C = sum(costidett, na.rm=TRUE)) %>% 
+    mutate(YQ = paste(ANNO, "-", Quarter)) %>%  ungroup() %>% 
+    select(-ANNO, -Quarter) %>%  
+    pivot_wider( names_from = YQ,  values_from = C, values_fill = 0) %>%    
+    
+    left_join(  
+      
+      (dtanalisi %>% 
+         filter(Costi == "Costo") %>% 
+         group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
+         summarise(costidett = sum(Costo, na.rm = TRUE),
+         )  %>%  
+         filter(CDC == CC ) %>% 
+         group_by(ANNO, Quarter, Classe) %>% 
+         summarise(C = sum(costidett, na.rm=TRUE)) %>% 
+         mutate(YQ = paste(ANNO, "-", Quarter)) %>%
+         select(-ANNO, -Quarter) %>% 
+         group_by(Classe) %>%
+         summarise(trend = spk_chr(C, type= "line", options =
+                                     list(paging = FALSE)))
+      )) %>% rename("Tipologia Costi" = Classe) %>% 
+    
+    format_table()  %>% 
+    htmltools::HTML() %>% 
+    div() %>% 
+    spk_add_deps()
+}
 
 
-
+CostiP <- function(CC = input$CC)
+{
+  dtanalisi %>%  
+    filter(Costi== "Costo") %>% 
+    group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
+    summarise(costidett = sum(Costo, na.rm = TRUE),
+    )  %>%  
+    filter(CDC == "SEDE TERRITORIALE DI BERGAMO"  ) %>% 
+    group_by(ANNO, Quarter,Classe) %>%  
+    summarise(C = sum(costidett, na.rm=TRUE)) %>% 
+    mutate(YQ = paste(ANNO, "-", Quarter)) %>%  ungroup() %>%  
+    group_by(ANNO, Classe) %>% 
+    arrange(Classe) %>% 
+    mutate(cs = cumsum(C)) %>% 
+    ungroup() %>% 
+    select(-ANNO, -Quarter, -C) %>%
+    pivot_wider( names_from = YQ,  values_from = cs, values_fill = 0) %>% 
+    format_table() %>% 
+    htmltools::HTML() 
+  
+}
 
 
 
