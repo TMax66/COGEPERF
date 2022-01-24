@@ -1,3 +1,59 @@
+perf <- readRDS(here("data", "processed", "performance.RDS"))
+
+
+pPerf <-  perf %>%
+                    filter(Periodo == 4 ) %>%
+                    mutate(MacroArea = factor(MacroArea)) %>%
+                    group_by(MacroArea) %>%
+                    summarise(media = 100*round(mean(Avanzamento, na.rm = T),2),
+                              n = n()) %>% View()
+  select(Indicatore, StutturaAssegnataria) %>% View()
+                    mutate(target = 100) %>%
+                    mutate(MacroArea = as.character(MacroArea)) %>%
+                    mutate(MacroArea = gsub("\\d+", "", MacroArea),
+                           MacroArea = gsub("\"", "", MacroArea))
+
+
+
+
+perf %>% 
+ filter(Periodo == 4 & Avanzamento == 0 ) %>%
+  select(Indicatore, StrutturaAssegnataria) %>% View()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ftepREP
 
 
