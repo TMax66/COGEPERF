@@ -13,6 +13,22 @@ output$parametri <- renderUI({
       } else {}
     })
 
+output$tipocont <- renderUI({
+  req(input$CC)
+  radioButtons("tipoconteggio", "seleziona tipo di conteggio",
+               c("Trimestrale",
+                 "Progressivo" ))
+})
+
+output$tipocont2 <- renderUI({
+  req(input$CC2)
+  radioButtons("tipoconteggio2", "seleziona tipo di conteggio",
+               c("Trimestrale",
+                 "Progressivo" ))
+})
+
+
+
   # output$butt1 <- renderUI({
   #   req(input$CC, input$par)
   #   div( align = "center", 
@@ -172,7 +188,7 @@ output$PLOT <- renderPlot({
   
   if (input$par == "Attività Complessiva")
     {   
-        if(input$tipoconteggio== "Nominale")
+        if(input$tipoconteggio== "Trimestrale")
         {   
           Tplot(dtAtt(), "N.Esami", "VarEsami")#, euro = "")
 
@@ -188,7 +204,7 @@ output$PLOT <- renderPlot({
   if(input$par == "Attività Ufficiale") 
    {
     
-        if(input$tipoconteggio == "Nominale")
+        if(input$tipoconteggio == "Trimestrale")
         {  
           Tplot(dtAtt(), "EUff", "VarEUff")#, euro = "")
           
@@ -204,7 +220,7 @@ output$PLOT <- renderPlot({
   if(input$par == "Attività Non Ufficiale")
    {
     
-        if(input$tipoconteggio == "Nominale")
+        if(input$tipoconteggio == "Trimestrale")
         { 
           Tplot(dtAtt(), "ENUff", "VarENUff")#, euro = "")
         } else
@@ -226,7 +242,7 @@ output$dtprestazioni <- renderUI({
   
   if (input$par == "Attività Complessiva")
   {
-    if (input$tipoconteggio == "Nominale")
+    if (input$tipoconteggio == "Trimestrale")
     { AC(CC = input$CC) } else
     if (input$tipoconteggio == "Progressivo")
     { AC2(CC = input$CC) }
@@ -236,7 +252,7 @@ output$dtprestazioni <- renderUI({
     if(input$par == "Attività Ufficiale") 
       
     {
-      if (input$tipoconteggio == "Nominale")
+      if (input$tipoconteggio == "Trimestrale")
       { AU(CC = input$CC, Uff = "Ufficiale") } else
         if (input$tipoconteggio == "Progressivo")
         { AU2(CC = input$CC, Uff = "Ufficiale") }
@@ -248,7 +264,7 @@ output$dtprestazioni <- renderUI({
       
       {
       
-      if (input$tipoconteggio == "Nominale")
+      if (input$tipoconteggio == "Trimestrale")
       { AU(CC = input$CC, Uff == "Non Ufficiale") } else
         if (input$tipoconteggio == "Progressivo")
         { AU2(CC = input$CC, Uff == "Non Ufficiale") }
@@ -270,7 +286,7 @@ output$dtricprest <- renderUI({
   if (input$par == "Attività Complessiva") 
   {
     
-    if(input$tipoconteggio == "Nominale")
+    if(input$tipoconteggio == "Trimestrale")
     {RC(CC = input$CC)} else
     if(input$tipoconteggio == "Progressivo")
     {RC2(CC = input$CC)}
@@ -281,7 +297,7 @@ output$dtricprest <- renderUI({
   
      {
        
-       if(input$tipoconteggio == "Nominale")
+       if(input$tipoconteggio == "Trimestrale")
        {RUf(CC = input$CC)}else
        if(input$tipoconteggio == "Progressivo")
        {RUf2(CC = input$CC)}
@@ -293,7 +309,7 @@ output$dtricprest <- renderUI({
      
     {
       
-      if(input$tipoconteggio == "Nominale")
+      if(input$tipoconteggio == "Trimestrale")
       {RNUf(CC = input$CC)} else
       if(input$tipoconteggio == "Progressivo")
       {RNUf2(CC = input$CC)}
@@ -324,7 +340,7 @@ output$PLOT2 <- renderPlot({
   
   if (input$par == "Attività Complessiva")
   {   
-    if(input$tipoconteggio == "Nominale")
+    if(input$tipoconteggio == "Trimestrale")
     {Tplot(dtT(), "TotRic", "VarTot" )} else
     if(input$tipoconteggio == "Progressivo")
     {Tplot(plotRC2(CC=input$CC), "CumTotRic", "VarCumTotRic" )}
@@ -333,7 +349,7 @@ output$PLOT2 <- renderPlot({
     
     if(input$par == "Attività Ufficiale") 
   {
-    if(input$tipoconteggio == "Nominale")
+    if(input$tipoconteggio == "Trimestrale")
       {Tplot(dtT(), "Ufficiali", "VarUff" )} else
     if(input$tipoconteggio == "Progressivo")
     {Tplot(dtT(), "CumUff", "VarCumUff")}
@@ -346,7 +362,7 @@ output$PLOT2 <- renderPlot({
       
     {
       
-      if(input$tipoconteggio == "Nominale")
+      if(input$tipoconteggio == "Trimestrale")
      {Tplot(dtT(), "NonUfficiali", "VarNUff" )} else
       if(input$tipoconteggio == "Progressivo")
       {Tplot(dtT(), "CumNonUff", "VarCumNonUff")}
@@ -361,7 +377,7 @@ output$PLOT2 <- renderPlot({
 output$PLOT3 <- renderPlot({
   req(input$CC)
   
-  if(input$tipoconteggio == "Nominale")
+  if(input$tipoconteggio == "Trimestrale")
   {Tplot(dtCostiT(), "Costi", "VarCosti")} else
   if(input$tipoconteggio == "Progressivo")
   {Tplot(dtCostiT(), "CumCosti", "VarCumCosti")}
@@ -374,7 +390,7 @@ output$PLOT3 <- renderPlot({
 output$dettcosti <- renderUI({
 req(input$CC)
 
-  if(input$tipoconteggio == "Nominale")
+  if(input$tipoconteggio == "Trimestrale")
   {CostiN(CC = input$CC)} else
   if(input$tipoconteggio == "Progressivo")
   {CostiP(CC=input$CC)}
@@ -403,7 +419,7 @@ dtCostiTgest <- reactive(dtanalisi %>% filter(CDC== input$CC2 & Costi=="Costo") 
 
 output$PLOT4 <- renderPlot({
   req(input$CC2)
-  if(input$tipoconteggio2 == "Nominale")
+  if(input$tipoconteggio2 == "Trimestrale")
     {Tplot(dtCostiTgest(), "Costi", "VarCosti")}else
   if(input$tipoconteggio2 == "Progressivo")
   {Tplot(dtCostiTgest(), "CumCosti", "VarCumCosti")}
@@ -413,7 +429,7 @@ output$PLOT4 <- renderPlot({
 
 output$dettcostigest <- renderUI({
   req(input$CC2)
-  if(input$tipoconteggio2 == "Nominale")
+  if(input$tipoconteggio2 == "Trimestrale")
   {CostigestN(CC = input$CC2)}else
   if(input$tipoconteggio2 == "Progressivo")
   {CostigestP(CC = input$CC2)}

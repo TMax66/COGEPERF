@@ -9,9 +9,10 @@ ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
                                   choices = c("", produzione          
                                              )),
                      uiOutput("parametri"), 
-                     radioButtons("tipoconteggio", "seleziona tipo di conteggio", 
-                                  c("Nominale",
-                                    "Progressivo" ))
+                     uiOutput("tipocont")
+                     # radioButtons("tipoconteggio", "seleziona tipo di conteggio", 
+                     #              c("Trimestrale",
+                     #                "Progressivo" ))
                  ),
                mainPanel(
                    tabsetPanel(id = "tabs",
@@ -77,10 +78,12 @@ tabPanel("Gestione",
                         selectInput("CC2", "Seleziona il Centro di Costo", 
                                     choices = c("", gestionale          
                                     )),
+                        uiOutput("tipocont2")
                        
-                        radioButtons("tipoconteggio2", "seleziona tipo di conteggio", 
-                                     c("Nominale",
-                                       "Progressivo" ))
+                        
+                        # radioButtons("tipoconteggio2", "seleziona tipo di conteggio", 
+                        #              c("Trimestrale",
+                        #                "Progressivo" ))
            ),
            mainPanel( 
              tabsetPanel(id = "tabsgest",
