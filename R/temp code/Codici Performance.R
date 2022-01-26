@@ -83,11 +83,35 @@
 
 
 dt <- perf
+library(gt)
+ 
+AV2 %>% 
+  filter(Periodo == 4 ) %>% 
+  group_by(MacroArea) %>% 
+  summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2), 
+            min = 100*min(Avanzamento))  %>% 
+  ungroup %>% 
+  add_row(MacroArea = 'Livello Sintetico di Ente', !!! colMeans(.[-1])) %>% 
+  gt() %>%  
+gtsave("LSE.pdf")
+  
+  
+  
+  library(tibble)
+df2 %>% 
+  ungroup %>% 
+  add_row(year = 'mean', !!! colMeans(.[-1]))
 
-AV <- 
- dt %>% 
-  filter(Periodo == 2 & Avanzamento != 0 ) %>% 
-  summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))
+
+
+AV2 <- dt %>% 
+  filter(Periodo == 4) %>% 
+  mutate(Avanzamento = ifelse(Avanzamento == 0, 1, Avanzamento) )
+
+
+
+
+
 
 library(flexdashboard)
 
