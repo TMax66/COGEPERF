@@ -1,10 +1,11 @@
 perf <- readRDS(here("data", "processed", "performance.RDS"))
 
 
-pPerf <-  perf %>%
-                    filter(Periodo == 4 ) %>%
+pPerf <-  perf %>%  group_by(MacroArea,Indicatore,StrutturaAssegnataria,Periodo) %>% 
+                     
                     mutate(MacroArea = factor(MacroArea)) %>%
-                    group_by(MacroArea) %>%
+                    
+  #filter(Avanzamento != 0) %>% 
                     summarise(media = 100*round(mean(Avanzamento, na.rm = T),2),
                               n = n()) %>% View()
   select(Indicatore, StutturaAssegnataria) %>% View()
