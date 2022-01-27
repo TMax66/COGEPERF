@@ -1,4 +1,4 @@
-ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO",
+ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO  (Versione TEST)",
     theme = shinytheme("cerulean"),
 
     tabPanel("Produzione",

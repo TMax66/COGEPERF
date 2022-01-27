@@ -15,14 +15,14 @@ output$parametri <- renderUI({
 
 output$tipocont <- renderUI({
   req(input$CC)
-  radioButtons("tipoconteggio", "seleziona tipo di conteggio",
+  radioButtons("tipoconteggio", "seleziona tipo di report",
                c("Trimestrale",
                  "Progressivo" ))
 })
 
 output$tipocont2 <- renderUI({
   req(input$CC2)
-  radioButtons("tipoconteggio2", "seleziona tipo di conteggio",
+  radioButtons("tipoconteggio2", "seleziona tipo di report",
                c("Trimestrale",
                  "Progressivo" ))
 })
