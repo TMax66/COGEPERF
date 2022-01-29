@@ -76,6 +76,8 @@ pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazi
 perf <- readRDS(here("data", "processed", "performance.RDS"))
 
 
+ 
+  
 
 
 # #Carico funzioni----
