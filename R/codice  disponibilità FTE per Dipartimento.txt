@@ -1,5 +1,9 @@
-## full time equivalenti al 1 gennaio 2021####
-dati21 <- read_excel(here("programmazione", "data", "raw", "presenze2021.xlsx"))
+## full time equivalenti al 1 gennaio 2022####
+
+library(here)
+library(tidyverse)
+
+dati21 <- read_excel(here("programmazione", "data", "raw", "presenze2022.xlsx"))
 
 
 presenze21 <- dati21 %>% 

@@ -1,25 +1,121 @@
-perf <- readRDS(here("data", "processed", "performance.RDS"))
+###n.pubblicazioni triennio per struttura-----
+
+tabIZSLER <- readRDS(file = here( "data", "processed", "TabellaGenerale.rds"))
+pub <- readRDS(file = here( "data", "processed", "pub.rds"))
+pub <- pub %>% 
+  mutate(articoliif = ifelse(Congr == "IF ; Int" | Congr == "IF",  "IF", NA), 
+         INT = ifelse(Congr == "IF ; Int" | Congr == "Int",  "Int", NA ), 
+         NAZ = ifelse(Congr == "Naz", "Naz", NA), 
+         Oth = ifelse(Congr == "Others" , "Others", NA), 
+         IF = as.numeric(IF))  
+
+pub %>%  
+  filter(articoliif == "IF") %>%
+  count(OA, Reparto, NR) %>%  
+  group_by(OA, Reparto) %>% 
+  count(NR) %>%
+  summarise("Pubblicazioni" = sum(n))  
 
 
-pPerf <-  perf %>%  group_by(MacroArea,Indicatore,StrutturaAssegnataria,Periodo) %>% 
-                     
-                    mutate(MacroArea = factor(MacroArea)) %>%
-                    
-  #filter(Avanzamento != 0) %>% 
-                    summarise(media = 100*round(mean(Avanzamento, na.rm = T),2),
-                              n = n()) %>% View()
-  select(Indicatore, StutturaAssegnataria) %>% View()
-                    mutate(target = 100) %>%
-                    mutate(MacroArea = as.character(MacroArea)) %>%
-                    mutate(MacroArea = gsub("\\d+", "", MacroArea),
-                           MacroArea = gsub("\"", "", MacroArea))
+  #questo codice prepara la tabella dei singoli dipartimenti con i dati dei reparti
+  tabIZSLER %>%
+    select(ANNO, Dipartimento, Reparto) %>% 
+    unique() %>% 
+   
+    left_join(
+         
+        ( pub %>%  
+          filter(articoliif == "IF") %>%
+          count(OA, Reparto, NR) %>%  
+          group_by(OA, Reparto) %>% 
+          count(NR) %>% 
+          summarise("Pubblicazioni" = sum(n))) , by = c("Reparto", "ANNO" ="OA")) %>% 
+  
+          filter(!is.na(Pubblicazioni)) %>% 
+    pivot_wider(names_from = "ANNO", values_from = "Pubblicazioni") %>%  ungroup() %>% 
+    mutate(media = rowMeans(.[3:5], na.rm = T), 
+           atteso = round(0.10*media,0), 
+           target = round(atteso+media, 0)) %>% View()
+    
+    
+  
+  
+  
+  
+  tabIZSLER %>%
+    select(ANNO, Dipartimento, Reparto) %>% 
+    unique() %>% 
+    
+    left_join(
+      
+      ( pub %>%  
+          filter(articoliif == "IF") %>%
+          count(OA, Reparto, NR) %>% 
+          group_by(OA, Reparto) %>% 
+          count(NR)   
+           ) , by = c("Reparto", "ANNO" ="OA")) %>% select(-n) %>% 
+    filter(!is.na(NR)) %>% 
+    
+    left_join(
+      (pub %>%  
+         select(NR,OA, Autori = "CAU" , `TITOLO RIVISTA`= "JO","TITOLO" = `TI-INGLESE`,  "IF" ) %>% 
+         unique() %>%  
+         arrange(desc(IF))), by=c("ANNO"= "OA", "NR")
+      
+    ) %>% 
+    
+    group_by(ANNO, Dipartimento, Reparto) %>% 
+    summarise(sIF = sum(IF), 
+              mIF = mean(IF), 
+              nP = n()) %>% View()
+
+     
+  
 
 
 
 
-perf %>% 
- filter(Periodo == 4 & Avanzamento == 0 ) %>%
-  select(Indicatore, StrutturaAssegnataria) %>% View()
+
+
+## full time equivalenti al 1 gennaio 2022####
+
+library(here)
+library(tidyverse)
+library(readxl)
+
+dati22 <- read_excel(here("data", "raw", "presenze2022.xlsx"))
+
+CC <- readRDS(here("data", "processed", "CC.rds"))
+
+
+dati22 %>% 
+  mutate(peror = as.numeric(`Perc Orario`)) %>%  
+    left_join(  
+             (CC %>% 
+              select(Dipartimento, Reparto, Laboratorio, CDC, CodiceCDC) %>% 
+              unique() ) , by = c("CODICE_CDC" = "CodiceCDC")) %>% 
+  mutate(contr  = ifelse( Dirigente == "N", (36*peror)/100, (38*peror)/100),
+         hcontr =  contr*47.4) %>% 
+  select(Dipartimento, REPARTO, Laboratorio, Dirigente, contr, hcontr) %>%  
+  group_by(Dipartimento, REPARTO, Laboratorio, Dirigente) %>% 
+  summarise(hcontr = sum(hcontr)) %>% 
+  mutate(FTE = ifelse(Dirigente == "S", hcontr/(38*47.4), hcontr/(36*47.4))) %>%  
+  select(-hcontr) %>% 
+  pivot_wider(names_from = Dirigente, values_from = FTE) %>%  
+  rename( "FTED" = S, 
+          "FTEC" = N)  %>% 
+  ungroup() %>%  
+  gt() %>% 
+  gtsave("fte.rtf")
+  
+
+ 
+ 
+ 
+
+
+
+
 
 
 
