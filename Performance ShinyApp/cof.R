@@ -65,13 +65,13 @@ pub %>%
     ) %>% 
     
     group_by(ANNO, Dipartimento, Reparto) %>% 
-    summarise(sIF = sum(IF), 
-              mIF = mean(IF), 
-              nP = n()) %>% View()
-
-     
+    summarise(sIF = sum(IF)) %>% View()
+             
   
 
+  
+  
+  
 
 
 

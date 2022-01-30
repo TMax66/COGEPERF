@@ -913,7 +913,7 @@ output$pltArea <- renderPlot({
 ##tabella Area x Dip----
 
 tArea <- reactive(perf %>%
-                    filter(Periodo == 2 & Avanzamento!=0  ) %>%
+                    filter(Periodo == 4 & Avanzamento!=0  ) %>%
                     mutate(MacroArea = factor(MacroArea)) %>%
                     group_by(Dipartimento,  MacroArea) %>%
                     summarise(media =  round(mean(Avanzamento, na.rm = T),2)) %>%
