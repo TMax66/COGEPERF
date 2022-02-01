@@ -82,6 +82,22 @@
 #     ,  by = c("Reparto"))  
 
 
+pPerf <-  perf %>%
+                    filter(Periodo == 4 & Avanzamento != 0 ) %>%
+                    mutate(MacroArea = factor(MacroArea)) %>%
+                    group_by(MacroArea) %>%
+                    summarise(media = 100*round(mean(Avanzamento, na.rm = T),2),
+                              n = n()) %>%
+                    mutate(target = 100) %>%
+                    mutate(MacroArea = as.character(MacroArea)) %>%
+                    mutate(MacroArea = gsub("\\d+", "", MacroArea),
+                           MacroArea = gsub("\"", "", MacroArea))
+)
+
+
+
+
+
 dt <- perf
 library(gt)
  
