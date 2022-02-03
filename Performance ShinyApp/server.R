@@ -678,7 +678,7 @@ Prj <- reactive({
 #   
 })
 
-output$projr <- renderDataTable(Prj(), server = FALSE, class = 'cell-border stripe', rownames=FALSE,
+output$projr <- renderDT(Prj(), server = FALSE, class = 'cell-border stripe', rownames=FALSE,
                               extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
                                                                   paging = TRUE,autoWidth = TRUE,
                                                               buttons = c('excel')))
@@ -686,15 +686,17 @@ output$projr <- renderDataTable(Prj(), server = FALSE, class = 'cell-border stri
  
 paper <- reactive({
   pubs() %>%  
-    select( Autori = "CAU" , `TITOLO RIVISTA`= "JO","TITOLO" = `TI-INGLESE`,  "IF" ) %>% 
+    select(NR, Autori = "CAU" , `TITOLO RIVISTA`= "JO","TITOLO" = `TI-INGLESE`,  "IF" ) %>% 
     unique() %>%  
     arrange(desc(IF))
 })
 
-output$articoli <- renderDataTable(paper(),server = FALSE, class = 'cell-border stripe', rownames=FALSE,
-                                   extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
-                                                                         paging = TRUE,autoWidth = TRUE,
-                                                                         buttons = c('excel')))
+output$articoli <- renderDT(server = FALSE,{ 
+  datatable(paper(), class = 'cell-border stripe', rownames=FALSE,
+            extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
+            paging = TRUE,autoWidth = TRUE,
+            buttons = c('excel')))
+})
 
 
 
@@ -718,21 +720,21 @@ Prjdip <- reactive({
   #   
 })
 
-output$projrep <- renderDataTable(Prjdip(), server = FALSE, class = 'cell-border stripe', rownames=FALSE,
+output$projrep <- renderDT(Prjdip(), server = FALSE, class = 'cell-border stripe', rownames=FALSE,
                                 extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
                                                                       paging = TRUE,autoWidth = TRUE,
                                                                       buttons = c('excel')))
 
 ##tabella modale pubblicazioni dip----
 
-paper <- reactive({
+paper2 <- reactive({
   pubsdip() %>%  
-    select( Autori = "CAU" , `TITOLO RIVISTA`= "JO","TITOLO" = `TI-INGLESE`,  "IF" ) %>% 
+    select(  Autori = "CAU" , `TITOLO RIVISTA`= "JO","TITOLO" = `TI-INGLESE`,  "IF" ) %>% 
     unique() %>%  
     arrange(desc(IF))
 })
 
-output$articolidip <- renderDataTable(paper(),server = FALSE, class = 'cell-border stripe', rownames=FALSE,
+output$articolidip <- renderDT(paper2(),server = FALSE, class = 'cell-border stripe', rownames=FALSE,
                                    extensions = 'Buttons',options = list(dom="Brftip", pageLength = 10,
                                                                          paging = TRUE,autoWidth = TRUE,
                                                                          buttons = c('excel')))

@@ -1,3 +1,71 @@
+pub <- readRDS(file = here( "data", "processed", "pub.rds"))
+pub <- pub %>% 
+  mutate(articoliif = ifelse(Congr == "IF ; Int" | Congr == "IF",  "IF", NA), 
+         INT = ifelse(Congr == "IF ; Int" | Congr == "Int",  "Int", NA ), 
+         NAZ = ifelse(Congr == "Naz", "Naz", NA), 
+         Oth = ifelse(Congr == "Others" , "Others", NA), 
+         IF = as.numeric(IF)) 
+
+
+pubs <- pub %>% 
+        filter(OA == 2021) %>% 
+        filter(articoliif == "IF") %>%
+        group_by(NR) %>%  
+        count(NR) %>%  
+        select(NR) %>% nrow()  
+
+
+
+
+ 
+pub %>% filter(OA == 2021) %>% 
+      select( OA= `Anno Pubblicazione` , Autori = "CAU" , `TITOLO RIVISTA`= "JO","TITOLO" = `TI-INGLESE`,  "IF" ) %>%  
+      unique() %>%  
+      arrange(desc(IF)) %>% View()
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ###n.pubblicazioni triennio per struttura-----
 
 tabIZSLER <- readRDS(file = here( "data", "processed", "TabellaGenerale.rds"))
