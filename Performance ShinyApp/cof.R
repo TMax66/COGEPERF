@@ -1,3 +1,68 @@
+
+anag <- ore %>% 
+  mutate(annoraplav = year(FineRapporto)) %>% 
+  filter(annoraplav > 2018)
+
+
+pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
+pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
+pubblicazioni$AU <- gsub(",.*$", "", pubblicazioni$AU)
+pub <- pubblicazioni %>% filter(OA >= 2019) %>%
+  mutate(Cognome = recode(AU,
+                          "COSCIANI_CUNICO" = "COSCIANI CUNICO",
+  )) %>%
+  left_join(anag, by = c("Cognome" = "Cognome", "OA" = "ANNO")) %>%  
+  filter(Dirigente == "S") %>%  
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE))  
+
+
+
+
+pub
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 pub <- readRDS(file = here( "data", "processed", "pub.rds"))
 pub <- pub %>% 
   mutate(articoliif = ifelse(Congr == "IF ; Int" | Congr == "IF",  "IF", NA), 
@@ -25,7 +90,9 @@ pub %>% filter(OA == 2021) %>%
    
 
 
-
+ore %>% 
+  mutate(annoraplav = year(FineRapporto)) %>% 
+  filter(annoraplav > 2018) %>% View()
 
 
 

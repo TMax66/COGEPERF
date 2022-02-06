@@ -395,8 +395,8 @@ prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2021.xlsx"))
 
 anag <- ore %>% 
   mutate(annoraplav = year(FineRapporto)) %>% 
-  filter(annoraplav > 2018) %>% 
-  distinct(Matricola, .keep_all = TRUE)
+  filter(annoraplav > 2018)# %>% 
+  #distinct(Matricola, .keep_all = TRUE)
 
 prj %>%
   left_join(anag, by = c("MatrRSUO" = "Matricola")) %>% 
