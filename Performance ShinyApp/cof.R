@@ -175,7 +175,7 @@ pub %>%
     pivot_wider(names_from = "ANNO", values_from = "Pubblicazioni") %>%  ungroup() %>% 
     mutate(media = rowMeans(.[3:5], na.rm = T), 
            atteso = round(0.10*media,0), 
-           target = round(atteso+media, 0)) %>% View()
+           target = round(atteso+media, 0)) %>%  
     
     
   
