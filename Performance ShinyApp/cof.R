@@ -2,7 +2,7 @@
 anag <- ore %>% 
   mutate(annoraplav = year(FineRapporto)) %>% 
   filter(annoraplav > 2018)
-
+#distinct(Matricola, .keep_all = TRUE)
 
 pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
 pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
