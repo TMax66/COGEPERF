@@ -395,8 +395,9 @@ prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2021.xlsx"))
 
 anag <- ore %>% 
   mutate(annoraplav = year(FineRapporto)) %>% 
-  filter(annoraplav > 2018)# %>% 
-  distinct(Matricola, .keep_all = TRUE)
+  filter(annoraplav > 2018)%>%
+  mutate(Nome = gsub("\\s.*$", "", Nome) )
+ # distinct(Matricola, .keep_all = TRUE)
 
 prj %>%
   left_join(anag, by = c("MatrRSUO" = "Matricola")) %>% 
@@ -410,17 +411,32 @@ prj %>%
 
 ##DATI DA PUBBLICAZIONI####
 
+# pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
+# pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
+# pubblicazioni$AU <- gsub(",.*$", "", pubblicazioni$AU)
+# pubblicazioni %>% filter(OA >= 2019) %>%
+#   mutate(Cognome = recode(AU,
+#                           "COSCIANI_CUNICO" = "COSCIANI CUNICO",
+#   )) %>%
+#   left_join(anag, by = c("Cognome" = "Cognome")) %>%
+#   filter(Dirigente == "S") %>%  
+#   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
+  
+
 pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
 pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
-pubblicazioni$AU <- gsub(",.*$", "", pubblicazioni$AU)
+pubblicazioni$AU <- str_remove(pubblicazioni$AU, " ")
+pubblicazioni$AU <- gsub("_", " ", pubblicazioni$AU)
+pubblicazioni$Nome <- str_extract( pubblicazioni$AU, ",.*$")
+pubblicazioni$Nome <- str_remove(pubblicazioni$Nome, ",")
+pubblicazioni$Nome <- gsub("\\s.*$", "", pubblicazioni$Nome)
+pubblicazioni$Cognome <- gsub(",.*$", "", pubblicazioni$AU)
+
 pubblicazioni %>% filter(OA >= 2019) %>%
-  mutate(Cognome = recode(AU,
-                          "COSCIANI_CUNICO" = "COSCIANI CUNICO",
-  )) %>%
-  left_join(anag, by = c("Cognome" = "Cognome")) %>%
-  filter(Dirigente == "S") %>%  
+  left_join(anag, by = c("Cognome" = "Cognome", "Nome" = "Nome", "OA" = "ANNO")) %>%  
+  # filter(Dirigente == "S") %>%  
   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
-  saveRDS(., file = here( "data", "processed",  "pub.rds"))
+saveRDS(., file = here( "data", "processed",  "pub.rds"))
 
 
 

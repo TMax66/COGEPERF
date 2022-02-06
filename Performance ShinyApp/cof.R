@@ -1,24 +1,35 @@
+ore <- readRDS(here("data", "processed", "ore.RDS"))
+
 
 anag <- ore %>% 
   mutate(annoraplav = year(FineRapporto)) %>% 
-  filter(annoraplav > 2018)
-#distinct(Matricola, .keep_all = TRUE)
+  filter(annoraplav > 2018) %>% 
+  mutate(Nome = gsub("\\s.*$", "", Nome) )
+  
+
+# distinct(Matricola, .keep_all = TRUE)
 
 pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
 pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
-pubblicazioni$AU <- gsub(",.*$", "", pubblicazioni$AU)
+pubblicazioni$AU <- str_remove(pubblicazioni$AU, " ")
+pubblicazioni$AU <- gsub("_", " ", pubblicazioni$AU)
+pubblicazioni$Nome <- str_extract( pubblicazioni$AU, ",.*$")
+pubblicazioni$Nome <- str_remove(pubblicazioni$Nome, ",")
+pubblicazioni$Nome <- gsub("\\s.*$", "", pubblicazioni$Nome)
+pubblicazioni$Cognome <- gsub(",.*$", "", pubblicazioni$AU)
+
+
+ 
+ 
+
+
+#pubblicazioni$AU <- gsub(",.*$", "", pubblicazioni$AU)
+
+ 
 pub <- pubblicazioni %>% filter(OA >= 2019) %>%
-  mutate(Cognome = recode(AU,
-                          "COSCIANI_CUNICO" = "COSCIANI CUNICO",
-  )) %>%
-  left_join(anag, by = c("Cognome" = "Cognome", "OA" = "ANNO")) %>%  
-  filter(Dirigente == "S") %>%  
-  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE))  
-
-
-
-
-pub
+  left_join(anag, by = c("Cognome" = "Cognome", "Nome" = "Nome", "OA" = "ANNO")) %>%  
+ # filter(Dirigente == "S") %>%  
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) 
 
 
 
@@ -57,13 +68,7 @@ pub
 
 
 
-
-
-
-
-
-
-pub <- readRDS(file = here( "data", "processed", "pub.rds"))
+#pub <- readRDS(file = here( "data", "processed", "pub.rds"))
 pub <- pub %>% 
   mutate(articoliif = ifelse(Congr == "IF ; Int" | Congr == "IF",  "IF", NA), 
          INT = ifelse(Congr == "IF ; Int" | Congr == "Int",  "Int", NA ), 
@@ -73,7 +78,7 @@ pub <- pub %>%
 
 
 pubs <- pub %>% 
-        filter(OA == 2021) %>% 
+        filter(OA == 2019) %>% 
         filter(articoliif == "IF") %>%
         group_by(NR) %>%  
         count(NR) %>%  
@@ -84,7 +89,7 @@ pubs <- pub %>%
 
  
 pub %>% filter(OA == 2021) %>% 
-      select( OA= `Anno Pubblicazione` , Autori = "CAU" , `TITOLO RIVISTA`= "JO","TITOLO" = `TI-INGLESE`,  "IF" ) %>%  
+      select( NR,  `Anno Pubblicazione` = "OA" , Autori = "CAU" , `TITOLO RIVISTA`= "JO","TITOLO" = `TI-INGLESE`,  "IF" ) %>%  
       unique() %>%  
       arrange(desc(IF)) %>% View()
    
