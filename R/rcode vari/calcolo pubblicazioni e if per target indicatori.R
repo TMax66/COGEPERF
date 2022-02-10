@@ -1,7 +1,7 @@
 ###n.pubblicazioni triennio per struttura-----
 
 
- 
+library(gt)
 
 tabIZSLER <- readRDS(file = here( "data", "processed", "TabellaGenerale.rds"))
 pub <- readRDS(file = here( "data", "processed", "pub.rds"))
@@ -21,6 +21,7 @@ pub <- pub %>%
 #N.pubblicazioni per reparto triennio 2019-2021
 
 tabIZSLER %>% ungroup() %>% 
+  filter(!Dipartimento %in% c("DIREZIONE GENERALE", "COSTI COMUNI E CENTRI CONTABILI", "NON APPLICABILE") ) %>%  
   select(ANNO, Dipartimento) %>% 
   unique() %>% 
  
@@ -32,16 +33,15 @@ tabIZSLER %>% ungroup() %>%
         count(OA, Dipartimento,  NR) %>%  
         group_by(OA, Dipartimento ) %>% 
         count(NR) %>% 
-        summarise("Pubblicazioni" = sum(n))  
-      ) , by = c("Dipartimento", "ANNO"="OA")) %>%   
+        summarise("Pubblicazioni" = sum(n))) , by = c("Dipartimento", "ANNO"="OA")) %>%    
   
   filter(!is.na(Pubblicazioni)) %>%  
   pivot_wider(names_from = "ANNO", values_from = "Pubblicazioni") %>%  ungroup() %>% 
   mutate(media = rowMeans(.[2:4], na.rm = T), 
          atteso = round(0.10*media,0), 
-         target = round(atteso+media, 0),
-         ab= rowSums(.[3:4], na.rm = T), 
-         Target = target*3-ab) %>%   
+         target = round(atteso+media, 0)) %>% 
+         # ab= rowSums(.[3:4], na.rm = T), 
+         # Target = target*3-ab) %>%   
   gt() %>% 
   gtsave("pubbdip.rtf")
 
@@ -50,6 +50,9 @@ tabIZSLER %>% ungroup() %>%
 
 tabIZSLER %>%
     select(ANNO, Dipartimento, Reparto) %>% 
+    filter(!Dipartimento %in% c("DIREZIONE GENERALE","COSTI COMUNI E CENTRI CONTABILI", "NON APPLICABILE" ) &
+           !Reparto %in% c("COSTI COMUNI LOMBARDIA", "DIREZIONE SANITARIA")) %>%  
+  
     unique() %>% 
    
     left_join(
