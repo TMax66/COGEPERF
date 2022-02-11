@@ -1,0 +1,43 @@
+---
+title: "COGEPERF Documentazione"
+author: "Tranquillo"
+date: "11/2/2022"
+output: html_document
+---
+
+# Presentazione generale
+
+Questo documento costituisce materiale di supporto all'applicativo shiny _COGEPERF_. 
+
+_COGEPERF_ è un applicativo shiny sviluppato dall' ufficio Controllo di Gestione e Performance, come strumento di reporting del sistema di performance e controllo di gestione dell'IZSLER. 
+L'applicativo è costituito dalle seguenti app:
+
+- Applicativo principale (_COGEPERF_): dashboard che riporta i principali key Performance Indicator (KPI) dell'IZSLER in formato numerico, tabellare e grafico per Dipartimento e Reparto.
+
+- Applicativo costiricavi: collegato all'applicativo COGEPERF mediante url ma totalmente autonomo nello sviluppo del codice. Questo applicativo riporta i dati delle attività, ricavi e costi per Centro di Costo dell'IZSLER, in formato tabellare e grafico. 
+
+Entreambi gli applicativi sono sviluppati con  pacchetto Shiny del linguaggio R. 
+
+
+__COGEPERF__ e __costiricavi__ sono ospitati su un server LINUX in ambiente AZURE all'indirizzo rshiny.izsler.it, in cui è installato una versione aggiornata di SHINYSERVER attraverso la tecnologia docker
+
+L'accesso agli applicativi è consentito solo agli utenti IZSLER loggati all'interno della rete dell'Istituto. 
+
+Di seguito per i due applicativi vengono illustrate le fonti dati, le modalità di aggiornamento, le funzioni costruite ad hoc, i calcoli eseguiti ecc.
+
+# COGEPERF
+
+L'app è strutturata in un Rproj di RSTUDIO (IDE di R) che comprende la seguente struttura:
+
+**descrivere le cartelle e i file**
+
+
+## R
+### Preparazione dati.r
+#### Start.r
+## global.r
+## ui.r
+## server.r
+
+
+

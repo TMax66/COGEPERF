@@ -129,7 +129,7 @@ T1 %>% ##attività costi e fte
   left_join(T2, by=c("ANNO", "Dipartimento", "Reparto", "Laboratorio")) %>%  
   left_join(T3, by=c("ANNO", "Dipartimento", "Reparto", "Laboratorio")) %>% 
   left_join(fte,by=c("ANNO", "Dipartimento", "Reparto", "Laboratorio")) %>% 
-  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
   saveRDS(., file = here("data", "processed",  "TabellaGenerale.rds"))
 
 
