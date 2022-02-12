@@ -48,7 +48,14 @@ e la cartella _rcode vari_ che contiene codici di R temporanei usati per svilupp
 Questo file è estremamente importante perchè contiene i codici di preparazione e integrazione delle diverse fonti dati che sono utilizzati per la costruzione dell'app principale e secondaria.
 Tramite il file Start.R che richiama tutto il file di preparazione vengono eseguiti tutte le linee di codice. Il file va utilizzato in fase di aggiornamento dei dati. L'output è rappresentato da diversi file .RDS che contengono i dati opportunamente rielaborati che saranno utilizzati dall'app shiny. I suddetti file vengono salvati nella cartella **processed** (vedi struttura project). Di seguito una dettagliata descrizione e spiegazione dove necessario dei codici presenti nel file.
 
+##### Connessione ai database.
+E' necessario connettersi a tre differenti database: 
 
+Al database COGEDW per l'acquisizione dei dati relativi alle ore lavorate dal personale IZSLER, utile sia per il calcolo del FTE che per la collocazione del personale nelle varie strutture e per i dati dei costi e ricavi dal DW del controllo di gestione.
+
+Al database IZSLER per i dati relativi alle accettazioni effettuate dal reparto Gestione Centralizzata delle richieste dell'Utenza
+
+Al database Obiettivistrategici per i dati relativi alla rendicontazione degli obiettivi di performance ( solo per l'anno 2021 e 2022- dal programma berenice, che sarà sostituito per le attività del ciclo delle performance dal 2023 con nuovo applicativo)
 
 
 #### Start.r
