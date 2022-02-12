@@ -5,7 +5,7 @@ date: "11/2/2022"
 output: html_document
 ---
 
-# Presentazione generale
+## Presentazione generale
 
 Questo documento costituisce materiale di supporto all'applicativo shiny _COGEPERF_. 
 
@@ -25,7 +25,7 @@ L'accesso agli applicativi è consentito solo agli utenti IZSLER loggati all'int
 
 Di seguito per i due applicativi vengono illustrate le fonti dati, le modalità di aggiornamento, le funzioni costruite ad hoc, i calcoli eseguiti ecc.
 
-# COGEPERF
+## _COGEPERF_
 
 L'app è strutturata in un Rproj di RSTUDIO (IDE di R) che comprende la seguente struttura:
 
@@ -33,7 +33,24 @@ L'app è strutturata in un Rproj di RSTUDIO (IDE di R) che comprende la seguente
 
 
 ## R
-### Preparazione dati.r
+Questa cartella contiene i seguenti file:
+
+- _PREPARAZIONE DATI.R_
+
+- _Start.R_
+
+- _librerie.R_
+
+e la cartella _rcode vari_ che contiene codici di R temporanei usati per sviluppare tabelle, grafici e funzioni da inserire nelle applicazioni principali. Quando sono implementate nel codice principale possono essere cancellati.
+
+
+#### PREPARAZIONE DATI.R
+Questo file è estremamente importante perchè contiene i codici di preparazione e integrazione delle diverse fonti dati che sono utilizzati per la costruzione dell'app principale e secondaria.
+Tramite il file Start.R che richiama tutto il file di preparazione vengono eseguiti tutte le linee di codice. Il file va utilizzato in fase di aggiornamento dei dati. L'output è rappresentato da diversi file .RDS che contengono i dati opportunamente rielaborati che saranno utilizzati dall'app shiny. I suddetti file vengono salvati nella cartella **processed** (vedi struttura project). Di seguito una dettagliata descrizione e spiegazione dove necessario dei codici presenti nel file.
+
+
+
+
 #### Start.r
 ## global.r
 ## ui.r

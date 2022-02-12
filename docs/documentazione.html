@@ -171,8 +171,8 @@ pre code {
 </div>
 
 
-<div id="presentazione-generale" class="section level1">
-<h1>Presentazione generale</h1>
+<div id="presentazione-generale" class="section level2">
+<h2>Presentazione generale</h2>
 <p>Questo documento costituisce materiale di supporto all’applicativo shiny <em>COGEPERF</em>.</p>
 <p><em>COGEPERF</em> è un applicativo shiny sviluppato dall’ ufficio Controllo di Gestione e Performance, come strumento di reporting del sistema di performance e controllo di gestione dell’IZSLER. L’applicativo è costituito dalle seguenti app:</p>
 <ul>
@@ -184,17 +184,26 @@ pre code {
 <p>L’accesso agli applicativi è consentito solo agli utenti IZSLER loggati all’interno della rete dell’Istituto.</p>
 <p>Di seguito per i due applicativi vengono illustrate le fonti dati, le modalità di aggiornamento, le funzioni costruite ad hoc, i calcoli eseguiti ecc.</p>
 </div>
-<div id="cogeperf" class="section level1">
-<h1>COGEPERF</h1>
+<div id="cogeperf" class="section level2">
+<h2><em>COGEPERF</em></h2>
 <p>L’app è strutturata in un Rproj di RSTUDIO (IDE di R) che comprende la seguente struttura:</p>
 <p><strong>descrivere le cartelle e i file</strong></p>
+</div>
 <div id="r" class="section level2">
 <h2>R</h2>
-<div id="preparazione-dati.r" class="section level3">
-<h3>Preparazione dati.r</h3>
+<p>Questa cartella contiene i seguenti file:</p>
+<ul>
+<li><p><em>PREPARAZIONE DATI.R</em></p></li>
+<li><p><em>Start.R</em></p></li>
+<li><p><em>librerie.R</em></p></li>
+</ul>
+<p>e la cartella <em>rcode vari</em> che contiene codici di R temporanei usati per sviluppare tabelle, grafici e funzioni da inserire nelle applicazioni principali. Quando sono implementate nel codice principale possono essere cancellati.</p>
+<div id="preparazione-dati.r" class="section level4">
+<h4>PREPARAZIONE DATI.R</h4>
+<p>Questo file è estremamente importante perchè contiene i codici di preparazione e integrazione delle diverse fonti dati che sono utilizzati per la costruzione dell’app principale e secondaria. Tramite il file Start.R che richiama tutto il file di preparazione vengono eseguiti tutte le linee di codice. Il file va utilizzato in fase di aggiornamento dei dati. L’output è rappresentato da diversi file .RDS che contengono i dati opportunamente rielaborati che saranno utilizzati dall’app shiny. I suddetti file vengono salvati nella cartella <strong>processed</strong> (vedi struttura project)</p>
+</div>
 <div id="start.r" class="section level4">
 <h4>Start.r</h4>
-</div>
 </div>
 </div>
 <div id="global.r" class="section level2">
@@ -205,7 +214,6 @@ pre code {
 </div>
 <div id="server.r" class="section level2">
 <h2>server.r</h2>
-</div>
 </div>
 
 

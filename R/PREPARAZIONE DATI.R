@@ -6,10 +6,22 @@ library(lubridate)
 library(DBI)
 library(odbc)
 
-
-#DATI ORE LAVORATE DA DBASE PERSONALE_COGE####
+#CONNESSIONI AI DATABASE-------
+#### dati   ore lavorate dal personale izsler----
 con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02", 
                       Database = "DW_COGE_DEV", Port = 1433)
+### dati accettazioni effettuate dalla gestione centralizzata----
+conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it", 
+                         Database = "IZSLER", Port = 1433)
+
+### dati da dbase performance berenice -----
+con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
+                      Database = "ObiettiviStrategiciV2018", Port = 1433)
+
+
+#Query----
+
+
 queryOre <- "SELECT
   dbo.IZS_Livello0.Livello0,
   dbo.IZS_Dipartimenti.DIPARTIMENTO,
@@ -262,9 +274,6 @@ dtProg %>%
   saveRDS(here("data", "processed", "ftepREPD.RDS"))
 
 
-##DATI GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA----
-conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it", 
-                      Database = "IZSLER", Port = 1433)
 
 
 
@@ -325,40 +334,6 @@ WHERE
                                                         'MP-SIVARS7-N', 'PC-49702')
   )
 ")
-
-
-
-# AND ({ fn MONTH(Conferimenti.Data_Accettazione) } <= 6)
-
-# AND(Conferimenti.Nome_Stazione_Inserimento IN ('ACC-CENTR2', 'PC-47326', 'PC-40780', 
-                                           # 'MP-ACC3', 'BS-ASS-N', 'PC-47327', 'CH-ACC4-N', 'CH-ACC2-N', 'MP-SIVARS7', 'PC-47499', 'MP-SIVARS7-N'))
-# (dbo_Anag_Finalita_Confer.Descrizione NOT IN ('Autocontrollo latte routine', 'Controlli di qualità interni', 'Emergenza COVID-19', 'Validazione metodiche')) AND
-
-
-
-
-# 
-# conf <- unique(factor(acc$Nconf))
-# 
-# pt <- acc %>% 
-#   filter(Prova !="Parere Tecnico")
-# 
-# confpt <- unique(factor(pt$Nconf))
-# 
-# 
-# xx <- acc %>% filter(!Nconf %in% confpt)
-# 
-# 
-# z <- acc %>% 
-#   filter(Prova == "Parere Tecnico") %>% 
-#   group_by(Nconf) %>% 
-#   count()
-# 
-# 
-# 
-# dz <- as.data.frame((duplicated(z$Nconf)))
-# 
-# z <- cbind(z,dz)
 
 acc <- conAcc%>% tbl(sql(queryAcc)) %>% as_tibble() 
 
@@ -443,8 +418,7 @@ saveRDS(., file = here( "data", "processed",  "pub.rds"))
 
 ##DATI DA DBASE PERFORMANCE (OBIETTIVI, INDICATORI, TARGET, RISULTATO, FTEQ PROGRAMMATI)-----
 
-con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
-                      Database = "ObiettiviStrategiciV2018", Port = 1433)
+
 
 queryPERF <- "SELECT
 Avanzamento,
@@ -470,7 +444,7 @@ dip <- c("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA", "DIPARTIMENTO SICUREZZ
          "DIPARTIMENTO AMMINISTRATIVO", "CONTROLLO DI GESTIONE")
 
 
-##ricordificare le strutture
+##ricodificare le strutture
 
 dt <- perf %>%
   filter(!StrutturaAssegnataria %in% dip & TipoObiettivo == "Operativo" ) %>%
