@@ -8,14 +8,14 @@ library(odbc)
 
 #CONNESSIONI AI DATABASE-------
 #### dati   ore lavorate dal personale izsler----
-con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02", 
+conOre <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02", 
                       Database = "DW_COGE_DEV", Port = 1433)
 ### dati accettazioni effettuate dalla gestione centralizzata----
 conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it", 
                          Database = "IZSLER", Port = 1433)
 
 ### dati da dbase performance berenice -----
-con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
+conPerf <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
                       Database = "ObiettiviStrategiciV2018", Port = 1433)
 
 
@@ -87,7 +87,7 @@ WHERE  (IZS_ANNI.ANNO >= 2019)
 GROUP BY IZS_ANNI.ANNO, IZS_TRIMESTRI.TRIMESTRE, IZS_MESI.MESE, IZS_MESI.Descrizione, IZS_Livello0.Livello0, IZS_Dipartimenti.DIPARTIMENTO, IZS_Reparti.REPARTO, IZS_Categorie.Descrizione, IZS_Riclassificazione.Descrizione, 
                   IZS_Riclassificazione.idClassificazione, Elenco_Tipi_Movimenti.Descrizione, IZS_Classi.Descrizione, IZS_Aree.Descrizione, IZS_CDC.CODICE_CDC, IZS_CDC.CENTRO_DI_COSTO"
 
-cc <- con %>% tbl(sql(queryCoge)) %>% as_tibble() 
+cc <- conOre %>% tbl(sql(queryCoge)) %>% as_tibble() 
 
 
 
@@ -124,7 +124,7 @@ T3 <- cc %>% filter(Classe== "Ricavi da produzione") %>% ###attività interna
             TAI = sum(TarAI)) 
 
 
-ore <- con %>% tbl(sql(queryOre)) %>% as_tibble()  ### FTEq
+ore <- conOre %>% tbl(sql(queryOre)) %>% as_tibble()  ### FTEq
 names(ore)[1:6] <- c("Dipartimento", "Reparto", "Laboratorio", "CDC", "CodiceCC", "ANNO")
 fte <- ore %>% 
   mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza")) %>% 
@@ -434,7 +434,7 @@ StrutturaAssegnataria
 FROM ObiettiviStrategiciV2018.dbo.v_EstrazioneObiettivi
 WHERE Anno > 2020"
 
-perf <- con %>% tbl(sql(queryPERF)) %>% as_tibble()
+perf <- conPerf %>% tbl(sql(queryPERF)) %>% as_tibble()
 
 strutture <- read_excel(here("data", "raw", "strutture.xlsx"))
 
