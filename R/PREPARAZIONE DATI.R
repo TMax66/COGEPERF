@@ -275,7 +275,7 @@ dtProg %>%
 
 
 
-
+## TABELLA GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA----
 
 queryAcc <- ("SELECT
   {fn year(dbo.Conferimenti.Data_Accettazione)} AS Anno,
