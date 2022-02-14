@@ -44,18 +44,43 @@ Questa cartella contiene i seguenti file:
 e la cartella _rcode vari_ che contiene codici di R temporanei usati per sviluppare tabelle, grafici e funzioni da inserire nelle applicazioni principali. Quando sono implementate nel codice principale possono essere cancellati.
 
 
-#### PREPARAZIONE DATI.R
+##PREPARAZIONE DATI.R
 Questo file è estremamente importante perchè contiene i codici di preparazione e integrazione delle diverse fonti dati che sono utilizzati per la costruzione dell'app principale e secondaria.
 Tramite il file Start.R che richiama tutto il file di preparazione vengono eseguiti tutte le linee di codice. Il file va utilizzato in fase di aggiornamento dei dati. L'output è rappresentato da diversi file .RDS che contengono i dati opportunamente rielaborati che saranno utilizzati dall'app shiny. I suddetti file vengono salvati nella cartella **processed** (vedi struttura project). Di seguito una dettagliata descrizione e spiegazione dove necessario dei codici presenti nel file.
 
-##### Connessione ai database.
+#### Connessione ai database.
 E' necessario connettersi a tre differenti database: 
 
-Al database COGEDW per l'acquisizione dei dati relativi alle ore lavorate dal personale IZSLER, utile sia per il calcolo del FTE che per la collocazione del personale nelle varie strutture e per i dati dei costi e ricavi dal DW del controllo di gestione.
+1. **_conOre_** :    Al database _COGEDW_ per l'acquisizione dei dati relativi alle ore lavorate dal personale IZSLER, utile sia per il calcolo del FTE che per la collocazione del personale nelle varie strutture e per i dati dei costi e ricavi dal DW del controllo di gestione.
 
-Al database IZSLER per i dati relativi alle accettazioni effettuate dal reparto Gestione Centralizzata delle richieste dell'Utenza
+2. **_conAcc_** :    Al database _IZSLER_ per i dati relativi alle accettazioni effettuate dal reparto Gestione Centralizzata delle richieste dell'Utenza
 
-Al database Obiettivistrategici per i dati relativi alla rendicontazione degli obiettivi di performance ( solo per l'anno 2021 e 2022- dal programma berenice, che sarà sostituito per le attività del ciclo delle performance dal 2023 con nuovo applicativo)
+3. **_conPerf_**:   Al database _Obiettivistrategici_ per i dati relativi alla rendicontazione degli obiettivi di performance ( solo per l'anno 2021 e 2022- dal programma berenice, che sarà sostituito per le attività del ciclo delle performance dal 2023 con nuovo applicativo)
+
+
+#### Query SQL
+
+Le query SQL per il recupero dei dati sono salvate nel file sql.R, che viene richiamato mediante l'istruzione source("sql.R")e sono:
+1.**_queryCoge_** costruita mediante business object sull'universo COGEDW
+2. **_queryAcc_** mediante business object sull'universo IZSLER
+3. **_queryPerf_** mediante SQL Server Management
+
+
+### Preparazione tabelle per la costruzione del dashboard performance
+
+Attraverso l'istruzione 
+```{r eval=FALSE, include=FALSE}
+cc <- conOre %>% tbl(sql(queryCoge)) %>% as_tibble() 
+```
+
+
+
+
+
+```{r}
+
+```
+
 
 
 #### Start.r
