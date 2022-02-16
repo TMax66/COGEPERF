@@ -17,10 +17,10 @@ library(shinycssloaders)
 #Carica dati----
 #library(writexl)
 
-dtanalisi <-  readRDS(file = here( "data", "CC.rds"))
-#dtanalisi <- readRDS(here("Performance ShinyApp", "Centri di Costo","CC.rds"))
+#dtanalisi <-  readRDS(file = here( "data", "CC.rds"))
+dtanalisi <- readRDS(here("data", "processed","CC.rds"))
  
-source(here("Performance ShinyApp", "Centri di Costo", "R", "utils.R"))
+source(here("app", "appcostiricavi", "R", "utils.R"))
 
 #controlli----
 ccnotecnici <- c(
