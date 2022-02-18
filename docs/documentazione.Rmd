@@ -95,7 +95,7 @@ Le voci fatturato e numero di prototti venduti sono quindi raggruppati per ANNO,
 **fte** tabella, raggruppata per ANNO, Dipartimento, Reparto, Laboratorio i FULL TIME EQUIVALENTI del personale dirigente e di comparto. La tabella si ottiene con le seguenti istruzioni: 
 
 ```{r eval=FALSE, echo=T}
-1. ore <- conOre %>% tbl(sql(queryOre)) %>% as_tibble()   
+1. ore <- conOre %>% tbl(sql(queryOre)) %>% as_tibble()    
 
 2. names(ore)[1:6] <- c("Dipartimento", "Reparto", "Laboratorio", "CDC", "CodiceCC", "ANNO")
 
@@ -111,10 +111,8 @@ Le voci fatturato e numero di prototti venduti sono quindi raggruppati per ANNO,
   select(-hworked_, -FTE_)  
 ```
 
-L'istruzione 1 può essere sostituita semplicemente con ore  <- cc
 
-L'istruzione 2 verificare che sia ancora necessaria ma non credo....
-
+L'istruzione è necessaria per uniformare il nome delle strutture 
 Nell'istruzione 3 va sottolineata in particolare la riga: 
 
 ``` {r eval=FALSE, echo=T}
@@ -134,9 +132,6 @@ T1 %>%
 ```
 
 che viene salvata in formato .rds nella cartella processed (COGEPERF/data/processed)
-
-
-
 
 
 #### TABELLA GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA
@@ -177,8 +172,15 @@ saveRDS(here("data", "processed", "GCR.rds"))
 
 In questo codice viene definito il valore (in euro) da assegnare al singolo conferimento accettato dalla struttura. Per questo viene costruita la variabile **Valorizzazione** che tramite l'istruzione ifelse assegna 3.70 euro alle prove chimiche, 0.20 euro a quelle sierologiche e 0.72 alle prove diagnostica e alimenti. Per ogni conferimento si utilizza il valore massimo della variabile Valorizzazione ( oppure la somma ...va deciso....) max(Valorizzazione). L'output finale è una tabella con un numero di righe pari al numero di anni considerato e le colonne Dipartimento, Reparto, Laboratorio. La tabella è quindi salvata in formato .rds nella cartella processed (COGEPERF/data/processed). 
 
+_le istruzioni relative ai dati per determinare i fulltime equivalenti programmati e quelle dei risultati delle performance non vengono documentate perchè valgono solo per il 2021 e saranno sostituite con istruzioni più definitive_
 
-#### Start.r
+
+## Start.r
+Questo file semplicemente richiama il file PREPARAZIONE DATI.R ed esegue tutte le istruzioni in esso contenute.
+
+# app
+
+
 ## global.r
 ## ui.r
 ## server.r

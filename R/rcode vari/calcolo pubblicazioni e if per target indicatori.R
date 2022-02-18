@@ -1,5 +1,6 @@
 ###n.pubblicazioni triennio per struttura-----
-
+library(tidyverse)
+library(here)
 
 library(gt)
 
@@ -92,13 +93,14 @@ tabIZSLER %>%
 
     
 ### FTED impiegato per attività di ricerca----
+
   ftedip <- tabIZSLER %>% 
     rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
             "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
     #filter(Anno == input$anno2 & Dipartimento == input$dip) %>% 
     
     group_by(Anno, Dipartimento) %>%
-    summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+    summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>% View()
     mutate(RT = (Valorizzazione+VP+AI),
            FTET = round((FTED+FTEC),2)) %>%
     arrange(desc(Prestazioni)) %>% 
