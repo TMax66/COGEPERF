@@ -66,9 +66,9 @@ ftepREP <- ftepREP %>%
   rename( valorizz = Valorizzazione) %>% 
   mutate(Reparto = casefold(Reparto, upper = TRUE))
 
-# ftepREPD <- readRDS(here("data", "processed", "ftepREPD.RDS"))
-# ftepREPD <- ftepREPD %>% 
-#   rename( valorizz = Valorizzazione)
+ftepREPD <- readRDS(here("data", "processed", "ftepREPD.RDS"))#questi dati servono per calcolare il rfte per dipartimento nei valuebox
+ftepREPD <- ftepREPD %>%
+  rename( valorizz = Valorizzazione)
 
 
 
