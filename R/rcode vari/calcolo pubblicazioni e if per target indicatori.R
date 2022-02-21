@@ -94,18 +94,19 @@ tabIZSLER %>%
     
 ### FTED impiegato per attività di ricerca----
 
-  ftedip <- tabIZSLER %>% 
+ftedip <- tabIZSLER %>% 
     rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
             "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
     #filter(Anno == input$anno2 & Dipartimento == input$dip) %>% 
     
     group_by(Anno, Dipartimento) %>%
-    summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>% View()
+    summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%  
     mutate(RT = (Valorizzazione+VP+AI),
            FTET = round((FTED+FTEC),2)) %>%
     arrange(desc(Prestazioni)) %>% 
-    select(Anno, Dipartimento,  FTED)  
- 
+    select(Anno, Dipartimento,  FTED)   
+
+
 fterep <- tabIZSLER %>% 
   rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
           "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
@@ -140,7 +141,7 @@ tabIZSLER %>% ungroup() %>%
         count(OA, Dipartimento, NR) %>% 
         group_by(OA, Dipartimento) %>% 
         count(NR)   
-    ) , by = c("Dipartimento", "ANNO" ="OA")) %>% select(-n) %>% 
+    ) , by = c("Dipartimento", "ANNO" ="OA")) %>% select(-n) %>%  
   filter(!is.na(NR)) %>%  
   
   left_join(
@@ -175,7 +176,7 @@ tabIZSLER %>% ungroup() %>%
 ## IF /FTED reparto------  
   tabIZSLER %>%
     select(ANNO, Dipartimento, Reparto) %>% 
-    unique() %>% 
+    unique() %>%  
     
     left_join(
       
@@ -184,7 +185,7 @@ tabIZSLER %>% ungroup() %>%
           count(OA, Reparto, NR) %>% 
           group_by(OA, Reparto) %>% 
           count(NR)   
-      ) , by = c("Reparto", "ANNO" ="OA")) %>% select(-n) %>% 
+      ) , by = c("Reparto", "ANNO" ="OA")) %>% select(-n) %>%  
     filter(!is.na(NR)) %>% 
     
     left_join(
@@ -193,17 +194,17 @@ tabIZSLER %>% ungroup() %>%
          unique() %>%  
          arrange(desc(IF))), by=c("ANNO"= "OA", "NR")
       
-    ) %>% 
+    ) %>%  
     group_by(ANNO, Dipartimento, Reparto) %>% 
     summarise(sIF = sum(IF)) %>%
-    ungroup() %>% 
+    ungroup() %>%  
     left_join(
-      fte, by=c("ANNO"="Anno", "Dipartimento", "Reparto")
+      fterep, by=c("ANNO"="Anno", "Dipartimento", "Reparto")
     ) %>%
   #select( -valorizz, -FTp) %>%
     filter(!Dipartimento %in% c("DIREZIONE GENERALE","COSTI COMUNI E CENTRI CONTABILI" ) &
              !Reparto %in% c("COSTI COMUNI LOMBARDIA", "DIREZIONE SANITARIA"))     %>% 
-    mutate(iffte= sIF/FTED) %>% 
+    mutate(iffte= sIF/FTED) %>%  
     select(-sIF, -FTED) %>% 
     pivot_wider(names_from = "ANNO", values_from = "iffte") %>%  ungroup() %>% 
     mutate(media = rowMeans(.[3:5], na.rm = T), 

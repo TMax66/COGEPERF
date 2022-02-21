@@ -227,7 +227,12 @@ T1 %>% ##attività costi e fte
 
 
 ##DATI FTEQ programmati----
-dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
+
+# i dati originali provengono dal file obiettiviXSB.xlsx che si trova nella cartella
+# \data\raw. Questi dati sono rielaborati dal codice FTEPROGRAMMATI.R che si trova 
+# nella cartella \R\rcodevari e che restituisce l'output datiFSB.rds che è inviato alla cartella \data\processed
+
+dtProg <- readRDS(here("data", "processed", "datiFSB.rds"))
 
 
 
@@ -308,7 +313,7 @@ dtProg %>%
   group_by(Dipartimento,Reparto,  Valorizzazione) %>% 
   filter(Valorizzazione== "si") %>%  
   ungroup() %>% 
-  select(Dipartimento,Reparto, Valorizzazione, FTp) %>% 
+  select(Dipartimento,Reparto, Valorizzazione, FTp) %>%  
   saveRDS(here("data", "processed", "ftepREP.RDS"))
 
 
@@ -367,7 +372,7 @@ accV <- acc %>%
                                  ifelse(tipoprove == "Prova Sierologica", 0.20,
                                         ifelse(tipoprove == "Prova Diagnostica/Alimenti", 0.72, 0))))%>% 
   group_by(Nconf) %>% 
-  mutate(Valore = max(Valorizzazione) ) %>% 
+  mutate(Valore = sum(Valorizzazione) ) %>% 
   select(-Valorizzazione, -Finalita) %>% 
   distinct(Nconf, .keep_all = TRUE) %>% 
   mutate(Valore =  0.07*(Valore)+Valore ) %>% 
