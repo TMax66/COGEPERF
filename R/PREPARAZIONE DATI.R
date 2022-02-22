@@ -416,8 +416,7 @@ cc %>%
          AttPag = ifelse(Pagamento == "Pagamento", Determinazioni, 0), 
          VP = ifelse(Classe == "Vendite prodotti", Numero, 0), 
          AI = ifelse(Classe == "Ricavi da produzione interna", Numero, 0)) %>% 
-  mutate(CDC = ifelse(CodiceCDC == 5502, "LABORATORIO CONTAMINANTI AMBIENTALI-(Bologna)", CDC))
-  
+  mutate(CDC = ifelse(CodiceCDC == 5502, "LABORATORIO CONTAMINANTI AMBIENTALI-(Bologna)", CDC)) %>%  
   saveRDS(here("data", "processed", "CC.rds"))
 
 
