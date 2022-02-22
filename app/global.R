@@ -42,13 +42,10 @@ tabIZSLER <- tabIZSLER %>%
                               "Direzione Amministrativa",
                               "Costi Comuni e Centri contabili"
                                )) %>% 
-  filter(!Reparto %in% c("COSTI COMUNI LOMBARDIA", "DIREZIONE SANITARIA")) 
+  filter(!Reparto %in% c("COSTI COMUNI LOMBARDIA", "DIREZIONE SANITARIA", "FORMAZIONE E BIBLIOTECA")) 
   
+dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
 
-#####calcolo dei ftep----
-dtProg <- readRDS(here("data", "processed", "datiFSB.rds"))
-
-#questo codice serve per calcolare la % di FTE progrmmati per attività isti di tutto l'izsler
 FTp <- dtProg %>% 
   group_by(Valorizzazione) %>% 
   summarise(FTED = sum(FTED, na.rm = T), 
@@ -56,18 +53,18 @@ FTp <- dtProg %>%
   rowwise() %>% 
   mutate(FT = sum(FTED, FTEC)) %>% 
   ungroup() %>% 
-  mutate(FTp = round(prop.table(FT), 1)) %>%  
+  mutate(FTp = round(prop.table(FT), 1)) %>% 
   filter(Valorizzazione == "si") %>%
   select(FTp)  
+
 
 ftepDIP <- readRDS(here("data", "processed", "ftepDIP.RDS"))
 ftepREP <- readRDS(here("data", "processed", "ftepREP.RDS"))
 ftepREP <- ftepREP %>% 
-  rename( valorizz = Valorizzazione) %>% 
-  mutate(Reparto = casefold(Reparto, upper = TRUE))
+  rename( valorizz = Valorizzazione)
 
-ftepREPD <- readRDS(here("data", "processed", "ftepREPD.RDS"))#questi dati servono per calcolare il rfte per dipartimento nei valuebox
-ftepREPD <- ftepREPD %>%
+ftepREPD <- readRDS(here("data", "processed", "ftepREPD.RDS"))
+ftepREPD <- ftepREPD %>% 
   rename( valorizz = Valorizzazione)
 
 
@@ -79,8 +76,6 @@ pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazi
 perf <- readRDS(here("data", "processed", "performance.RDS"))
 
 
- 
-  
 
 
 # #Carico funzioni----
