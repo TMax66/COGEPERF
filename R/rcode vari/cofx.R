@@ -7,9 +7,10 @@ pr <-  prj %>%
 
 
  
-  pr  %>%
-    group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient) %>%
-    summarise(Budget = sum(Budget), nUO = n()) %>% View()
+pr  %>%
+    group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient ) %>%
+    
+    summarise(Budget = sum(Budget)) %>% View()
   #   ungroup() %>%
   #     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient, Budget, nUO) %>% 
   #    # summarise(Durata = as.numeric(DataFine-DataInizio), 
