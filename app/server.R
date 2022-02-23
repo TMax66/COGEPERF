@@ -664,7 +664,7 @@ output$ptrendRep <- renderPlot({
 Prj <- reactive({
   pr() %>%
     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient) %>%
-    summarise(Budget = sum(Budget), nUO = n()) #%>%
+    summarise(Budget = sum(Budget))#, nUO = n()) # %>%
 #   ungroup() %>%
 #     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient, Budget, nUO) %>% 
 #    # summarise(Durata = as.numeric(DataFine-DataInizio), 
@@ -706,7 +706,7 @@ output$articoli <- renderDT(server = FALSE,{
 Prjdip <- reactive({
   prdip() %>%
     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient) %>%
-    summarise(Budget = sum(Budget), nUO = n()) #%>%
+    summarise(Budget = sum(Budget))#, nUO = n()) #%>%
   #   ungroup() %>%
   #     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient, Budget, nUO) %>% 
   #    # summarise(Durata = as.numeric(DataFine-DataInizio), 
