@@ -185,7 +185,7 @@ tabItem(
     fluidRow( align = "center", 
     
     h1("Grado di raggiungimento degli obiettivi di performance organizzativa 
-       ( aggiornamento al 31/12/2021)")),
+       ( aggiornamento al 30/06/2021)")),
     # fluidRow(
     #   valueBoxOutput("perfdg")
     # ), 

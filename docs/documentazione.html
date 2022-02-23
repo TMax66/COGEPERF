@@ -227,7 +227,7 @@ Alla vendita di un prodotto può essere associato sia un valore di fatturato opp
 <p>Le voci fatturato e numero di prototti venduti sono quindi raggruppati per ANNO, Dipartimento, Reparto, Laboratorio e sommati.</p>
 <p><strong>T3</strong> tabella che riporta i ricavi da produzione interna di prodotti destinati ai laboratori IZSLER che sono valorizzati mediante il tariffario. Anche in questo caso i dati sono rappgruppati e sommati per ANNO, Dipartimento, Reparto, Laboratorio.</p>
 <p><strong>fte</strong> tabella, raggruppata per ANNO, Dipartimento, Reparto, Laboratorio i FULL TIME EQUIVALENTI del personale dirigente e di comparto. La tabella si ottiene con le seguenti istruzioni:</p>
-<pre class="r"><code>1. ore &lt;- conOre %&gt;% tbl(sql(queryOre)) %&gt;% as_tibble()   
+<pre class="r"><code>1. ore &lt;- conOre %&gt;% tbl(sql(queryOre)) %&gt;% as_tibble()    
 
 2. names(ore)[1:6] &lt;- c(&quot;Dipartimento&quot;, &quot;Reparto&quot;, &quot;Laboratorio&quot;, &quot;CDC&quot;, &quot;CodiceCC&quot;, &quot;ANNO&quot;)
 
@@ -241,9 +241,7 @@ Alla vendita di un prodotto può essere associato sia un valore di fatturato opp
   mutate(FTE = ifelse(Dirigente == &quot;Comparto&quot;, hworked/(36*47.4), hworked/(38*47.4))) %&gt;% 
   pivot_wider(names_from = &quot;Dirigente&quot;, values_from = c(&quot;hworked&quot;, &quot;FTE&quot;))  %&gt;%  
   select(-hworked_, -FTE_)  </code></pre>
-<p>L’istruzione 1 può essere sostituita semplicemente con ore &lt;- cc</p>
-<p>L’istruzione 2 verificare che sia ancora necessaria ma non credo….</p>
-<p>Nell’istruzione 3 va sottolineata in particolare la riga:</p>
+<p>L’istruzione è necessaria per uniformare il nome delle strutture Nell’istruzione 3 va sottolineata in particolare la riga:</p>
 <pre class="r"><code> mutate(FTE = ifelse(Dirigente == &quot;Comparto&quot;, hworked/(36*47.4), hworked/(38*47.4)))</code></pre>
 <p>questa istruzione calcola per personale dirigente e di comparto i rispettivi FTE effettivamente erogati durante l’anno. Il personale di comparto ha un contratto di 36 ore settimanali che vengono moltiplicati per <strong>47.4</strong> ovvero il numero di settimane lavorative in un anno solare ( al netto di ferie, permessi, missioni ecc.) quindi il prodotto <strong>36x47.4 = 1706.4</strong> rappresenta le ore previste da un contratto full time del personale di comparto, mentre per il personale dirigente è pari a <strong>38x47.4= 1801.2</strong> . I FTE effettivamente erogati nell’arco dell’anno si ricavano dividendo le ore effettivamente erogate per le ore di un FTE di comparto o della dirigenza.</p>
 <p>Infine la tabella generale si ottiene collegato le tabelle T1,T2,T3 e fte:</p>
@@ -284,11 +282,13 @@ Alla vendita di un prodotto può essere associato sia un valore di fatturato opp
          Laboratorio = &quot;    GESTIONE CENTRALIZZATA DELLE RICHIESTE&quot;)  %&gt;%  
 saveRDS(here(&quot;data&quot;, &quot;processed&quot;, &quot;GCR.rds&quot;))</code></pre>
 <p>In questo codice viene definito il valore (in euro) da assegnare al singolo conferimento accettato dalla struttura. Per questo viene costruita la variabile <strong>Valorizzazione</strong> che tramite l’istruzione ifelse assegna 3.70 euro alle prove chimiche, 0.20 euro a quelle sierologiche e 0.72 alle prove diagnostica e alimenti. Per ogni conferimento si utilizza il valore massimo della variabile Valorizzazione ( oppure la somma …va deciso….) max(Valorizzazione). L’output finale è una tabella con un numero di righe pari al numero di anni considerato e le colonne Dipartimento, Reparto, Laboratorio. La tabella è quindi salvata in formato .rds nella cartella processed (COGEPERF/data/processed).</p>
-</div>
-<div id="start.r" class="section level4">
-<h4>Start.r</h4>
+<p><em>le istruzioni relative ai dati per determinare i fulltime equivalenti programmati e quelle dei risultati delle performance non vengono documentate perchè valgono solo per il 2021 e saranno sostituite con istruzioni più definitive</em></p>
 </div>
 </div>
+</div>
+<div id="start.r" class="section level2">
+<h2>Start.r</h2>
+<p>Questo file semplicemente richiama il file PREPARAZIONE DATI.R ed esegue tutte le istruzioni in esso contenute.</p>
 </div>
 <div id="global.r" class="section level2">
 <h2>global.r</h2>

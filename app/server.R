@@ -148,7 +148,7 @@ output$PR <- renderValueBox({
   valueBox(
     (  pr() %>% 
          summarise(n = nlevels(factor(Codice)))
-    ), "Progetti di ricerca in corso (scarica elenco)", icon = icon("user-graduate"), color = "light-blue")
+    ), "Progetti di ricerca in corso (scarica elenco) ", icon = icon("user-graduate"), color = "light-blue")
 })
 
 output$IF <- renderValueBox({
@@ -422,7 +422,7 @@ output$PRdip <- renderValueBox({
   valueBox(
     (  prdip() %>% 
          summarise(n = nlevels(factor(Codice)))
-    ), "Progetti di ricerca in corso ", icon = icon("user-graduate"), color = "light-blue")
+    ), "Progetti di ricerca in corso (scarica elenco) ", icon = icon("user-graduate"), color = "light-blue")
 })
 
 output$IFdip <- renderValueBox({
@@ -432,7 +432,7 @@ output$IFdip <- renderValueBox({
        group_by(NR) %>%
        count(NR) %>%
        select(NR) %>%
-       nrow()),  "Articoli pubblicati su riviste peer-review con IF", icon = icon("book"), color = "light-blue")
+       nrow()),  "Articoli pubblicati su riviste peer-review con IF (scarica elenco)", icon = icon("book"), color = "light-blue")
 })
 
 # output$Intdip <- renderValueBox({

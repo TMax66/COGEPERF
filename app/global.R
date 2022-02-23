@@ -42,7 +42,7 @@ tabIZSLER <- tabIZSLER %>%
                               "Direzione Amministrativa",
                               "Costi Comuni e Centri contabili"
                                )) %>% 
-  filter(!Reparto %in% c("COSTI COMUNI LOMBARDIA")) 
+  filter(!Reparto %in% c("COSTI COMUNI LOMBARDIA", "DIREZIONE SANITARIA", "FORMAZIONE E BIBLIOTECA")) 
   
 dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
 
@@ -76,8 +76,6 @@ pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazi
 perf <- readRDS(here("data", "processed", "performance.RDS"))
 
 
- 
-  
 
 
 # #Carico funzioni----
