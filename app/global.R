@@ -70,6 +70,11 @@ ftepREPD <- ftepREPD %>%
 
 
 prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
+
+# prj <- prj %>% 
+#   select(-Ore) %>%  
+#   distinct(Codice, .keep_all = TRUE)  
+
 pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazioni
 
 
