@@ -131,6 +131,7 @@ WHERE
 queryPERF <- "SELECT
 Avanzamento,
 Valore,
+Target, 
 Anno,
 TipoObiettivo,
 Periodo,
