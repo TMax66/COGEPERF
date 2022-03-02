@@ -14,7 +14,7 @@ dati22 %>%
     left_join(  
              (CC %>% 
               select(Dipartimento, Reparto, Laboratorio, CDC, CodiceCDC) %>% 
-              unique() ) , by = c("CODICE_CDC" = "CodiceCDC")) %>% 
+              unique() ) , by = c("CODICE_CDC" = "CodiceCDC")) %>%  
   
   mutate(Laboratorio = recode(Laboratorio, 
                              "LABORATORIO DI CONTROLLO DI PRODOTTI BIOLOGICI, FARMACEUTICI E CONVALIDA DI PROCESSI PRODUTTIVI" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO", 
