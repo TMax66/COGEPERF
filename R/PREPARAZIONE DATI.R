@@ -248,8 +248,6 @@ saveRDS(here("data", "processed", "GCR.rds"))
 prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2021.xlsx"))
 
 
-prj %>% filter(MatrRS == 0 | is.na(MatrRS)) %>% 
-  write.xlsx( file="dati mancanti.xlsx")
 
 
 anag <- ore %>% 
