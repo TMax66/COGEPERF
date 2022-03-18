@@ -96,10 +96,10 @@ AC2 <- function(CC = input$CC){
 }
 
 
-AU <- function(CC = input$CC, Uff = Uff){
+AU <- function(CC = input$CC, tipo){
   
   dtanalisi %>% 
-    filter(Uff == Uff & Costi == "Ricavo") %>% 
+    filter(Uff == tipo & Costi == "Ricavo") %>% 
     group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC,ClassAnalisi, Classe, Area) %>% 
     filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
     summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
@@ -115,7 +115,7 @@ AU <- function(CC = input$CC, Uff = Uff){
     left_join(  
       
       (dtanalisi %>% 
-         filter(Uff == Uff & Costi == "Ricavo") %>% 
+         filter(Uff == tipo & Costi == "Ricavo") %>% 
          group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC,ClassAnalisi, Classe, Area) %>% 
          filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
          summarise(N_Det = sum(Determinazioni, na.rm = TRUE),
@@ -141,9 +141,9 @@ AU <- function(CC = input$CC, Uff = Uff){
 }
 
 
-AU2 <- function(CC = input$CC, Uff){
+AU2 <- function(CC = input$CC, tipo){
   dtanalisi %>%  
-    filter(Uff == Uff & Costi == "Ricavo") %>% 
+    filter(Uff == tipo & Costi == "Ricavo") %>% 
     group_by(ANNO, Quarter, Dipartimento, Reparto, Laboratorio, CDC, ClassAnalisi, Classe, Area) %>% 
     filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%  
     summarise(N_Det = sum(Determinazioni, na.rm = TRUE),

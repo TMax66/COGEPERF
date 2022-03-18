@@ -253,9 +253,9 @@ output$dtprestazioni <- renderUI({
       
     {
       if (input$tipoconteggio == "Trimestrale")
-      { AU(CC = input$CC, Uff = "Ufficiale") } else
+      { AU(CC = input$CC, tipo = "Ufficiale") } else
         if (input$tipoconteggio == "Progressivo")
-        { AU2(CC = input$CC, Uff = "Ufficiale") }
+        { AU2(CC = input$CC, tipo = "Ufficiale") }
   }
   else
     
@@ -265,9 +265,9 @@ output$dtprestazioni <- renderUI({
       {
       
       if (input$tipoconteggio == "Trimestrale")
-      { AU(CC = input$CC, Uff == "Non Ufficiale") } else
+      { AU(CC = input$CC, tipo = "Non Ufficiale") } else
         if (input$tipoconteggio == "Progressivo")
-        { AU2(CC = input$CC, Uff == "Non Ufficiale") }
+        { AU2(CC = input$CC, tipo = "Non Ufficiale") }
       
     }
   
