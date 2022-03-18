@@ -96,7 +96,7 @@ AC2 <- function(CC = input$CC){
 }
 
 
-AU <- function(CC = input$CC, Uff){
+AU <- function(CC = input$CC, Uff = Uff){
   
   dtanalisi %>% 
     filter(Uff == Uff & Costi == "Ricavo") %>% 

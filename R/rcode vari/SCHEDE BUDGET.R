@@ -5,8 +5,9 @@ library(here)
 library(lubridate)
 library(DBI)
 library(odbc)
+library(gt)
 
-
+####preparazione dataset-------------------------------------------------------------------
 conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
                           Database = "ObiettiviStrategici2022", Port = 1433)
 
@@ -49,8 +50,13 @@ df<-fte %>%
   mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
          Valorizzato = ifelse(Valorizzato != "no", "si", "no"))
 
+#_______________________________________________________________________________
+
+
 fteDip <- df %>% 
-  group_by(Dipartimento, AreaStrategica,  ObiettivoGenerale, ObiettivoOperativo, Indicatore) %>% 
+  filter(!str_detect(ObiettivoOperativo,"2.1.9.")) %>% 
+  group_by(Dipartimento,  Struttura   , AreaStrategica,  ObiettivoGenerale, ObiettivoOperativo, Indicatore, TipologiaIndicatore, Target) %>% 
   summarise(FTED = sum(FTED, na.rm = TRUE), 
-            FTEC = sum(FTEC, na.rm = TRUE)) %>% View()
- 
+            FTEC = sum(FTEC, na.rm = TRUE)) %>%  
+  filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA" )
+
