@@ -174,6 +174,67 @@ In questo codice viene definito il valore (in euro) da assegnare al singolo conf
 
 _le istruzioni relative ai dati per determinare i fulltime equivalenti programmati e quelle dei risultati delle performance non vengono documentate perchè valgono solo per il 2021 e saranno sostituite con istruzioni più definitive_
 
+#### DATI DA PROGETTI DI RICERCA
+
+I dati dei progetti di ricerca sono in un file xlsx che i SI ( Dr. Possenti) invia su richiesta al COGEP. E' in previsione l'adozione di un dbase su SQL SERVER che sostituirà il file xlsx.
+
+```{r eval=FALSE, echo=T}
+prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2021.xlsx"))
+
+```
+
+
+I dati del progetti riportano le matricole dei responsabili scientifici ma non la struttura di riferimento (Dipartimento, Reparto, Laboratorio). Il seguente codice ricava una tabella a partire dall'oggetto **ore**
+visto sopra e usato per i FTE filtrando tutto il personale che ha come data di fine rapporto > al 2018. 
+Questa scelta non permetterà di collegare i progetti di ricerca i cui responsabili scientifici non sono più presenti in IZLSER dal 2018. 
+
+```{r eval=FALSE, echo=T}
+anag <- ore %>% 
+  mutate(annoraplav = year(FineRapporto)) %>% 
+  filter(annoraplav > 2018)%>%
+  mutate(Nome = gsub("\\s.*$", "", Nome) )
+```
+
+_questa tabella va rivista perchè nella tabella ore le matricole sono ripetute per ogni anno e ogni mese dell'anno in quanto sono riportate le ore di lavoro erogate, questo crea problemi quando si cerca di sintetizzare i risultati del numero di unità operative e del budget delle singole unità operative presenti nella tabella prj, nelle tabelle modali dell'app principale_
+
+**anag** e **prj** vengono quindi uniti mediante una join tramite il campo "Matricola" (da anag) e "MatrRSUO" da ore. La tabella è quindi salvata in formato .rds 
+
+
+```{r eval=FALSE, echo=T}
+ prj %>%
+  left_join(anag, by = c("MatrRSUO" = "Matricola")) %>% 
+  mutate(annoinizio = year(DataInizio), 
+         annofine = year(DataFine),
+         Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%   
+  
+  saveRDS(., file = here( "data", "processed",  "prj.rds"))
+```
+
+#### DATI DA PUBBLICAZIONI
+
+I dati delle pubblicazioni sono forniti, formato tabella xlsx dalla bibioteca su richiesta del COGEP in occasione degli aggiornamenti dell'app principale. Sulla tabella originale vengono eseguiti alcune espressioni regolari per poter allineare il format del Nome e Cognome a quello presente nella tabella **anag** per l'assegnazione degli autori alla struttura di appartenenza. La tabella pubblicazioni.xlsx non riporta il numero di matricola. 
+Il join con la tabella anag deve essere fatto usando una chiave con tre campi: nome, cognome e anno, questo garantisce la corretta assegnazione dell'autore alla struttura di appartenenza nell'anno di pubblicazione. Questo è necessario perchè anche se raramente, può accadere che un autore è allocato in strutture diverse in anni diversi.
+
+```{r eval=FALSE, echo=T}
+ pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
+pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
+pubblicazioni$AU <- str_remove(pubblicazioni$AU, " ")
+pubblicazioni$AU <- gsub("_", " ", pubblicazioni$AU)
+pubblicazioni$Nome <- str_extract( pubblicazioni$AU, ",.*$")
+pubblicazioni$Nome <- str_remove(pubblicazioni$Nome, ",")
+pubblicazioni$Nome <- gsub("\\s.*$", "", pubblicazioni$Nome)
+pubblicazioni$Cognome <- gsub(",.*$", "", pubblicazioni$AU)
+
+pubblicazioni %>% filter(OA >= 2019) %>%
+  left_join(anag, by = c("Cognome" = "Cognome", "Nome" = "Nome", "OA" = "ANNO")) %>%  
+  # filter(Dirigente == "S") %>%  
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
+saveRDS(., file = here( "data", "processed",  "pub.rds"))
+```
+
+La tabella finale viene salvata in formato rds per il successivo utilizzo nell'applicativo principale.
+
+#### REPARAZIONE DATI PER APPLICATIVO COSTI-RICAVI
 
 ## Start.r
 Questo file semplicemente richiama il file PREPARAZIONE DATI.R ed esegue tutte le istruzioni in esso contenute.
