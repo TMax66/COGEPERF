@@ -33,6 +33,7 @@ dati22 %>%
   
   select(Dipartimento, Reparto, Laboratorio, Dirigente, contr, hcontr) %>%  
   group_by(Dipartimento, Reparto, Laboratorio, Dirigente) %>% 
+  
   summarise(hcontr = sum(hcontr)) %>% 
   mutate(FTE = ifelse(Dirigente == "S", hcontr/(38*47.4), hcontr/(36*47.4))) %>%  
   select(-hcontr) %>% 

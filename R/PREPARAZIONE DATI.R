@@ -25,6 +25,9 @@ source(here("R","sql.R"))
 
 cc <- conOre %>% tbl(sql(queryCoge)) %>% as_tibble() 
 
+cc <-  cc %>% 
+       filter(!idClassificazione %in% c("-5", "-13","-11", "-6") )  
+
 ###TABELLE-----
 T1 <- cc %>% #tabella con prestazioni (tariffato, fatturato) e costi
   group_by(ANNO, Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
@@ -373,37 +376,39 @@ cc %>%
                                `-8` = "Non Ufficiale a Pagamento", 
                                `-9` = "Non Ufficiale a Pagamento", 
                                `-4` = "Ufficiale Gratuito", 
-                               `-5` = "Ufficiale Gratuito", 
+                               #`-5` = "Ufficiale Gratuito", 
                                `-7` = "Ufficiale Gratuito", 
-                               `-11` = "Ufficiale Gratuito", 
-                               `-6`  = "Non Ufficiale Gratuito", 
+                              # `-11` = "Ufficiale Gratuito", 
+                              # `-6`  = "Non Ufficiale Gratuito", 
                                `-10` = "Non Ufficiale Gratuito", 
-                               `-13` = "Non Ufficiale Gratuito" ,  .default = NA_character_),
+                              # `-13` = "Non Ufficiale Gratuito" ,  
+                              .default = NA_character_),
          Pagamento = recode(idClassificazione, 
                             `-1` = "Pagamento", 
                             `-3` = "Pagamento", 
                             `-8` = "Pagamento", 
                             `-9` = "Pagamento", 
                             `-4` = "Gratuito", 
-                            `-5` = "Gratuito", 
+                            #`-5` = "Gratuito", 
                             `-7` = "Gratuito", 
-                            `-11` = "Gratuito", 
-                            `-6`  = "Gratuito", 
+                           # `-11` = "Gratuito", 
+                           # `-6`  = "Gratuito", 
                             `-10` = "Gratuito", 
-                            `-13` = "Gratuito" ,  .default = NA_character_), 
+                            #`-13` = "Gratuito" ,  
+                           .default = NA_character_), 
          Uff = recode (idClassificazione, 
                        `-1` = "Ufficiale", 
                        `-3` = "Ufficiale", 
                        `-8` = "Non Ufficiale", 
                        `-9` = "Non Ufficiale", 
                        `-4` = "Ufficiale", 
-                       `-5` = "Ufficiale", 
+                      # `-5` = "Ufficiale", 
                        `-7` = "Ufficiale", 
-                       `-11` = "Ufficiale", 
-                       `-6`  = "Non Ufficiale", 
+                       #`-11` = "Ufficiale", 
+                       #`-6`  = "Non Ufficiale", 
                        `-10` = "Non Ufficiale", 
-                       `-13` = "Non Ufficiale", .default = NA_character_), 
-         
+                       #`-13` = "Non Ufficiale", 
+                      .default = NA_character_), 
          Quarter = factor(paste("Q",TRIMESTRE)),
          TUff = ifelse(ClassAnalisi == "Ufficiale a Pagamento", Fatturato,
                        ifelse(ClassAnalisi == "Ufficiale Gratuito",  Tariffario, 0)),
