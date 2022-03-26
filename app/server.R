@@ -369,24 +369,24 @@ output$rictotdip <- renderValueBox(
 )
 
 
-ftePrep <- reactive(ftepREPD %>% 
-                      filter(Dipartimento == input$dip) %>% 
-                      group_by(valorizz) %>% 
-                      summarise(ft= sum(FT)) %>%
-                      mutate(FTp = round(prop.table(ft), 1)) %>%
-                      filter(valorizz=="si") %>% 
-                      select(FTp)
-)
-
-
-rfteDipr <- reactive(tdiprep() %>%ungroup() %>% 
-                      summarise(rt=sum(RT),
-                                ft=sum(FTET))%>% 
-                      bind_cols(ftePrep()) %>% 
-                      mutate(rfte=rt/(ft*FTp)) %>% 
-                      select(rfte) %>% 
-                      unlist()
-)  
+# ftePrep <- reactive(ftepREPD %>% 
+#                       filter(Dipartimento == input$dip) %>% 
+#                       group_by(valorizz) %>% 
+#                       summarise(ft= sum(FT)) %>%
+#                       mutate(FTp = round(prop.table(ft), 1)) %>%
+#                       filter(valorizz=="si") %>% 
+#                       select(FTp)
+# )
+# 
+# 
+# rfteDipr <- reactive(tdiprep() %>%ungroup() %>% 
+#                       summarise(rt=sum(RT),
+#                                 ft=sum(FTET))%>% 
+#                       bind_cols(ftePrep()) %>% 
+#                       mutate(rfte=rt/(ft*FTp)) %>% 
+#                       select(rfte) %>% 
+#                       unlist()
+# )  
 
 
 
@@ -402,7 +402,8 @@ rftedip <- reactive({
 })
 
 output$RFTEdip <- renderValueBox(
-  valueBox(rftedip()$RFTE, "rfte")
+ # valueBox(rftedip()$RFTE, "rfte")
+  ValueBOX(rftedip(), Variabile = "RFTE", Titolo =  "Ricavo Full Time Equivalente", colore = "blue", icona = "euro")
 )
 
 

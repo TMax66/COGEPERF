@@ -25,9 +25,9 @@ source(here("R","sql.R"))
 
 cc <- conOre %>% tbl(sql(queryCoge)) %>% as_tibble() 
 
- cc <-  cc %>% 
+# cc <-  cc %>% 
 #        #filter(!idClassificazione %in% c("-5", "-13","-11", "-6"))
-        filter(!idClassificazione %in% c("-5"))# escludo i controlli interni
+       # filter(!idClassificazione %in% c("-5"))# escludo i controlli interni
 
 ###TABELLE-----
 T1 <- cc %>% #tabella con prestazioni (tariffato, fatturato) e costi
@@ -377,7 +377,7 @@ cc %>%
                                `-8` = "Non Ufficiale a Pagamento", 
                                `-9` = "Non Ufficiale a Pagamento", 
                                `-4` = "Ufficiale Gratuito", 
-                          #     `-5` = "Ufficiale Gratuito", 
+                               `-5` = "Ufficiale Gratuito", 
                                `-7` = "Ufficiale Gratuito", 
                                `-11` = "Ufficiale Gratuito", 
                                `-6`  = "Non Ufficiale Gratuito", 
@@ -390,7 +390,7 @@ cc %>%
                             `-8` = "Pagamento", 
                             `-9` = "Pagamento", 
                             `-4` = "Gratuito", 
-                          #  `-5` = "Gratuito", 
+                            `-5` = "Gratuito", 
                             `-7` = "Gratuito", 
                             `-11` = "Gratuito", 
                              `-6`  = "Gratuito", 
@@ -403,7 +403,7 @@ cc %>%
                        `-8` = "Non Ufficiale", 
                        `-9` = "Non Ufficiale", 
                        `-4` = "Ufficiale", 
-                     #  `-5` = "Ufficiale", 
+                       `-5` = "Ufficiale", 
                        `-7` = "Ufficiale", 
                         `-11` = "Ufficiale", 
                         `-6`  = "Non Ufficiale", 
