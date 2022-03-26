@@ -390,11 +390,21 @@ rfteDipr <- reactive(tdiprep() %>%ungroup() %>%
 
 
 
+# output$RFTEdip <- renderValueBox(
+#   valueBox(prettyNum(rfteDipr(), big.mark = ".", decimal.mark = ","),
+#            subtitle = "Ricavo Full Time Equivalente",color = "blue", 
+#            icon = icon("euro"))
+# )
+
+rftedip <- reactive({
+  tdip() %>% 
+    filter(Dipartimento == input$dip)
+})
+
 output$RFTEdip <- renderValueBox(
-  valueBox(prettyNum(rfteDipr(), big.mark = ".", decimal.mark = ","),
-           subtitle = "Ricavo Full Time Equivalente",color = "blue", 
-           icon = icon("euro"))
+  valueBox(rftedip()$RFTE, "rfte")
 )
+
 
 # output$RFTEdip <- renderValueBox(
 #   ValueBOX(tdiprep(), Variabile = "RT", Variabile2 = "FTE_T",  Titolo = "Ricavo per Full Time Equivalente", colore = "blue", icona = "euro")
