@@ -397,8 +397,17 @@ output$rictotdip <- renderValueBox(
 # )
 
 rftedip <- reactive({
-  tdip() %>% 
-    filter(Dipartimento == input$dip)
+    tizsler %>% 
+    left_join(#aggiungola tabella con i fte programmati per dipartimento
+      ftepDIP, by="Dipartimento"
+    ) %>% 
+    mutate(RFTE = RT/(FTET*(FTp/100))) %>% 
+    filter(Dipartimento == input$dip & Anno == input$anno2)
+  
+  
+  
+  # tdip() %>% 
+  #   filter(Dipartimento == input$dip & Anno == input$anno)
 })
 
 output$RFTEdip <- renderValueBox(
