@@ -20,8 +20,8 @@ library(shinycssloaders)
 #dtanalisi <-  readRDS(file = here( "data", "CC.rds"))
 dtanalisi <- readRDS(here("data", "processed","CC.rds"))
  
-#source(here("app", "appcostiricavi", "R", "utils.R"))
-source(here("R", "utils.R"))
+source(here("app", "appcostiricavi", "R", "utils.R"))
+#source(here("R", "utils.R"))
 
 
 #controlli----

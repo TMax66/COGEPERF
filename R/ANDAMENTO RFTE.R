@@ -10,10 +10,10 @@ ftep <- readRDS(here("data", "processed", "ftepDIP.RDS"))
 #fteq mensili
 ore %>%
   filter(ANNO == 2021) %>% 
-  mutate(FTE = ifelse(Dirigente == "Comparto", Ore/(36*4.34),Ore/(38*4.34))) %>%  
-  pivot_wider(names_from = "Dirigente", values_from = c("Ore", "FTE"))  %>%  
-  select(-Ore_, -FTE_)  %>% 
-  mutate(FTET = FTE_Comparto+FTE_Dirigenza) %>% View()
+  mutate(FTE = ifelse(Dirigente == "Comparto", Ore/(36*4.34),Ore/(38*4.34))) %>%  View() 
+  pivot_wider(names_from = "Dirigente", values_from = c("Ore", "FTE"))  %>% 
+  select(-Ore_, -FTE_)  %>%  
+  mutate(FTET = FTE_Comparto+FTE_Dirigenza) %>%  
 
 
 
