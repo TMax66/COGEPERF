@@ -8,12 +8,33 @@ ftep <- readRDS(here("data", "processed", "ftepDIP.RDS"))
 
 
 #fteq mensili
+
+fte <- ore %>% 
+  filter(ANNO == 2021) %>% 
+  mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza"),
+         Ore = ifelse(Ore == SmartWorking, Ore, Ore+SmartWorking)) %>% 
+  filter(Dipartimento != "Non applicabile") %>% 
+  group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente, Mese) %>%   
+  filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
+  summarise(hworked = sum(Ore, na.rm = T)) %>%  
+  mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(36*4.34), hworked/(38*4.34))) %>%
+  pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE"))  %>%  
+  select(-hworked_, -FTE_) %>% View()
+
+
+
+
+
+
+
 ore %>%
   filter(ANNO == 2021) %>% 
-  mutate(FTE = ifelse(Dirigente == "Comparto", Ore/(36*4.34),Ore/(38*4.34))) %>%  View() 
-  pivot_wider(names_from = "Dirigente", values_from = c("Ore", "FTE"))  %>% 
+  
+  mutate(FTE = ifelse(Dirigente == "Comparto", Ore/(36*4.34),Ore/(38*4.34))) %>%   
+  select(1,2,3,7,10,17) %>% 
+  pivot_wider(names_from = "Dirigente", values_from = c("FTE"))  %>%  View()
   select(-Ore_, -FTE_)  %>%  
-  mutate(FTET = FTE_Comparto+FTE_Dirigenza) %>%  
+  mutate(FTET = FTE_Comparto+FTE_Dirigenza)  
 
 
 
@@ -22,8 +43,8 @@ ore %>%
 
 #ricavo totale mensile
 ricavi %>% 
-  filter(ANNO == 2021) 
-mutate(FTET = FTE_Comparto+FTE_Dirigenza) %>%  
+  filter(ANNO == 2021) %>%  
+mutate(FTET = FTE_Comparto+FTE_Dirigenza) %>%  View()
   group_by(Mese, Dipartimento) %>% 
   summarise(FTET = sum(FTET, na.rm=TRUE)) %>%  
   filter(!Dipartimento %in% c("Costi Comuni e Centri contabili", 
