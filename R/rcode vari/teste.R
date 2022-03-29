@@ -1,3 +1,10 @@
+library(tidyverse)
+library(here)
+library(readxl)
+
+dati22 <- read_excel(here("data", "raw", "presenze2022.xlsx"))
+CC <- readRDS(here("data", "processed", "CC.RDS"))
+
 dati22 %>% 
   mutate(peror = as.numeric(`Perc Orario`)) %>%  
   left_join(  
@@ -22,16 +29,16 @@ dati22 %>%
   
   select(Dipartimento, Reparto, Laboratorio, Dirigente, contr, hcontr) %>%   
   group_by(Dipartimento, Reparto, Laboratorio, Dirigente) %>% 
-    summarize(n = n()) %>%  View()
+    #summarize(n = n()) %>%  View()
   
-  summarise(hcontr = sum(hcontr)) %>% 
+  summarise(hcontr = sum(hcontr)) %>%  
   mutate(FTE = ifelse(Dirigente == "S", hcontr/(38*47.4), hcontr/(36*47.4))) %>%  
   select(-hcontr) %>% 
   
   pivot_wider(names_from = Dirigente, values_from = FTE) %>%  
   rename( "FTED" = S, 
           "FTEC" = N)  %>% 
-  ungroup() %>%   
+  ungroup() %>%   View()
   
   gt() %>% 
   gtsave("fte.rtf")
