@@ -7,78 +7,105 @@ ricavi <- readRDS(here("data", "processed", "CC.rds"))
 ftep <- readRDS(here("data", "processed", "ftepDIP.RDS"))
 
 
-#fteq mensili
+#fteq mensili cumulati
+
+mesi <- seq(1:12)
+ftec <- 142.2 ## 142.2 DERIVA DA (36*47.4)/12  
+fted <- 150.1 ## 150.1 DERIVA DA (38*47.4)/12
+
+fteC <- mesi*ftec
+fteD <- mesi*fted
 
 fte <- ore %>% 
-  filter(ANNO == 2021) %>% 
+  filter(ANNO == 2021 &
+           !Dipartimento %in% c("Non applicabile", "Costi Comuni e Centri contabili", 
+                                "Dipartimento amministrativo", "Direzione Amministrativa", 
+                                "Direzione Generale") &
+           !is.na(Dirigente) & 
+           !is.na(Ore)) %>% 
   mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza"),
-         Ore = ifelse(Ore == SmartWorking, Ore, Ore+SmartWorking)) %>% 
-  filter(Dipartimento != "Non applicabile") %>% 
-  group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente, Mese) %>%   
-  filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
+         Ore = ifelse(Ore == SmartWorking, Ore, Ore+SmartWorking)) %>%  
+  group_by(ANNO, Dipartimento, Reparto, Dirigente, Mese) %>% 
   summarise(hworked = sum(Ore, na.rm = T)) %>%  
-  mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(36*4.34), hworked/(38*4.34))) %>%
-  pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE"))  %>%  
-  select(-hworked_, -FTE_) %>% View()
-
-
-
-
-
-
-
-ore %>%
-  filter(ANNO == 2021) %>% 
+  filter(hworked != 0) %>% 
+  # mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(36*4.34), hworked/(38*4.34))) %>%
+  pivot_wider(names_from = "Dirigente", values_from = c("hworked"), values_fill = 0) %>% 
+  mutate(hwcomp = cumsum(Comparto), 
+         hwdir = cumsum(Dirigenza),   
+         FTEC = hwcomp/fteC, 
+         FTED = hwdir/fteD, 
+         FTET = FTEC+FTED) %>% ungroup() %>% 
+  select(-ANNO, Dipartimento, Reparto,  MESE =Mese, FTET, -hwcomp, -hwdir, -FTEC, -FTED, 
+         -Comparto, -Dirigenza)
   
-  mutate(FTE = ifelse(Dirigente == "Comparto", Ore/(36*4.34),Ore/(38*4.34))) %>%   
-  select(1,2,3,7,10,17) %>% 
-  pivot_wider(names_from = "Dirigente", values_from = c("FTE"))  %>%  View()
-  select(-Ore_, -FTE_)  %>%  
-  mutate(FTET = FTE_Comparto+FTE_Dirigenza)  
 
 
 
+# ricavi mensili cumulati
 
 
-
-#ricavo totale mensile
-ricavi %>% 
-  filter(ANNO == 2021) %>%  
-mutate(FTET = FTE_Comparto+FTE_Dirigenza) %>%  View()
-  group_by(Mese, Dipartimento) %>% 
-  summarise(FTET = sum(FTET, na.rm=TRUE)) %>%  
-  filter(!Dipartimento %in% c("Costi Comuni e Centri contabili", 
-                              "Dipartimento amministrativo",
-                              "Direzione Amministrativa",
-                              "Direzione Generale")) %>% 
-  
-  left_join(  
-    
-    
-    
-    
-    (ricavi %>% 
-       filter(ANNO == 2021 & Costi== "Ricavo") %>% 
-       # filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
-       rowwise() %>% 
-       mutate(TotRic = sum(TUff, TNonUff, na.rm = T)) %>% ungroup %>%   
-       filter(TotRic >0) %>% 
-       group_by(MESE,Dipartimento) %>%  
-       summarise(TRic= sum(TotRic, na.rm = TRUE))), by = c("Mese"="MESE","Dipartimento" )   
-    
-  ) %>% 
-  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
-  
+Ricfte <- ricavi %>% 
+  filter(ANNO == 2021 & Costi== "Ricavo") %>% 
+  # filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
+  rowwise() %>% 
+  mutate(TotRic = sum(TUff, TNonUff, na.rm = T)) %>% ungroup %>%   
+  filter(TotRic >0) %>% 
+  group_by(Dipartimento, Reparto,  MESE) %>%  
+  summarise(TRic= sum(TotRic, na.rm = TRUE)) %>% 
+  mutate(Ricavi = cumsum(TRic)) %>% select(-TRic) %>% 
   left_join(
-    ftep , by= "Dipartimento") %>% 
+    fte, by=c("Dipartimento", "Reparto",  "MESE")
+  ) %>% 
+  mutate(RFTE = Ricavi/FTET) 
+
+
+Ricfte %>% 
+  ggplot()+
+  aes(x = MESE, y = RFTE)+
+  geom_line(group = 1)+
+  facet_wrap(Dipartimento ~ Reparto, scales = "free")
   
-  mutate(RFTE = round((TRic/((FTET)*(FTp/100))), 2)) %>% View()
 
 
-ggplot()+
-  aes(x = Mese, 
-      y = RFTE)+
-  geom_point()+
-  geom_line()+
-  facet_wrap(~Dipartimento, ncol = 1, scales = "free_y")
+
+##fte mensili
+
+fte <- ore %>% 
+  filter(ANNO == 2021 &
+           !Dipartimento %in% c("Non applicabile", "Costi Comuni e Centri contabili", 
+                                "Dipartimento amministrativo", "Direzione Amministrativa", 
+                                "Direzione Generale") &
+           !is.na(Dirigente) & 
+           !is.na(Ore)) %>% 
+  mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza"),
+         Ore = ifelse(Ore == SmartWorking, Ore, Ore+SmartWorking)) %>%  
+  group_by(ANNO, Dipartimento, Reparto, Dirigente, Mese) %>% 
+  summarise(hworked = sum(Ore, na.rm = T)) %>%  
+  filter(hworked != 0) %>% 
+  mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(142.2), hworked/(150.1))) %>% 
+  select(-hworked) %>% 
+  pivot_wider(names_from = "Dirigente", values_from = c("FTE"), values_fill = 0) %>% 
+  mutate( FTET = Comparto+Dirigenza)%>% ungroup() %>%  
+  select(-ANNO, Dipartimento, Reparto,  MESE =Mese, FTET, -Comparto, -Dirigenza)
+
+
+
+Ricfte <- ricavi %>% 
+  filter(ANNO == 2021 & Costi== "Ricavo") %>% 
+  # filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
+  rowwise() %>% 
+  mutate(TotRic = sum(TUff, TNonUff, na.rm = T)) %>% ungroup %>%   
+  filter(TotRic >0) %>% 
+  group_by(Dipartimento, Reparto,  MESE) %>%  
+  summarise(TRic= sum(TotRic, na.rm = TRUE)) %>%   
+  left_join(
+    fte, by=c("Dipartimento", "Reparto",  "MESE")) %>%  
+  mutate(RFTE = TRic/FTET)
+
+
+Ricfte %>% 
+  ggplot()+
+  aes(x = MESE, y = RFTE)+
+  geom_line(group = 1)+
+  facet_wrap(Dipartimento ~ Reparto, scales = "free")
 

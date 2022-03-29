@@ -64,7 +64,8 @@ ftepDIP <- readRDS(here("data", "processed", "ftepDIP.RDS"))
 ftepREP <- readRDS(here("data", "processed", "ftepREP.RDS"))
 
 ftepREP <- ftepREP %>% 
-  rename( valorizz = Valorizzazione)
+  rename( valorizz = Valorizzazione) %>% 
+  mutate(Reparto= ifelse(Reparto == "SEDE TERRITORIALE DI FORLÃŒ - RAVENNA" , "SEDE TERRITORIALE DI FORLÌ - RAVENNA", Reparto))
 
 ftepREPD <- readRDS(here("data", "processed", "ftepREPD.RDS"))
 ftepREPD <- ftepREPD %>% 
