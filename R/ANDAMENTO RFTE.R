@@ -68,9 +68,21 @@ Ricfte %>%
 
 
 
+band <- Ricfte %>% 
+  mutate(low= RFTE- 0.10*RFTE, 
+         high = RFTE + 0.10*RFTE)
+
+
+band %>% 
+  ggplot()+
+  aes(x = MESE, y = RFTE)+
+  geom_ribbon(aes(ymin = low, ymax = high), fill = "grey70", alpha= 0.5) +
+  facet_wrap(Dipartimento ~ Reparto, scales = "free")
+
+
 ##fte mensili
 
-fte <- ore %>% 
+ftem <- ore %>% 
   filter(ANNO == 2021 &
            !Dipartimento %in% c("Non applicabile", "Costi Comuni e Centri contabili", 
                                 "Dipartimento amministrativo", "Direzione Amministrativa", 
@@ -90,7 +102,7 @@ fte <- ore %>%
 
 
 
-Ricfte <- ricavi %>% 
+Ricftem<- ricavi %>% 
   filter(ANNO == 2021 & Costi== "Ricavo") %>% 
   # filter(Classe %in% c("Prestazioni", "Vendite prodotti", "Ricavi da produzione")) %>%
   rowwise() %>% 
@@ -99,13 +111,28 @@ Ricfte <- ricavi %>%
   group_by(Dipartimento, Reparto,  MESE) %>%  
   summarise(TRic= sum(TotRic, na.rm = TRUE)) %>%   
   left_join(
-    fte, by=c("Dipartimento", "Reparto",  "MESE")) %>%  
+    ftem, by=c("Dipartimento", "Reparto",  "MESE")) %>%  
   mutate(RFTE = TRic/FTET)
 
 
-Ricfte %>% 
+Ricftem%>% 
   ggplot()+
   aes(x = MESE, y = RFTE)+
   geom_line(group = 1)+
   facet_wrap(Dipartimento ~ Reparto, scales = "free")
 
+
+bandm <- Ricftem %>% 
+  mutate(low= RFTE- 0.10*RFTE, 
+         high = RFTE + 0.10*RFTE, 
+         delta = high-low)
+
+
+bandm %>% 
+ # filter(Reparto == "SEDE TERRITORIALE DI FORLÌ - RAVENNA") %>% 
+  ggplot()+
+  aes(x = MESE, y = RFTE)+
+  geom_line(group = 1, color = "Blue", lty= 2, alpha= 0.5)+
+  geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha= 0.3) +
+  
+  facet_wrap(Dipartimento ~ Reparto, scales = "free")
