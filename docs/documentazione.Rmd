@@ -29,7 +29,11 @@ Di seguito per i due applicativi vengono illustrate le fonti dati, le modalità 
 
 L'app è strutturata in un Rproj di RSTUDIO (IDE di R) che comprende la seguente struttura:
 
-**descrivere le cartelle e i file**
+```{r echo=FALSE}
+library(fs)
+dir_tree(path = "/home/massimo/Desktop/GitProject/COGEPERF", recurse = FALSE)
+```
+
 
 
 ## R
@@ -235,6 +239,72 @@ saveRDS(., file = here( "data", "processed",  "pub.rds"))
 La tabella finale viene salvata in formato rds per il successivo utilizzo nell'applicativo principale.
 
 #### REPARAZIONE DATI PER APPLICATIVO COSTI-RICAVI
+
+A partire dal dataframe visto in prcedenza viene strutturato un dataset utile per la presentazione dei dati per centro di costo dell'applicativo costiricavi, utilizzando il seguente codice:
+
+```{r eval=FALSE, echo=T}
+cc %>% 
+  mutate(ClassAnalisi = recode(idClassificazione, 
+                               `-1` = "Ufficiale a Pagamento", 
+                               `-3` = "Ufficiale a Pagamento", 
+                               `-8` = "Non Ufficiale a Pagamento", 
+                               `-9` = "Non Ufficiale a Pagamento", 
+                               `-4` = "Ufficiale Gratuito", 
+                               `-5` = "Ufficiale Gratuito", 
+                               `-7` = "Ufficiale Gratuito", 
+                               `-11` = "Ufficiale Gratuito", 
+                               `-6`  = "Non Ufficiale Gratuito", 
+                               `-10` = "Non Ufficiale Gratuito", 
+                               `-13` = "Non Ufficiale Gratuito" ,  
+                              .default = NA_character_),
+         Pagamento = recode(idClassificazione, 
+                            `-1` = "Pagamento", 
+                            `-3` = "Pagamento", 
+                            `-8` = "Pagamento", 
+                            `-9` = "Pagamento", 
+                            `-4` = "Gratuito", 
+                            `-5` = "Gratuito", 
+                            `-7` = "Gratuito", 
+                            `-11` = "Gratuito", 
+                             `-6`  = "Gratuito", 
+                            `-10` = "Gratuito", 
+                             `-13` = "Gratuito" ,  
+                           .default = NA_character_), 
+         Uff = recode (idClassificazione, 
+                       `-1` = "Ufficiale", 
+                       `-3` = "Ufficiale", 
+                       `-8` = "Non Ufficiale", 
+                       `-9` = "Non Ufficiale", 
+                       `-4` = "Ufficiale", 
+                       `-5` = "Ufficiale", 
+                       `-7` = "Ufficiale", 
+                        `-11` = "Ufficiale", 
+                        `-6`  = "Non Ufficiale", 
+                       `-10` = "Non Ufficiale", 
+                        `-13` = "Non Ufficiale", 
+                      .default = NA_character_), 
+         Quarter = factor(paste("Q",TRIMESTRE)),
+         TUff = ifelse(ClassAnalisi == "Ufficiale a Pagamento", Fatturato,
+                       ifelse(ClassAnalisi == "Ufficiale Gratuito",  Tariffario, 0)),
+         TNonUff = ifelse(ClassAnalisi == "Non Ufficiale a Pagamento", Fatturato,
+                          ifelse(ClassAnalisi == "Non Ufficiale Gratuito", Tariffario, 0)),
+         TGratuito = ifelse(Pagamento == "Gratuito", Tariffario,0), 
+         TPagamento = ifelse(Pagamento == "Pagamento", Fatturato,0), 
+         TVP = ifelse(Classe == "Vendite prodotti", Fatturato, 0), 
+         TAI = ifelse(Classe == "Ricavi da produzione interna", Tariffario, 0), 
+         AttUff = ifelse(Uff== "Ufficiale", Determinazioni, 0 ), 
+         AttNUff = ifelse(Uff== "Non Ufficiale", Determinazioni, 0 ), 
+         AttGrat = ifelse(Pagamento== "Gratuito", Determinazioni, 0 ), 
+         AttPag = ifelse(Pagamento == "Pagamento", Determinazioni, 0), 
+         VP = ifelse(Classe == "Vendite prodotti", Numero, 0), 
+         AI = ifelse(Classe == "Ricavi da produzione interna", Numero, 0)) %>% 
+  mutate(CDC = ifelse(CodiceCDC == 5502, "LABORATORIO CONTAMINANTI AMBIENTALI-(Bologna)", CDC)) %>%  
+  saveRDS(here("data", "processed", "CC.rds"))
+
+```
+
+
+
 
 ## Start.r
 Questo file semplicemente richiama il file PREPARAZIONE DATI.R ed esegue tutte le istruzioni in esso contenute.
