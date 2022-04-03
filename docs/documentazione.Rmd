@@ -309,10 +309,28 @@ cc %>%
 ## Start.r
 Questo file semplicemente richiama il file PREPARAZIONE DATI.R ed esegue tutte le istruzioni in esso contenute.
 
-# app
+# **app**
+In questa cartella cosi strutturata:
+```{r echo=FALSE}
+dir_tree(path = "/home/massimo/Desktop/GitProject/COGEPERF/app", recurse = FALSE)
+```
+
+sono presenti i tre file R che costruiscono l'app shiny principale, la cartella **www** che contiene eventualmente immagini da usare nel dashboard e la cartella **costiricavi** che contiene i file per l'applicativo costiricavi. 
+
+## **global.r**
+
+Questo file contiene il richiamo alle librerie necessarie all'app shiny e tutte quelle istruzioni che non prevedono l'utilizzo del linguaggio reactive di shiny e che quindi vengono eseguite esclusivamente all'apertura dell'applicativo e non ad ogni interazione con esso. Sono contenute le istruzione per caricare i dati in formato rds precedentemente preparati nel file **PREPARAZIONE DATI.R** , istruizioni cha manipolano tale tabelle per rifinirle e utilizzarle nel applicativo e anche alcune funzioni che sono poi utilizzate nel file **server.R**
 
 
-## global.r
+```{r eval=FALSE,echo=T}
+tabIZSLER <- readRDS(file = here( "data", "processed", "TabellaGenerale.rds"))#-tabella complessiva izsler esami prodotti orelav##
+GCR <- readRDS(file = here("data", "processed", "GCR.rds"))#-dati da gestione centralizzata della richiesta
+```
+
+
+
+
+
 ## ui.r
 ## server.r
 
