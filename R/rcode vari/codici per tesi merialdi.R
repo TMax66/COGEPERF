@@ -11,10 +11,10 @@ prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2021.xlsx"))
 
 
 
-dt1 <- c(  "2019-01-01","2020-01-01","2021-01-01"  )
+dt1 <- c( "2018-01-01",   "2019-01-01","2020-01-01","2021-01-01", "2022-01-01" )
 
-dt2 <-  c( "2019-12-31","2020-12-31","2021-12-31" )
-anno <- seq(from = 2019, to = 2021, by=1)
+dt2 <-  c( "2018-12-31", "2019-12-31","2020-12-31","2021-12-31" , "2022-12-31")
+anno <- seq(from = 2018, to = 2022, by=1)
 
 x <- data.frame(dt1, dt2, anno)
 
@@ -52,7 +52,7 @@ prj_func2 <- function(dt1, dt2,  anno)
 
 z <- list()
 
-for (i in 1:3) { 
+for (i in 1:4) { 
   z[[i]]<- prj_func2(  dt1 = x[i, 1], dt2 = x[i, 2], anno = x[i, 3])
   
 }
@@ -104,12 +104,11 @@ p3 <- p3 %>%
 # pivot_wider(names_from = "Tipologia", values_from = c("N.Progetti", "Budget"), values_fill = 0) %>%)
   # rename(N.Progetti)
   
-         
 library(gt)
 
 gt(pr) %>%  
   tab_header(
-    title = "Progetti di ricerca finanziati da Enti terzi in IZSLER (triennio 2018-2020)"
+    title = "Progetti di ricerca finanziati da Enti terzi in IZSLER (  2018-2021)"
   ) %>%
    tab_spanner(
      label = "Ricerca Competitiva",
