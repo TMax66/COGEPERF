@@ -45,35 +45,41 @@ tabIZSLER <- tabIZSLER %>%
                                )) %>% 
   filter(!Reparto %in% c("COSTI COMUNI LOMBARDIA", "DIREZIONE SANITARIA", "FORMAZIONE E BIBLIOTECA")) 
   
-dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
+#dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
 
-FTp <- dtProg %>% 
-  group_by(Valorizzazione) %>% 
-  summarise(FTED = sum(FTED, na.rm = T), 
-            FTEC = sum(FTEC, na.rm = T)) %>% 
-  rowwise() %>% 
-  mutate(FT = sum(FTED, FTEC)) %>% 
-  ungroup() %>% 
-  mutate(FTp = round(prop.table(FT), 1)) %>% 
-  filter(Valorizzazione == "si") %>%
-  select(FTp)  
+# FTp <- dtProg %>%
+#   group_by(Valorizzazione) %>%
+#   summarise(FTED = sum(FTED, na.rm = T),
+#             FTEC = sum(FTEC, na.rm = T)) %>%
+#   rowwise() %>%
+#   mutate(FT = sum(FTED, FTEC)) %>%
+#   ungroup() %>%
+#   mutate(FTp = round(prop.table(FT), 1)) %>%
+#   filter(Valorizzazione == "si") %>%
+#   select(FTp)
 
 
-ftepDIP <- readRDS(here("data", "processed", "ftepDIP.RDS"))
+# ftepDIP <- readRDS(here("data", "processed", "ftepDIP.RDS"))
 
-ftepREP <- readRDS(here("data", "processed", "ftepREP.RDS"))
+# ftepREP <- readRDS(here("data", "processed", "ftepREP.RDS"))
 
-ftepREP <- ftepREP %>% 
-  rename( valorizz = Valorizzazione) %>% 
-  mutate(Reparto= ifelse(Reparto == "SEDE TERRITORIALE DI FORLÃŒ - RAVENNA" , "SEDE TERRITORIALE DI FORLÌ - RAVENNA", Reparto))
+# ftepREP <- ftepREP %>% 
+#   rename( valorizz = Valorizzazione) %>% 
+#   mutate(Reparto= ifelse(Reparto == "SEDE TERRITORIALE DI FORLÃŒ - RAVENNA" , "SEDE TERRITORIALE DI FORLÌ - RAVENNA", Reparto))
+# 
+# ftepREPD <- readRDS(here("data", "processed", "ftepREPD.RDS"))
+# ftepREPD <- ftepREPD %>% 
+#   rename( valorizz = Valorizzazione)
 
-ftepREPD <- readRDS(here("data", "processed", "ftepREPD.RDS"))
-ftepREPD <- ftepREPD %>% 
-  rename( valorizz = Valorizzazione)
 
+FTp <- readRDS(here("data", "processed", "FTp.RDS"))
+FTEPD <- readRDS(here("data", "processed", "FTEPD.RDS"))
+FTEPREP <- readRDS(here("data", "processed", "FTEPREP.RDS"))
 
 
 prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
+
+
 
 # prj <- prj %>% 
 #   select(-Ore) %>%  

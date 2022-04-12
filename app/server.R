@@ -26,6 +26,7 @@ pubsdip <- reactive(pub %>%
                       filter(OA == input$anno2 & Dipartimento == input$dip))
 
 
+FTEPDx <- reactive(FTEPD %>% filter(anno == input$anno))
 
 tdip <- reactive(#questo codice prepara la tabella complessiva dei dipartimenti
   IZSLER() %>%
@@ -43,11 +44,20 @@ tdip <- reactive(#questo codice prepara la tabella complessiva dei dipartimenti
        summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
     ),  by = "Dipartimento" ) %>% 
     left_join(#aggiungola tabella con i fte programmati per dipartimento
-      ftepDIP, by="Dipartimento"
+      #ftepDIP, 
+      FTEPDx(),  by="Dipartimento"
     ) %>% 
     mutate(RFTE = RT/(FTET*(FTp/100)))#< questo calcola il ricavo fte usando solo la % di fte allocata alle attività istituzionali
   )
 
+
+
+
+
+
+
+
+FTEPREPx <- reactive(FTEPREP %>% filter(anno == input$anno2))
 
 tdiprep <- reactive(#questo codice prepara la tabella dei singoli dipartimenti con i dati dei reparti
   (tabIZSLER %>% 
@@ -75,7 +85,7 @@ tdiprep <- reactive(#questo codice prepara la tabella dei singoli dipartimenti c
          summarise("Progetti di Ricerca"=nlevels(factor(Codice)))
       ), by = "Reparto") %>% 
     left_join(
-      ftepREP, by = "Reparto"
+      FTEPREPx(), by = "Reparto"
     ) %>% 
     mutate(RFTE = RT/(FTET*(FTp/100)))
 )
@@ -108,7 +118,8 @@ output$rictot <- renderValueBox(
 # )
 
 
-ftp <- reactive(FTp)
+ftp <- reactive(FTp %>% 
+                  filter(anno == input$anno))
 
 rfteDip <- reactive(tdip() %>% ungroup() %>% 
                       summarise(rt=sum(RT),

@@ -184,7 +184,11 @@ source( here("R", "codici per fte programmati 2021.R"))
 
 ##DATI FTEQ programmati 2022--- #
 
-ftep22 <- tbl(conSB, sql(query)) %>% as_tibble()
+ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% 
+mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
+       Valorizzato = ifelse(Valorizzato != "no", "si", "no"))
+
+
 
 
 #PREPARAZIONE DATI PER APPLICATIVO COSTI-RICAVI----
