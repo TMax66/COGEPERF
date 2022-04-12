@@ -126,7 +126,7 @@ WHERE
   )
 ")
 
-#### query dati performance
+#### query dati performance 2021
 
 queryPERF <- "SELECT
 Avanzamento,
@@ -142,4 +142,34 @@ StrutturaAssegnataria
 
 FROM ObiettiviStrategiciV2018.dbo.v_EstrazioneObiettivi
 WHERE Anno > 2020"
+
+
+#### query dati schede budget e performance dal 2022----
+
+Query<-function(fixed="SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME=", tabella="'nometab'"){
+  paste(fixed, tabella)
+}
+
+q<-Query(tabella = "'vSchedaBudget'")
+
+myfun <- function(con, q, tabella)
+{   
+  
+  column.types <- dbGetQuery(con, q)
+  
+  ct <- column.types %>%
+    mutate(cml = case_when(
+      is.na(CHARACTER_MAXIMUM_LENGTH) ~ 10,
+      CHARACTER_MAXIMUM_LENGTH == -1 ~ 100000,
+      TRUE ~ as.double(CHARACTER_MAXIMUM_LENGTH)
+    )
+    ) %>%
+    arrange(cml) %>%
+    pull(COLUMN_NAME)
+  fields <- paste(ct, collapse=", ")
+  query <- paste("SELECT", fields, paste("FROM", tabella))
+  return(query)
+}
+
+query <- myfun(con=conSB, q=q, tabella = "vSchedaBudget")
 

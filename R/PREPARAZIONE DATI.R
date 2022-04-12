@@ -14,9 +14,13 @@ conOre <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02
 conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it", 
                          Database = "IZSLER", Port = 1433)
 
-### dati da dbase performance berenice -----
+### dati da dbase performance berenice per il 2021 -----
 conPerf <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
                       Database = "ObiettiviStrategiciV2018", Port = 1433)
+
+### dati da dbase performance berenice per il 2022 ----
+conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
+                        Database = "ObiettiviStrategici2022", Port = 1433)
 
 source(here("R","sql.R"))
 
@@ -80,140 +84,6 @@ T1 %>% ##attività costi e fte
   left_join(fte,by=c("ANNO", "Dipartimento", "Reparto", "Laboratorio")) %>% 
   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
   saveRDS(., file = here("data", "processed",  "TabellaGenerale.rds"))
-
-
-##DATI FTEQ programmati----
-
-# i dati originali provengono dal file obiettiviXSB.xlsx che si trova nella cartella
-# \data\raw. Questi dati sono rielaborati dal codice FTEPROGRAMMATI.R che si trova 
-# nella cartella \R\rcodevari e che restituisce l'output datiFSB.rds che è inviato alla cartella \data\processed
-
-dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
-
-
-
-
-dtProg %>% 
-  filter(Dipartimento != "Dipartimento Amministrativo") %>% 
-  mutate(Dipartimento = recode(Dipartimento, 
-                               "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" , 
-                               "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia", 
-                               "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale", 
-                               )
-  ) %>% 
-  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
-  group_by(Valorizzazione, Dipartimento) %>%
-  summarise(FTED = sum(FTED, na.rm = T), 
-            FTEC = sum(FTEC, na.rm = T)) %>% 
-  rowwise() %>% 
-  mutate(FT = sum(FTED, FTEC)) %>% 
-  group_by( Dipartimento) %>% 
-  # filter(Valorizzazione == "si") %>%  
-  mutate(FTp = round(100*prop.table(FT), 1)) %>%   
-  select(-FTED, -FTEC) %>%  
-  group_by(Dipartimento, Valorizzazione) %>% 
-  filter(Valorizzazione== "si") %>%  
-  ungroup() %>%
-  select(Dipartimento, FTp) %>% 
-  saveRDS(here("data", "processed", "ftepDIP.RDS"))
-
-
-
-
-
-
-
-
-
-dtProg %>% 
-  filter(Dipartimento != "Dipartimento Amministrativo") %>% 
-  mutate(Dipartimento = recode(Dipartimento, 
-                               "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" , 
-                               "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia", 
-                               "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale", 
-                               ), 
-         Reparto = recode(Reparto, 
-                          "STBO-FE-MO" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA", 
-                          "STPR-PC" = "SEDE TERRITORIALE DI PIACENZA - PARMA", 
-                          "STFO-RA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA", 
-                          "STRE" = "SEDE TERRITORIALE DI REGGIO EMILIA", 
-                          "STBG-BI-SO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO", 
-                          "STLO-MI" = "SEDE TERRITORIALE DI LODI - MILANO", 
-                          "STCR-MN" = "SEDE TERRITORIALE DI CREMONA - MANTOVA", 
-                          "STPV" = "SEDE TERRITORIALE DI PAVIA", 
-                          "STBS" = "SEDE TERRITORIALE DI BRESCIA",
-                          "RPP" = "REPARTO PRODUZIONE PRIMARIA", 
-                          "RCABO" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)", 
-                          "RCA" = "REPARTO CONTROLLO ALIMENTI", 
-                          "RCAM" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI", 
-                          "RVIR" = "REPARTO VIROLOGIA", 
-                          "RVVPB" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE", 
-                          "RTBA" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE", 
-                          "RPCMB" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO", 
-                          "AREG" = "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA", 
-                          "GESTCENT" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
-                          "SORVEPIDEM" = "SORVEGLIANZA EPIDEMIOLOGICA", 
-                          "FORMAZIONE" = "FORMAZIONE E BIBLIOTECA"
-                          )
-  ) %>%  
-  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
-  group_by(Valorizzazione, Dipartimento, Reparto) %>%
-  summarise(FTED = sum(FTED, na.rm = T), 
-            FTEC = sum(FTEC, na.rm = T)) %>%   
-  rowwise() %>% 
-  mutate(FT = sum(FTED, FTEC)) %>% 
-  group_by( Dipartimento, Reparto) %>% 
-  # filter(Valorizzazione == "si") %>%  
-  mutate(FTp = round(100*prop.table(FT), 1)) %>%  
-  #select(-FTED, -FTEC) %>%  
-  group_by(Dipartimento,Reparto,  Valorizzazione) %>% 
-  filter(Valorizzazione== "si") %>%  
-  ungroup() %>% 
-  select(Dipartimento,Reparto, Valorizzazione, FTp) %>%  
-  saveRDS(here("data", "processed", "ftepREP.RDS"))
-
-
-
-
-
-dtProg %>%
-  filter(Dipartimento != "Dipartimento Amministrativo") %>%
-  mutate(Dipartimento = recode(Dipartimento,
-                               "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" ,
-                               "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia",
-                               "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale",
-  ),
-  Reparto = recode(Reparto,
-                   "STBO-FE-MO" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
-                   "STPR-PC" = "SEDE TERRITORIALE DI PIACENZA - PARMA",
-                   "STFO-RA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA",
-                   "STRE" = "SEDE TERRITORIALE DI REGGIO EMILIA",
-                   "STBG-BI-SO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
-                   "STLO-MI" = "SEDE TERRITORIALE DI LODI - MILANO",
-                   "STCR-MN" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",
-                   "STPV" = "SEDE TERRITORIALE DI PAVIA",
-                   "STBS" = "SEDE TERRITORIALE DI BRESCIA",
-                   "RPP" = "REPARTO PRODUZIONE PRIMARIA",
-                   "RCABO" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)",
-                   "RCA" = "REPARTO CONTROLLO ALIMENTI",
-                   "RCAM" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI",
-                   "RVIR" = "REPARTO VIROLOGIA",
-                   "RVVPB" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE",
-                   "RTBA" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE",
-                   "RPCMB" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO",
-                   "AREG" = "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA",
-                   "GESTCENT" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE",
-                   "SORVEPIDEM" = "SORVEGLIANZA EPIDEMIOLOGICA",
-                   "FORMAZIONE" = "FORMAZIONE E BIBLIOTECA"
-  )
-  ) %>%
-  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%
-  group_by(Valorizzazione, Dipartimento, Reparto) %>%
-  summarise(FTED = sum(FTED, na.rm = T),
-            FTEC = sum(FTEC, na.rm = T)) %>%
-  rowwise() %>%
-  mutate(FT = sum(FTED, FTEC)) %>%
-  saveRDS(here("data", "processed", "ftepREPD.RDS"))
 
 
 
@@ -299,73 +169,22 @@ pubblicazioni %>% filter(OA >= 2019) %>%
   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
 saveRDS(., file = here( "data", "processed",  "pub.rds"))
 
-
-
-
 ##DATI DA DBASE PERFORMANCE (OBIETTIVI, INDICATORI, TARGET, RISULTATO, FTEQ PROGRAMMATI)-----
+source(here("R", "codici performance 2021.R"))## dati delle performance 2021
+
+### dati performance 2022----
 
 
 
 
+### DATI FTEQ programmati ----
 
-perf <- conPerf %>% tbl(sql(queryPERF)) %>% as_tibble()
+## 2021
+source( here("R", "codici per fte programmati 2021.R"))
 
-strutture <- read_excel(here("data", "raw", "strutture.xlsx"))
+##DATI FTEQ programmati 2022--- #
 
-
-dip <- c("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA", "DIPARTIMENTO SICUREZZA ALIMENTARE",
-         "DIPARTIMENTO TUTELA SALUTE ANIMALE", "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA",
-         "DIPARTIMENTO AMMINISTRATIVO", "CONTROLLO DI GESTIONE")
-
-
-##ricodificare le strutture
-
-dt <- perf %>%
-  filter(!StrutturaAssegnataria %in% dip & TipoObiettivo == "Operativo" ) %>%
-  mutate(Struttura = recode(StrutturaAssegnataria,
-                            "S.T. PIACENZA E PARMA" = "SEDE TERRITORIALE DI PIACENZA - PARMA",
-                            "REP. CHIM. DEGLI ALIMENTI E MANGIMI" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI",
-                            "REP. CHIMICO ALIMENTI BOLOGNA" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)",
-                            "REP. PRODUZIONE PRIMARIA" = "REPARTO PRODUZIONE PRIMARIA",
-                            "S.T. BOLOGNA, FERRARA E MODENA" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
-                            "S.T. REGGIO EMILIA" = "SEDE TERRITORIALE DI REGGIO EMILIA",
-                            "REP. VIROLOGIA" = "REPARTO VIROLOGIA",
-                            "REP. VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE",
-                            "S.T. BERGAMO, SONDRIO E BINAGO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
-                            "S.T. BRESCIA" = "SEDE TERRITORIALE DI BRESCIA",
-                            "S.T. CREMONA, MANTOVA" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",
-                            "S.T. FORLI' E RAVENNA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA",
-                            "S.T. LODI E MILANO" = "SEDE TERRITORIALE DI LODI - MILANO",
-                            "S.T. PAVIA" = "SEDE TERRITORIALE DI PAVIA",
-                            "U.O. PROVV. ECONOMATO E VENDITE" = "UO PROVVEDITORATO ECONOMATO E VENDITE",
-                            "SERVIZIO ASSICURAZIONE QUALITA" = "SERVIZIO ASSICURAZIONE QUALITA'",
-                            "U.O. AFFARI GENERALI E LEGALI" = "U.O. AFFARI GENERALI E LEGALI",
-                            "U.O. TECNICO PATRIMONIALE" = "UO TECNICO PATRIMONIALE",
-                            "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE" = "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE",
-                            "U.O. GESTIONE SERVIZI CONTABILI" = "U.O. GESTIONE SERVIZI CONTABILI",
-                            "PROGRAMMAZIONE DEI SERVIZI TECNICI E CONTROLLO DI GESTIONE" = "Programmazione dei servizi tecnici e controllo di gestione",
-                            "FORMAZIONE" =  "FORMAZIONE E BIBLIOTECA",
-                            "SISTEMI INFORMATIVI" = "Programmazione dei servizi tecnici e controllo di gestione",
-                            "SEGRETERIA DIREZIONALE" = "DIREZIONE GENERALE",
-                            "GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE")
-
-  )
-
-dt %>% rename( Reparto = Struttura ) %>%
-  left_join(
-
-    (strutture %>% select(Dipartimento, Reparto) %>%
-       unique())
-
-
-    ,  by = c("Reparto")) %>%  
-
-  saveRDS(here("data", "processed", "performance.RDS"))
- 
-
-
-##Programmazione 2021 FTE--
-#source(here("R",  "FTEPROGRAMMATI.R"))
+ftep22 <- tbl(conSB, sql(query)) %>% as_tibble()
 
 
 #PREPARAZIONE DATI PER APPLICATIVO COSTI-RICAVI----
