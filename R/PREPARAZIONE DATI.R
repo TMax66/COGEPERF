@@ -179,14 +179,16 @@ source(here("R", "codici performance 2021.R"))## dati delle performance 2021
 
 ### DATI FTEQ programmati ----
 
-## 2021
-source( here("R", "codici per fte programmati 2021.R"))
+## 2021 e 2022
+#questa stringa esegue le istruzioni che ci sono nel file "codici per fte programmati 2021.r" e 
+#salva nella cartella /data/processed i file che servono i calcoli degli FTE programmati da cui si ottiene il RFTEprog
+source( here("R", "codici per fte programmati.R"))
 
-##DATI FTEQ programmati 2022--- #
-
-ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% 
-mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
-       Valorizzato = ifelse(Valorizzato != "no", "si", "no"))
+# ##DATI FTEQ programmati 2022--- #
+# 
+# ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% 
+# mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
+#        Valorizzato = ifelse(Valorizzato != "no", "si", "no"))
 
 
 
