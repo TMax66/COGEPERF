@@ -34,7 +34,7 @@ fte <- ore %>%
          hwdir = cumsum(Dirigenza),   
          FTEC = hwcomp/fteC, 
          FTED = hwdir/fteD, 
-         FTET = FTEC+FTED) %>% ungroup() %>% 
+         FTET = FTEC+FTED) %>% ungroup() %>%
   select(-ANNO, Dipartimento, Reparto,  MESE =Mese, FTET, -hwcomp, -hwdir, -FTEC, -FTED, 
          -Comparto, -Dirigenza)
   
