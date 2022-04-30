@@ -2,7 +2,7 @@
 
 perf <- conPerf %>% tbl(sql(queryPERF)) %>% as_tibble()
 
-strutture <- read_excel("strutture.xlsx")
+strutture <- read_excel(here("data", "raw","strutture.xlsx"))
 
 
 dip <- c("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA", "DIPARTIMENTO SICUREZZA ALIMENTARE",
