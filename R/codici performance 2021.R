@@ -2,7 +2,7 @@
 
 perf <- conPerf %>% tbl(sql(queryPERF)) %>% as_tibble()
 
-strutture <- read_excel(here("data", "raw", "strutture.xlsx"))
+strutture <- read_excel("strutture.xlsx")
 
 
 dip <- c("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA", "DIPARTIMENTO SICUREZZA ALIMENTARE",
@@ -52,4 +52,4 @@ dt %>% rename( Reparto = Struttura ) %>%
     
     ,  by = c("Reparto")) %>%  
   
-  saveRDS(here("data", "processed", "performance.RDS"))
+  saveRDS("performance.RDS")

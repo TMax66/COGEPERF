@@ -7,11 +7,11 @@ library(DBI)
 library(odbc)
 
 #CONNESSIONI AI DATABASE-------
-#### dati   ore lavorate dal personale izsler----
-conOre <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02", 
+### dati   ore lavorate dal personale izsler----
+conOre <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02",
                       Database = "DW_COGE_DEV", Port = 1433)
 ### dati accettazioni effettuate dalla gestione centralizzata----
-conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it", 
+conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
                          Database = "IZSLER", Port = 1433)
 
 ### dati da dbase performance berenice per il 2021 -----
@@ -22,68 +22,99 @@ conPerf <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS
 conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
                         Database = "ObiettiviStrategici2022", Port = 1433)
 
-source(here("R","sql.R"))
+source("sql.R")
 
 
 #PREPARAZIONE DATI PER DASHBOARD PERFORMANCES----
 
-cc <- conOre %>% tbl(sql(queryCoge)) %>% as_tibble() 
+cc <- conOre %>% tbl(sql(queryCoge)) %>% as_tibble()
 
 # cc <-  cc %>% 
 #        #filter(!idClassificazione %in% c("-5", "-13","-11", "-6"))
        # filter(!idClassificazione %in% c("-5"))# escludo i controlli interni
 
 ###TABELLE-----
+
+#cc <- readRDS("cc.rds")
+
 T1 <- cc %>% #tabella con prestazioni (tariffato, fatturato) e costi
-  group_by(ANNO, Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
+  group_by(ANNO, MESE,Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
   summarise(Prestazioni = sum(Determinazioni, na.rm = TRUE), 
             Tariffato = sum(Tariffario, na.rm=TRUE), 
             Fatturato = sum (Fatturato, na.rm = TRUE), 
             costi = sum(Costo, na.rm = TRUE)) %>% 
-  group_by(ANNO, Dipartimento, Reparto, Laboratorio) %>% 
+  group_by(ANNO, MESE,  Dipartimento, Reparto, Laboratorio) %>% 
   summarise(TotPrestazioni = sum(Prestazioni), 
             TotCost = sum(costi), 
             TotTariff = sum(Tariffato)) 
 
 T2 <- cc %>% filter(Classe== "Vendite prodotti") %>% ###vendita prodotti
-  group_by(ANNO, Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
+  group_by(ANNO,MESE,  Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
   mutate(Fatturato = ifelse(Fatturato == 0, Tariffario, Fatturato )) %>% 
   summarise(NVP = sum(Numero, na.rm = TRUE), 
             FattVP = sum(Fatturato, na.rm = TRUE)) %>% 
-  group_by(ANNO, Dipartimento, Reparto, Laboratorio) %>% 
+  group_by(ANNO, MESE, Dipartimento, Reparto, Laboratorio) %>% 
   summarise(TotNVP = sum(NVP), 
             TotFattVP = sum(FattVP))
 
 
 T3 <- cc %>% filter(Classe== "Ricavi da produzione") %>% ###attività interna
-  group_by(ANNO, Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
+  group_by(ANNO, MESE,Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
   summarise(NumAI = sum(Numero, na.rm = TRUE), 
             TarAI = sum(Tariffario, na.rm = TRUE)) %>% 
-  group_by(ANNO, Dipartimento, Reparto, Laboratorio) %>% 
+  group_by(ANNO, MESE, Dipartimento, Reparto, Laboratorio) %>% 
   summarise(TotNAI = sum(NumAI), 
             TAI = sum(TarAI)) 
 
 
 ore <- conOre %>% tbl(sql(queryOre)) %>% as_tibble()  ### FTEq
+#ore <- readRDS("ore.rds")
+
 names(ore)[1:6] <- c("Dipartimento", "Reparto", "Laboratorio", "CDC", "CodiceCC", "ANNO")
-fte <- ore %>% 
+
+mesi <- seq(1:12)
+ftec <- 142.2 ## 142.2 DERIVA DA (36*47.4)/12  
+fted <- 150.1 ## 150.1 DERIVA DA (38*47.4)/12
+
+# FTE mensili cumulati (progressivi)
+fteC <- mesi*ftec 
+fteD <- mesi*fted
+
+ftedf <- data.frame(mesi, fteC, fteD)
+
+fte <-  ore %>% 
+  filter( !Dipartimento %in% c("Non applicabile", "Costi Comuni e Centri contabili", 
+                                "Dipartimento amministrativo", "Direzione Amministrativa", 
+                                "Direzione Generale") &
+           #!Reparto %in% c("GESTIONE CENTRALIZZATA DELLE RICHIESTE")&
+           !is.na(Dirigente) & 
+           !is.na(Ore)) %>% 
+  filter( !str_detect(Laboratorio, "Costi")) %>%  
   mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza"),
-         Ore = ifelse(Ore == SmartWorking, Ore, Ore+SmartWorking)) %>% 
-  filter(Dipartimento != "Non applicabile") %>% 
-  group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente) %>%   
-  filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
+         Ore = ifelse(Ore == SmartWorking, Ore, Ore+SmartWorking)) %>%   
+  group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente, Mese) %>% 
   summarise(hworked = sum(Ore, na.rm = T)) %>%  
-  mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(36*47.4), hworked/(38*47.4))) %>% 
-  pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE"))  %>%  
-  select(-hworked_, -FTE_)  
+  filter(hworked != 0) %>% 
+  # mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(36*4.34), hworked/(38*4.34))) %>%
+  pivot_wider(names_from = "Dirigente", values_from = c("hworked"), values_fill = 0) %>% 
+  left_join(
+    ftedf, by=c("Mese" = "mesi")
+  ) %>% 
+  mutate(hwcomp = cumsum(Comparto), 
+         hwdir = cumsum(Dirigenza),
+         FTEC = hwcomp/fteC, 
+         FTED = hwdir/fteD, 
+         FTET = FTEC+FTED
+         ) %>% ungroup() %>% 
+  rename(MESE = Mese)
 
 ##TABELLA GENERALE----
 T1 %>% ##attività costi e fte
-  left_join(T2, by=c("ANNO", "Dipartimento", "Reparto", "Laboratorio")) %>%  
-  left_join(T3, by=c("ANNO", "Dipartimento", "Reparto", "Laboratorio")) %>% 
-  left_join(fte,by=c("ANNO", "Dipartimento", "Reparto", "Laboratorio")) %>% 
-  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
-  saveRDS(., file = here("data", "processed",  "TabellaGenerale.rds"))
+  left_join(T2, by=c("ANNO", "MESE", "Dipartimento", "Reparto", "Laboratorio")) %>%  
+  left_join(T3, by=c("ANNO","MESE", "Dipartimento", "Reparto", "Laboratorio")) %>% 
+  left_join(fte,by=c("ANNO", "MESE",  "Dipartimento", "Reparto", "Laboratorio")) %>% 
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%  
+  saveRDS(.,here("data", "processed", "TabellaGenerale.rds"))
 
 
 
@@ -112,14 +143,14 @@ accV <- acc %>%
             Valore = sum(Valore)) %>% 
   tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
          Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>%  
-saveRDS(here("data", "processed", "GCR.rds"))
+saveRDS(here("data", "processed",  "GCR.rds"))
 
 
 
 
 ##DATI DA PROGETTI DI RICERCA----
 
-prj <- read_excel(sheet = "PRJ", here("data", "raw", "prj2021.xlsx"))
+prj <- read_excel(sheet = "PRJ",here("data", "raw", "prj2021.xlsx"))
 
 
 
@@ -136,7 +167,7 @@ prj %>%
          annofine = year(DataFine),
          Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%   
   
-  saveRDS(., file = here( "data", "processed",  "prj.rds"))
+  saveRDS(., here("data", "processed", "prj.rds"))
 
 
 
@@ -167,10 +198,10 @@ pubblicazioni %>% filter(OA >= 2019) %>%
   left_join(anag, by = c("Cognome" = "Cognome", "Nome" = "Nome", "OA" = "ANNO")) %>%  
   # filter(Dirigente == "S") %>%  
   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
-saveRDS(., file = here( "data", "processed",  "pub.rds"))
+saveRDS(., file = here("data", "processed",   "pub.rds"))
 
 ##DATI DA DBASE PERFORMANCE (OBIETTIVI, INDICATORI, TARGET, RISULTATO, FTEQ PROGRAMMATI)-----
-source(here("R", "codici performance 2021.R"))## dati delle performance 2021
+source("codici performance 2021.R")## dati delle performance 2021
 
 ### dati performance 2022----
 
@@ -180,9 +211,9 @@ source(here("R", "codici performance 2021.R"))## dati delle performance 2021
 ### DATI FTEQ programmati ----
 
 ## 2021 e 2022
-#questa stringa esegue le istruzioni che ci sono nel file "codici per fte programmati 2021.r" e 
+#questa stringa esegue le istruzioni che ci sono nel file "codici per fte programmati 2021.R" e 
 #salva nella cartella /data/processed i file che servono i calcoli degli FTE programmati da cui si ottiene il RFTEprog
-source( here("R", "codici per fte programmati.R"))
+source( "codici per fte programmati.R")
 
 # ##DATI FTEQ programmati 2022--- #
 # 
@@ -251,6 +282,6 @@ cc %>%
          VP = ifelse(Classe == "Vendite prodotti", Numero, 0), 
          AI = ifelse(Classe == "Ricavi da produzione interna", Numero, 0)) %>% 
   mutate(CDC = ifelse(CodiceCDC == 5502, "LABORATORIO CONTAMINANTI AMBIENTALI-(Bologna)", CDC)) %>%  
-  saveRDS(here("data", "processed", "CC.rds"))
+  saveRDS( here("data", "processed", "CC.rds"))
 
 

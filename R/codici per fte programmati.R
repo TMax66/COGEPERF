@@ -3,15 +3,10 @@
 # nella cartella \R\rcodevari e che restituisce l'output datiFSB.rds che è inviato alla cartella \data\processed
 
 dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
-ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% 
+ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione scheda budget  in quanto prende i dati dei fte programmati nelle schede budget
   mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
          Valorizzato = ifelse(Valorizzato != "no", "si", "no"))  
 
-                
-
-
-
-  
 dtProg %>%
   group_by(Valorizzazione) %>%
   summarise(FTED = sum(FTED, na.rm = T),
@@ -41,13 +36,6 @@ ftep22 %>%
   ungroup()  
 ) %>% 
   saveRDS(here("data", "processed", "FTp.rds"))
-
-
-
-
-
-
-
 
 
 dtProg %>% 
@@ -95,13 +83,7 @@ dtProg %>%
   ungroup()    
   
   ) %>%  
-  saveRDS(here("data", "processed", "FTEPD.rds"))
-
-
-#saveRDS(here("data", "processed", "ftepDIP.RDS"))
-
-
-
+  saveRDS( here("data", "processed", "FTEPD.rds"))
 
 
 dtProg %>% 
@@ -169,48 +151,8 @@ dtProg %>%
       
   ) %>%  filter(FTp > 0) %>% 
   
-  saveRDS(here("data", "processed", "FTEPREP.rds"))
+  saveRDS(here("data", "processed",  "FTEPREP.rds"))
 
 
 
-
-
-# dtProg %>%
-#   filter(Dipartimento != "Dipartimento Amministrativo") %>%
-#   mutate(Dipartimento = recode(Dipartimento,
-#                                "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" ,
-#                                "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia",
-#                                "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale",
-#   ),
-#   Reparto = recode(Reparto,
-#                    "STBO-FE-MO" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
-#                    "STPR-PC" = "SEDE TERRITORIALE DI PIACENZA - PARMA",
-#                    "STFO-RA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA",
-#                    "STRE" = "SEDE TERRITORIALE DI REGGIO EMILIA",
-#                    "STBG-BI-SO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
-#                    "STLO-MI" = "SEDE TERRITORIALE DI LODI - MILANO",
-#                    "STCR-MN" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",
-#                    "STPV" = "SEDE TERRITORIALE DI PAVIA",
-#                    "STBS" = "SEDE TERRITORIALE DI BRESCIA",
-#                    "RPP" = "REPARTO PRODUZIONE PRIMARIA",
-#                    "RCABO" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)",
-#                    "RCA" = "REPARTO CONTROLLO ALIMENTI",
-#                    "RCAM" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI",
-#                    "RVIR" = "REPARTO VIROLOGIA",
-#                    "RVVPB" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE",
-#                    "RTBA" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE",
-#                    "RPCMB" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO",
-#                    "AREG" = "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA",
-#                    "GESTCENT" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE",
-#                    "SORVEPIDEM" = "SORVEGLIANZA EPIDEMIOLOGICA",
-#                    "FORMAZIONE" = "FORMAZIONE E BIBLIOTECA"
-#   )
-#   ) %>%
-#   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%
-#   group_by(Valorizzazione, Dipartimento, Reparto) %>%
-#   summarise(FTED = sum(FTED, na.rm = T),
-#             FTEC = sum(FTEC, na.rm = T)) %>%
-#   rowwise() %>%
-#   mutate(FT = sum(FTED, FTEC)) %>%
-#   saveRDS(here("data", "processed", "ftepREPD.RDS"))
 

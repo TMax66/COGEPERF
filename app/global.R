@@ -19,13 +19,13 @@ library("fmsb")
 #library(flexdashboard)
 # library("dashboardthemes")
 
-#x
+#
 
 #Carico i dati----
 #tabIZSLER <- readRDS(file = here( "data", "processed", "TABELLA.rds"))#-tabella complessiva izsler esami prodotti orelav##
 
-tabIZSLER <- readRDS(file = here( "data", "processed", "TabellaGenerale.rds"))#-tabella complessiva izsler esami prodotti orelav##
-GCR <- readRDS(file = here("data", "processed", "GCR.rds"))#-dati da gestione centralizzata della richiesta
+tabIZSLER <- readRDS(file = here("data", "processed",   "TabellaGenerale.rds"))#-tabella complessiva izsler esami prodotti orelav##
+GCR <- readRDS(file = here("data", "processed",   "GCR.rds"))#-dati da gestione centralizzata della richiesta
 
 #inserisco i dati relativi al numero di conferimenti e valorizzazione della GCR
 tabIZSLER <- tabIZSLER %>%
@@ -45,50 +45,21 @@ tabIZSLER <- tabIZSLER %>%
                                )) %>% 
   filter(!Reparto %in% c("COSTI COMUNI LOMBARDIA", "DIREZIONE SANITARIA", "FORMAZIONE E BIBLIOTECA")) 
   
-#dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
-
-# FTp <- dtProg %>%
-#   group_by(Valorizzazione) %>%
-#   summarise(FTED = sum(FTED, na.rm = T),
-#             FTEC = sum(FTEC, na.rm = T)) %>%
-#   rowwise() %>%
-#   mutate(FT = sum(FTED, FTEC)) %>%
-#   ungroup() %>%
-#   mutate(FTp = round(prop.table(FT), 1)) %>%
-#   filter(Valorizzazione == "si") %>%
-#   select(FTp)
-
-
-# ftepDIP <- readRDS(here("data", "processed", "ftepDIP.RDS"))
-
-# ftepREP <- readRDS(here("data", "processed", "ftepREP.RDS"))
-
-# ftepREP <- ftepREP %>% 
-#   rename( valorizz = Valorizzazione) %>% 
-#   mutate(Reparto= ifelse(Reparto == "SEDE TERRITORIALE DI FORLÃŒ - RAVENNA" , "SEDE TERRITORIALE DI FORLÌ - RAVENNA", Reparto))
-# 
-# ftepREPD <- readRDS(here("data", "processed", "ftepREPD.RDS"))
-# ftepREPD <- ftepREPD %>% 
-#   rename( valorizz = Valorizzazione)
-
-
-FTp <- readRDS(here("data", "processed", "FTp.RDS"))
-FTEPD <- readRDS(here("data", "processed", "FTEPD.RDS"))
-FTEPREP <- readRDS(here("data", "processed", "FTEPREP.RDS"))
-
-
-prj <- readRDS(file = here( "data", "processed", "prj.rds"))#-tabella progetti di ricerca con strutture
 
 
 
-# prj <- prj %>% 
-#   select(-Ore) %>%  
-#   distinct(Codice, .keep_all = TRUE)  
-
-pub <- readRDS(file = here( "data", "processed", "pub.rds"))#-tabella pubblicazioni
+FTp <- readRDS(here("data", "processed",   "FTp.RDS"))
+FTEPD <- readRDS( here("data", "processed",  "FTEPD.RDS"))
+FTEPREP <- readRDS(here("data", "processed",  "FTEPREP.RDS"))
 
 
-perf <- readRDS(here("data", "processed", "performance.RDS"))
+prj <- readRDS(file = here("data", "processed",  "prj.rds"))#-tabella progetti di ricerca con strutture
+
+
+pub <- readRDS(file = here("data", "processed",  "pub.rds"))#-tabella pubblicazioni
+
+
+#perf <- readRDS( "performance.RDS"))
 
 
 
@@ -107,37 +78,23 @@ ValueBOX <- function(dt, Variabile, Variabile2 = NULL, Titolo, colore, icona){
   valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona), color = colore)
 }
 
-# ValueBox2 <- function(Dipartimento, Titolo, colore ){
-#   
-#   valueBox(
-#     paste0((perf %>% 
-#     filter(Dipartimento == Dipartimento) %>% 
-#     filter(Periodo == 4 & Avanzamento != 0 ) %>%
-#     summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))),"%"),
-#  
-#    Titolo, color = colore)
-#   
-# }
-
-
-
-
-
- 
-
-
-#TABELLA IZSLER aggregato per dipartimenti con FTE----
+#TABELLA IZSLER aggregato per dipartimenti con FTE mensile (già cumulato)----
 
 tizsler <-  tabIZSLER %>% 
   rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
-          "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%   
-  group_by(Anno, Dipartimento) %>% 
+          "COSTI" = TotCost,   Anno = ANNO) %>%   
+  group_by(Dipartimento,Anno, MESE ) %>% 
   summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>% 
   mutate(RT = (Valorizzazione+VP+AI),
-         FTET = (FTED+FTEC)) %>%   
-  arrange(desc(Prestazioni)) %>%  
-  #mutate("R-FTE" = round(RT/FTE_T,0)) %>%  
-  filter(Prestazioni >0)  
+         FTET = FTED+FTEC,
+         Prestazioni = cumsum(Prestazioni), 
+         Valorizzazione = cumsum(Valorizzazione), 
+         VP = cumsum(VP), 
+         AI = cumsum(AI), 
+         COSTI = cumsum(COSTI), 
+         RT = cumsum(RT)) %>%   
+  filter(Prestazioni >0) 
+
 
 
 #Tabella pubblicazioni----
