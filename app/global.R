@@ -28,12 +28,18 @@ tabIZSLER <- readRDS(file = here("data", "processed",   "TabellaGenerale.rds"))#
 GCR <- readRDS(file = here("data", "processed",   "GCR.rds"))#-dati da gestione centralizzata della richiesta
 
 #inserisco i dati relativi al numero di conferimenti e valorizzazione della GCR
-tabIZSLER <- tabIZSLER %>%
+
+
+tabIZSLER <- tabIZSLER %>% 
+  left_join(
+(GCR %>% 
+  select(Reparto, Anno, MESE, n.conf, Valore)), by = c("Reparto", "ANNO" = "Anno", "MESE")) %>% 
   mutate_at(vars(TotPrestazioni),
-            funs(ifelse( Laboratorio == "GESTIONE CENTRALIZZATA DELLE RICHIESTE" & ANNO >= 2021,GCR$n.conf, TotPrestazioni )))
-tabIZSLER <- tabIZSLER %>%
+            funs(ifelse( Laboratorio == "GESTIONE CENTRALIZZATA DELLE RICHIESTE" & ANNO >= 2021,n.conf, TotPrestazioni ))) %>%  
+            
   mutate_at(vars(TotTariff),
-            funs(ifelse( Laboratorio == "GESTIONE CENTRALIZZATA DELLE RICHIESTE" & ANNO >= 2021,GCR$Valore, TotTariff )))
+            funs(ifelse( Laboratorio == "GESTIONE CENTRALIZZATA DELLE RICHIESTE" & ANNO >= 2021,Valore, TotTariff ))) %>%  
+  select(-n.conf, Valore)             
 
 tabIZSLER <- tabIZSLER %>% 
   filter(!Dipartimento %in% c("Non applicabile", 

@@ -22,7 +22,7 @@ conPerf <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS
 conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
                         Database = "ObiettiviStrategici2022", Port = 1433)
 
-source("sql.R")
+source(here("R","sql.R"))
 
 
 #PREPARAZIONE DATI PER DASHBOARD PERFORMANCES----
@@ -137,12 +137,13 @@ accV <- acc %>%
   summarise(n.conf = n(), 
             Valore = sum(Valore),
             ncamp = sum(NrCampioni, na.rm = TRUE)) %>% 
-  mutate(Anno = year(dtreg)) %>%  
-  group_by(Anno) %>% 
+  mutate(Anno = year(dtreg), 
+         MESE = month(dtreg)) %>%   
+  group_by(Anno, MESE) %>% 
   summarise(n.conf = sum(n.conf), 
             Valore = sum(Valore)) %>% 
   tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
-         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>%  
+         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>% 
 saveRDS(here("data", "processed",  "GCR.rds"))
 
 
