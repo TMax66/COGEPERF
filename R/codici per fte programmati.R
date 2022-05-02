@@ -17,7 +17,8 @@ dtProg %>%
   mutate(FTp = 100*round(prop.table(FT), 1), 
          anno = rep(2021, nrow(.))) %>%
   filter(Valorizzazione == "si") %>%  
-  select(anno, FTp)    %>% 
+  select(anno, FTp)    %>%  
+
 
 rbind(
 
@@ -34,7 +35,7 @@ ftep22 %>%
   select(anno, FTp = FTE_perc) %>% 
   
   ungroup()  
-) %>% 
+) %>% View()
   saveRDS(here("data", "processed", "FTp.rds"))
 
 
@@ -150,6 +151,8 @@ dtProg %>%
       select(anno, Dipartimento, Reparto,  FTp = FTE_perc)  
       
   ) %>%  filter(FTp > 0) %>% 
+  mutate(Reparto= ifelse(Reparto == "SEDE TERRITORIALE DI FORLÃŒ - RAVENNA" , "SEDE TERRITORIALE DI FORLÌ - RAVENNA", Reparto)) %>% 
+
   
   saveRDS(here("data", "processed",  "FTEPREP.rds"))
 

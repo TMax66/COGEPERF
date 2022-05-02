@@ -35,7 +35,7 @@ cc <- conOre %>% tbl(sql(queryCoge)) %>% as_tibble()
 
 ###TABELLE-----
 
-#cc <- readRDS("cc.rds")
+
 
 T1 <- cc %>% #tabella con prestazioni (tariffato, fatturato) e costi
   group_by(ANNO, MESE,Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
@@ -212,7 +212,7 @@ source("codici performance 2021.R")## dati delle performance 2021
 ### DATI FTEQ programmati ----
 
 ## 2021 e 2022
-#questa stringa esegue le istruzioni che ci sono nel file "codici per fte programmati 2021.R" e 
+#questa stringa esegue le istruzioni che ci sono nel file "codici per fte programmati.R" e 
 #salva nella cartella /data/processed i file che servono i calcoli degli FTE programmati da cui si ottiene il RFTEprog
 source( "codici per fte programmati.R")
 

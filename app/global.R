@@ -58,6 +58,10 @@ FTp <- readRDS(here("data", "processed",   "FTp.RDS"))
 FTEPD <- readRDS( here("data", "processed",  "FTEPD.RDS"))
 FTEPREP <- readRDS(here("data", "processed",  "FTEPREP.RDS"))
 
+# FTEPREP <- FTEPREP %>% 
+#   mutate(Reparto= ifelse(Reparto == "SEDE TERRITORIALE DI FORLÃŒ - RAVENNA" , "SEDE TERRITORIALE DI FORLÌ - RAVENNA", Reparto))
+
+
 
 prj <- readRDS(file = here("data", "processed",  "prj.rds"))#-tabella progetti di ricerca con strutture
 

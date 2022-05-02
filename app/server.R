@@ -130,17 +130,35 @@ output$rictot <- renderValueBox(
 # )
 
 
-ftp <- reactive(FTp %>%
-filter(anno == input$anno))
+ftp <-  reactive({
+  FTp %>% 
+  add_row(anno = 2020, FTp = 100) %>% 
+  add_row(anno = 2019, FTp = 100) %>% 
+  filter(anno == input$anno)})
 
 rfteDip <- reactive(tdip() %>% ungroup() %>%
-                      summarise(rt=sum(RT),
-                                ft=sum(FTET))%>%
-                      bind_cols(ftp()) %>%
-                      mutate(rfte=rt/(ft*FTp)) %>%
-                      select(rfte) %>%
-                      unlist()
+  summarise(rt=sum(RT),
+            ft=sum(FTET))%>% 
+  bind_cols(ftp()) %>%  
+  mutate(rfte=rt/(ft*FTp/100)) %>%   
+  select(rfte) %>%
+  unlist()
 )
+
+
+# ftp <- reactive(FTp %>%
+# filter(anno == input$anno))
+# 
+# rfteDip <- reactive(tdip() %>% ungroup() %>%
+#                       summarise(rt=sum(RT),
+#                                 ft=sum(FTET))%>%
+#                       bind_cols(ftp()) %>%
+#                       mutate(rfte=rt/(ft*(FTp/100))) %>%
+#                       
+#                       
+#                       select(rfte) %>%
+#                       unlist()
+# )
                  
 output$RFTE <- renderValueBox(
   valueBox( prettyNum(rfteDip(), big.mark = ".", decimal.mark = ",") ,
@@ -375,15 +393,35 @@ output$rictotdip <- renderValueBox(
 )
 
 
-rftedip <- reactive({
-    tizsler %>%
-    left_join(#aggiungola tabella con i fte programmati per dipartimento
-      FTEPREP, by="Dipartimento"
-    ) %>%
-    mutate(RFTE = RT/(FTET*(FTp/100))) %>%
-    filter(Dipartimento == input$dip & Anno == input$anno2) })
+# rftedip <- reactive({
+#     tizsler %>%
+#     left_join(#aggiungola tabella con i fte programmati per dipartimento
+#       FTEPREP, by="Dipartimento"
+#     ) %>%
+#     mutate(RFTE = RT/(FTET*(FTp/100))) %>%
+#     filter(Dipartimento == input$dip & Anno == input$anno2) })
   
+
+rftedip <-  reactive({
   
+  if(input$anno2 >= 2021)
+  {   
+  tizsler %>% 
+  left_join(#aggiungola tabella con i fte programmati per dipartimento
+    (FTEPD %>% 
+       filter(anno == input$anno2)), by="Dipartimento"
+  ) %>% 
+  mutate(RFTE = RT/(FTET*(FTp/100))) %>% 
+  filter(Dipartimento == input$dip & Anno == input$anno2 & MESE == max(MESE))
+  } else {    
+  
+    tizsler %>% 
+      mutate(RFTE = RT/(FTET)) %>% 
+      filter(Dipartimento == input$dip & Anno == input$anno2 & MESE == max(MESE))
+    }
+    })
+
+
   
  
 

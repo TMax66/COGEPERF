@@ -4,7 +4,7 @@ library(here)
 
 ore <- readRDS(here("data", "processed", "ore.RDS"))
 ricavi <- readRDS(here("data", "processed", "CC.rds"))
-ftep <- readRDS(here("data", "processed", "ftepDIP.RDS"))
+ftep <- readRDS(here("data", "processed", "DIP.RDS"))
 
 
 #fteq mensili cumulati
