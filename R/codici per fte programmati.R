@@ -35,7 +35,7 @@ ftep22 %>%
   select(anno, FTp = FTE_perc) %>% 
   
   ungroup()  
-) %>% View()
+) %>% 
   saveRDS(here("data", "processed", "FTp.rds"))
 
 
