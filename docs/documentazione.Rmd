@@ -1,11 +1,11 @@
 ---
 title: "COGEPERF Documentazione"
-author: "Tranquillo"
-date: "11/2/2022"
+author: "COGEP"
+date:  
 output: html_document
 ---
 
-# Presentazione generale
+ 
 
 Questo documento costituisce materiale di supporto all'applicativo shiny _COGEPERF_. 
 
@@ -31,7 +31,7 @@ L'app è strutturata in un Rproj di RSTUDIO (IDE di R) che comprende la seguente
 
 ```{r echo=FALSE}
 library(fs)
-dir_tree(path = "/home/massimo/Desktop/GitProject/COGEPERF", recurse = FALSE)
+dir_tree(path = "C:/Users/vito.tranquillo/Desktop/Git Projects/COGEPERF", recurse = TRUE)
 ```
 
 
@@ -43,14 +43,26 @@ Questa cartella contiene i seguenti file:
 
 - _Start.R_
 
-- _librerie.R_
+- _codici per fte programmati.R_
 
-e la cartella _rcode vari_ che contiene codici di R temporanei usati per sviluppare tabelle, grafici e funzioni da inserire nelle applicazioni principali. Quando sono implementate nel codice principale possono essere cancellati.
+- _codici performance 2021.R_
+
+- _sql.R_
+
+<!-- - _librerie.R_ -->
+
+e le seguenti  cartelle: 
+
+- _rcode vari_ : che contiene codici di R temporanei usati per sviluppare tabelle, grafici e funzioni da inserire nelle applicazioni principali. Quando sono implementate nel codice principale possono essere cancellati.
+
+- _Versioni_ : che contiene vecchie versioni dei files necessari alla preparazione dei dati.
+
+Di seguito una dettagliata descrizione dei file sopra elencati. 
 
 
 ### PREPARAZIONE DATI.R
 Questo file è estremamente importante perchè contiene i codici di preparazione e integrazione delle diverse fonti dati che sono utilizzati per la costruzione dell'app principale e secondaria.
-Tramite il file Start.R che richiama tutto il file di preparazione vengono eseguiti tutte le linee di codice. Il file va utilizzato in fase di aggiornamento dei dati. L'output è rappresentato da diversi file .RDS che contengono i dati opportunamente rielaborati che saranno utilizzati dall'app shiny. I suddetti file vengono salvati nella cartella **processed** (vedi struttura project). Di seguito una dettagliata descrizione e spiegazione dove necessario dei codici presenti nel file.
+Tramite il file **Start.R** che richiama tutto il file di preparazione vengono eseguiti tutte le linee di codice. Il file va utilizzato in fase di aggiornamento dei dati. L'output è rappresentato da diversi file .RDS che contengono i dati opportunamente rielaborati che saranno utilizzati dall'app shiny. I suddetti file vengono salvati nella cartella **processed** (vedi struttura project). Di seguito una dettagliata descrizione e spiegazione dove necessario dei codici presenti nel file.
 
 #### Connessione ai database.
 E' necessario connettersi a tre differenti database: 
@@ -59,15 +71,26 @@ E' necessario connettersi a tre differenti database:
 
 2. **_conAcc_** :    Al database _IZSLER_ per i dati relativi alle accettazioni effettuate dal reparto Gestione Centralizzata delle richieste dell'Utenza
 
-3. **_conPerf_**:   Al database _Obiettivistrategici_ per i dati relativi alla rendicontazione degli obiettivi di performance ( solo per l'anno 2021 e 2022- dal programma berenice, che sarà sostituito per le attività del ciclo delle performance dal 2023 con nuovo applicativo)
+3. **_conPerf_**:   Al database _ObiettiviStrategiciV2018_ per i dati relativi alla rendicontazione degli obiettivi di performance ( solo per l'anno 2021 e 2022- dal programma berenice, che sarà sostituito per le attività del ciclo delle performance dal 2023 con nuovo applicativo)
+
+4. **_conSB_**: Al database _ObiettiviStrategici2022_ per i dati relativi alla distribuzione dei FTE programmati
 
 
 #### Query SQL
 
-Le query SQL per il recupero dei dati sono salvate nel file sql.R, che viene richiamato mediante l'istruzione source("sql.R")e sono:
-1.**_queryCoge_** costruita mediante business object sull'universo COGEDW
+Le query SQL per il recupero dei dati sono salvate nel file sql.R, che viene richiamato mediante l'istruzione 
+```{r eval=FALSE, echo=T}
+source(here("R","sql.R")) 
+```
+e sono:
+
+1. **_queryCoge_** costruita mediante business object sull'universo COGEDW
+
 2. **_queryAcc_** mediante business object sull'universo IZSLER
+
 3. **_queryPerf_** mediante SQL Server Management
+
+4. **_Query_** : questa query si connette alla vista _vSchedaBudget_ presente nel database _ObiettiviStrategici2022_ 
 
 
 #### TABELLA PRESTAZIONI, RICAVI E COSTI PER DASHBOARD
@@ -96,33 +119,52 @@ Le voci fatturato e numero di prototti venduti sono quindi raggruppati per ANNO,
 **T3** tabella che riporta i ricavi da produzione interna di prodotti destinati ai laboratori IZSLER che sono valorizzati mediante il tariffario. Anche in questo caso i dati sono rappgruppati e sommati per ANNO, Dipartimento, Reparto, Laboratorio. 
 
 
-**fte** tabella, raggruppata per ANNO, Dipartimento, Reparto, Laboratorio i FULL TIME EQUIVALENTI del personale dirigente e di comparto. La tabella si ottiene con le seguenti istruzioni: 
+**fte** tabella, raggruppata per ANNO, Mese, Dipartimento, Reparto, Laboratorio i FULL TIME EQUIVALENTI del personale dirigente e di comparto. La tabella si ottiene con le seguenti istruzioni: 
 
 ```{r eval=FALSE, echo=T}
-1. ore <- conOre %>% tbl(sql(queryOre)) %>% as_tibble()    
+1. ore <- conOre %>% tbl(sql(queryOre)) %>% as_tibble() # estrae i dati delle ore erogate dal personale   
 
-2. names(ore)[1:6] <- c("Dipartimento", "Reparto", "Laboratorio", "CDC", "CodiceCC", "ANNO")
+2. names(ore)[1:6] <- c("Dipartimento", "Reparto", "Laboratorio", "CDC", "CodiceCC", "ANNO") #assegna i nomi corretti alle variabili che definiscono le strutture
 
-3. fte <- ore %>% 
+3. mesi <- seq(1:12)
+ftec <- 142.2 ## 142.2 DERIVA DA (36*47.4)/12  
+fted <- 150.1 ## 150.1 DERIVA DA (38*47.4)/12  
+fteC <- mesi*ftec 
+fteD <- mesi*fted
+ftedf <- data.frame(mesi, fteC, fteD) # queste istruzioni creano un dataframe in cui sono riportati per Dirigenza e Comparto i FTE teorici per mese 
+
+
+
+4. fte <-  ore %>% 
+  filter( !Dipartimento %in% c("Non applicabile", "Costi Comuni e Centri contabili", 
+                                "Dipartimento amministrativo", "Direzione Amministrativa", 
+                                "Direzione Generale") &
+           #!Reparto %in% c("GESTIONE CENTRALIZZATA DELLE RICHIESTE")&
+           !is.na(Dirigente) & 
+           !is.na(Ore)) %>% 
+  filter( !str_detect(Laboratorio, "Costi")) %>%  
   mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza"),
-         Ore = ifelse(Ore == SmartWorking, Ore, Ore+SmartWorking)) %>% 
-  filter(Dipartimento != "Non applicabile") %>% 
-  group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente) %>%   
-  filter(!is.na(Dirigente) & !is.na(Ore)) %>% 
+         Ore = ifelse(Ore == SmartWorking, Ore, Ore+SmartWorking)) %>%   
+  group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente, Mese) %>% 
   summarise(hworked = sum(Ore, na.rm = T)) %>%  
-  mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(36*47.4), hworked/(38*47.4))) %>% 
-  pivot_wider(names_from = "Dirigente", values_from = c("hworked", "FTE"))  %>%  
-  select(-hworked_, -FTE_)  
+  filter(hworked != 0) %>% 
+  # mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(36*4.34), hworked/(38*4.34))) %>%
+  pivot_wider(names_from = "Dirigente", values_from = c("hworked"), values_fill = 0) %>% 
+  left_join(
+    ftedf, by=c("Mese" = "mesi")
+  ) %>% 
+  mutate(hwcomp = cumsum(Comparto), 
+         hwdir = cumsum(Dirigenza),
+         FTEC = hwcomp/fteC, 
+         FTED = hwdir/fteD, 
+         FTET = FTEC+FTED
+         ) %>% ungroup() %>% 
+  rename(MESE = Mese)  # infine questa istruzione calcola i FTE Comparto e Dirigenza cumulati mensilmente 
 ```
 
+Il calcolo dei FTE segue la seguente logica: 
 
-L'istruzione è necessaria per uniformare il nome delle strutture 
-Nell'istruzione 3 va sottolineata in particolare la riga: 
-
-``` {r eval=FALSE, echo=T}
- mutate(FTE = ifelse(Dirigente == "Comparto", hworked/(36*47.4), hworked/(38*47.4)))
-```
-questa istruzione calcola per personale dirigente e di comparto i rispettivi FTE effettivamente erogati durante l'anno. Il personale di comparto ha un contratto di 36 ore settimanali che vengono moltiplicati per **47.4** ovvero il numero di settimane lavorative in un anno solare ( al netto di ferie, permessi, missioni ecc.) quindi il prodotto **36x47.4 = 1706.4**  rappresenta le ore previste da un contratto full time del personale di comparto, mentre per il personale dirigente è pari a **38x47.4= 1801.2** . I FTE effettivamente erogati nell'arco dell'anno si ricavano dividendo le ore effettivamente erogate per le ore di un FTE di comparto o della dirigenza.
+Il personale di comparto ha un contratto di 36 ore settimanali che vengono moltiplicati per **47.4** ovvero il numero di settimane lavorative in un anno solare ( al netto di ferie, permessi, missioni ecc.) quindi il prodotto **36x47.4 = 1706.4**  rappresenta le ore annuali previste da un contratto full time del personale di comparto, mentre per il personale dirigente è pari a **38x47.4= 1801.2** .  Per calcolare i FTE effettivamente erogati ogni mese nell'arco dell'anno si dividono le ore annuali per 12, quindi per il comparto le ore  mensili previste sono **142.2** e **150.1** per la dirigenza. Per calcolare i FTE erogati a gennaio si divide semplicemente il numero di ore erogate per **142.2** o **150.1** rispettivamente per il comparto e per la dirigenza. Per i mesi successivi  necessario procedere utilizzando la somma cumulata sia delle ore erogate che dei fte previsti. Ad esempio i FTE per la dirigenza erogati fino a giugno si calcolano sommando le ore effettivamente lavorate diviso la **150.1x6= 900.6**.  I denominatori  per il calcolo degli FTE cumulati sono predefiniti in un dataframe costruito come indicato dall'istruzione 3 sopra riportata. Mentre per il cumulo delle ore erogate si utilizza la funzione cumsum(). 
 
 Infine la tabella generale si ottiene collegato le tabelle T1,T2,T3 e fte:
 
@@ -154,10 +196,10 @@ accV <- acc %>%
                             ifelse(Prova== "Prova Sierologica", "Prova Sierologica", 
                                    ifelse(Prova == "Parere Tecnico", "Parere Tecnico", "Prova Diagnostica/Alimenti")))) %>%
   mutate(Valorizzazione = ifelse(tipoprove == "Prova Chimica", 3.70, 
-                          ifelse(tipoprove == "Prova Sierologica", 0.20,
-                          ifelse(tipoprove == "Prova Diagnostica/Alimenti", 0.72, 0))))%>% 
+                                 ifelse(tipoprove == "Prova Sierologica", 0.20,
+                                        ifelse(tipoprove == "Prova Diagnostica/Alimenti", 0.72, 0))))%>% 
   group_by(Nconf) %>% 
-  mutate(Valore = max(Valorizzazione) ) %>% 
+  mutate(Valore = sum(Valorizzazione) ) %>% 
   select(-Valorizzazione, -Finalita) %>% 
   distinct(Nconf, .keep_all = TRUE) %>% 
   mutate(Valore =  0.07*(Valore)+Valore ) %>% 
@@ -165,18 +207,19 @@ accV <- acc %>%
   summarise(n.conf = n(), 
             Valore = sum(Valore),
             ncamp = sum(NrCampioni, na.rm = TRUE)) %>% 
-  mutate(Anno = year(dtreg)) %>%  
-  group_by(Anno) %>% 
+  mutate(Anno = year(dtreg), 
+         MESE = month(dtreg)) %>%   
+  group_by(Anno, MESE) %>% 
   summarise(n.conf = sum(n.conf), 
             Valore = sum(Valore)) %>% 
   tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
-         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>%  
-saveRDS(here("data", "processed", "GCR.rds"))
+         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>% 
+saveRDS(here("data", "processed",  "GCR.rds"))
 ```
 
-In questo codice viene definito il valore (in euro) da assegnare al singolo conferimento accettato dalla struttura. Per questo viene costruita la variabile **Valorizzazione** che tramite l'istruzione ifelse assegna 3.70 euro alle prove chimiche, 0.20 euro a quelle sierologiche e 0.72 alle prove diagnostica e alimenti. Per ogni conferimento si utilizza il valore massimo della variabile Valorizzazione ( oppure la somma ...va deciso....) max(Valorizzazione). L'output finale è una tabella con un numero di righe pari al numero di anni considerato e le colonne Dipartimento, Reparto, Laboratorio. La tabella è quindi salvata in formato .rds nella cartella processed (COGEPERF/data/processed). 
+In questo codice viene definito il valore (in euro) da assegnare al singolo conferimento accettato dalla struttura. Per questo viene costruita la variabile **Valorizzazione** che tramite l'istruzione ifelse assegna 3.70 euro alle prove chimiche, 0.20 euro a quelle sierologiche e 0.72 alle prove diagnostica e alimenti. Per ogni conferimento si utilizza la somma delle valorizzazioni per tipologia presenti in un conferimento. L'output finale è una tabella con un numero di righe pari al numero di anni e mese e le colonne Dipartimento, Reparto, Laboratorio. La tabella è quindi salvata in formato .rds nella cartella processed (COGEPERF/data/processed). 
 
-_le istruzioni relative ai dati per determinare i fulltime equivalenti programmati e quelle dei risultati delle performance non vengono documentate perchè valgono solo per il 2021 e saranno sostituite con istruzioni più definitive_
+
 
 #### DATI DA PROGETTI DI RICERCA
 
@@ -216,7 +259,7 @@ _questa tabella va rivista perchè nella tabella ore le matricole sono ripetute 
 
 #### DATI DA PUBBLICAZIONI
 
-I dati delle pubblicazioni sono forniti, formato tabella xlsx dalla bibioteca su richiesta del COGEP in occasione degli aggiornamenti dell'app principale. Sulla tabella originale vengono eseguiti alcune espressioni regolari per poter allineare il format del Nome e Cognome a quello presente nella tabella **anag** per l'assegnazione degli autori alla struttura di appartenenza. La tabella pubblicazioni.xlsx non riporta il numero di matricola. 
+I dati delle pubblicazioni sono forniti in formato tabella xlsx dalla bibioteca su richiesta del COGEP in occasione degli aggiornamenti dell'app principale. Sulla tabella originale vengono eseguiti alcune espressioni regolari per poter allineare il format del Nome e Cognome a quello presente nella tabella **anag** per l'assegnazione degli autori alla struttura di appartenenza. La tabella pubblicazioni.xlsx non riporta il numero di matricola. 
 Il join con la tabella anag deve essere fatto usando una chiave con tre campi: nome, cognome e anno, questo garantisce la corretta assegnazione dell'autore alla struttura di appartenenza nell'anno di pubblicazione. Questo è necessario perchè anche se raramente, può accadere che un autore è allocato in strutture diverse in anni diversi.
 
 ```{r eval=FALSE, echo=T}
@@ -238,7 +281,59 @@ saveRDS(., file = here( "data", "processed",  "pub.rds"))
 
 La tabella finale viene salvata in formato rds per il successivo utilizzo nell'applicativo principale.
 
-#### REPARAZIONE DATI PER APPLICATIVO COSTI-RICAVI
+#### PERFORMANCE OBIETTIVI 2021
+
+I dati per la visualizzazione dei risultati di performance sono preparati nel file **_codici performance 2021.R_** e richiamati 
+nel file **_PREPARAZIONE DATI_** tramite l'istruzione 
+```{r eval=FALSE, echo=T}
+source("codici performance 2021.R")
+```
+I dati derivano da una vista del database "berenice" degli Obiettivi strategici versione 2018 **_ObiettiviStrategiciV2018_**.  Per la visualizzazione dei risultati degli obiettivi del  2022 si farà riferimento alla nuova versione del database "berenice", **_ObiettiviStrategici2022_**
+
+
+#### FTE PROGRAMMATI
+Tramite l'istruzione
+```{r eval=FALSE, echo=T}
+source( "codici per fte programmati.R")
+```
+si eseguono i codici per la definizione della % di FTE programmati per le attività valorizzate che serviranno per il calcolo corretto del Ricavo FTE. Per il 2021 si utilizza un file RDS costruito manualmente che riporta per ogni struttura e obiettivo la % di fte programmati. 
+Per il 2022 si utilizza la vista **_vSchedaBudget_** del database **_ObiettiviStrategici2022_**.
+Le istruzioni contenute nel file **_codici per fte programmati.R_** producono i seguenti file RDS salvati nella cartella data/processed, 
+che saranno utilizzati dall'app principale:
+
+. 1 **FTp.RDS** : contiene per anno la % di FTE programmati per attività valorizzate complessivo di tutti i dipartimenti. Viene usato per la costruzione del valuebox RFTE della pagina **_Situazione Generale_**
+
+.2 **FTEPD.RDS** : contiene per Dipartimento e Anno la % di FTE programmati. Viene utilizzato per i valuebox del RFTE dei singoli dipartimenti e per la definizione dei valori della colonna FTp e RFTE della tabella principale della pagina **_Situazione Generale_**
+
+.3 **FTEPREP** : contiene per Reparto e Anno la % di FTE programmati. Viene utilizzato per la definizione dei valori della colonna FTp e RFTE delle tabelle delle pagine dei singoli dipartimenti. 
+
+Di seguito in dettaglio le istruzioni del file **_codici per fte programmati.R_** :
+
+
+
+I dati originali della programmazione degli FTE del 2021 provengono dal file obiettiviXSB.xlsx che si trova nella cartella
+  _\data\raw_. Questi dati sono rielaborati dal codice _FTEPROGRAMMATI.R_ che si trova 
+ nella cartella _\R\rcodevari_ e che restituisce l'output **datiSB.rds* ** che è inviato alla cartella _\data\processed_
+```{r eval=FALSE, echo=T}
+dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
+```
+
+I dati della programmazione degli FTE del 2022 derivano dalla vista **_vSchedaBudget_**
+```{r eval=FALSE, echo=T}
+ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione scheda budget  in quanto prende i dati dei fte programmati nelle schede budget
+  mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
+         Valorizzato = ifelse(Valorizzato != "no", "si", "no")) 
+```
+
+
+
+
+
+
+
+
+
+#### PREPARAZIONE DATI PER APPLICATIVO COSTI-RICAVI
 
 A partire dal dataframe visto in prcedenza viene strutturato un dataset utile per la presentazione dei dati per centro di costo dell'applicativo costiricavi, utilizzando il seguente codice:
 
@@ -312,7 +407,7 @@ Questo file semplicemente richiama il file PREPARAZIONE DATI.R ed esegue tutte l
 # **app**
 In questa cartella cosi strutturata:
 ```{r echo=FALSE}
-dir_tree(path = "/home/massimo/Desktop/GitProject/COGEPERF/app", recurse = FALSE)
+dir_tree(path = "C:/Users/vito.tranquillo/Desktop/Git Projects/COGEPERF/app", recurse = FALSE)
 ```
 
 sono presenti i tre file R che costruiscono l'app shiny principale, la cartella **www** che contiene eventualmente immagini da usare nel dashboard e la cartella **costiricavi** che contiene i file per l'applicativo costiricavi. 
