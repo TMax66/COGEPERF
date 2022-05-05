@@ -11,8 +11,11 @@ library(odbc)
 conOre <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02",
                       Database = "DW_COGE_DEV", Port = 1433)
 ### dati accettazioni effettuate dalla gestione centralizzata----
+# conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
+#                          Database = "IZSLER", Port = 1433)
+
 conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
-                         Database = "IZSLER", Port = 1433)
+                         Database = "DarwinSqlSE", Port = 1433)
 
 ### dati da dbase performance berenice per il 2021 -----
 conPerf <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",

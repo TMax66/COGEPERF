@@ -1,6 +1,7 @@
 ---
 title: "Analisi del Ricavo Full Time Equivalente per Dipartimento"
 output: html_document
+# runtime: shiny
 date: "`r Sys.Date()`"
 ---
 
@@ -19,10 +20,6 @@ dtmensili <- tabIZSLER %>%
   mutate(RT = (Valorizzazione+VP+AI),
          FTET = FTED+FTEC,
          Prestazionic = cumsum(Prestazioni), 
-         Valorizzazionec = cumsum(Valorizzazione), 
-         VPc = cumsum(VP), 
-         AIc = cumsum(AI), 
-         COSTIc = cumsum(COSTI), 
          RTc = cumsum(RT)) %>%   
   filter(Prestazionic >0) %>% 
   filter(Anno >=2021) %>% 
@@ -38,22 +35,31 @@ dtmensili <- tabIZSLER %>%
 
 Di seguito è riportata l'analisi dell'andamento mensile del Ricavo Full Time Equivalente del 2021 per Dipartimento.
 
-## Ricavi totali (RT)
+### Ricavi totali (RT)
 Gli RT per ogni dipartimento sono calcolati a partire dai dati forniti dal datawerehouse DW_COGEP, sommando sia l'attività valorizzata a tariffario,  quella fatturata, ricavi dalla Vendita dei prodotti (VP) e dall'attività interna (AI). 
 
-## FTE
+### FTE
 I FTE   sono calcolati come il rapporto tra le ore complessivamente erogate dal personale di comparto e dirigenza e le ore previste per un full time equivalente sulla base del contratto (36h settimanli per il comparto e 38 per la dirigenza)
 
-## FTE programmato
+### FTE programmato
 In fase di programmazione i responsabili dei Dipartimenti hanno assegnato una % dei FTE disponibili al 1/1/2021 alle attività istituzionali dette anche valorizzate. 
 Questa percentuale rappresenta la quota di FTE programmato che viene utilizzata per il calcolo del RFTE
 
 
-## Ricavo Full Time Equivalente (RFTE)
+### Ricavo Full Time Equivalente (RFTE)
 L'RFTE è un indicatore di performance adottato in Istituto come indicatore dell'efficienza delle attività istituzionali che tiene conto dei volumi di attività valorizzata e delle risorse a disposizione per la loro realizzazione misurate come FTE. A partire dal 2022 l'RFTE è assegnato a tutte le strutture che erogano attività analitiche come obiettivo di efficienza. Il target previsto è: raggiungimento di almeno il 90% del valore di RFTE al 31/12/2021.
 
 
 ## Analisi dell'andamento del RFTE e dei suoi elementi (RT e FTE) nel 2021
+
+Per ogni Dipartimento si è proceduto al calcolo cumulato mensile del RT e dei FTE totali erogati mensilmente da cui viene calcolato il RFTE mensile. La stessa procedura è stata applicata ai singoli reparti. I dati sono rappresentati graficamente mediante una serie temporale che mostra sia l'andamento del RFTE che dei suoi elementi (RT e FTE), questo permette di studiare la dinamica del RFTE in rapporto alla variazione nello stesso periodo del volume dell'attività valorizzata RT e delle risorse a disposizione.
+
+Il grafico RFTE riporta una banda grigia che rappresenta l'area di raggiungimento del target dell'obiettivo 2022 (RFTE >= 90% del RFTE 2021). Questo permetterà di verificare ad ogni aggiornamento ( trimestrale) il raggiungimento del target nel mesi trascorsi.
+
+A titolo di esempio al grafico vengono aggiunti ad ogni mese dei punti che rappresentano una simulazione di possibili valori del RFTE dell'anno di esercizio. La simulazione è effettuata semplicemente aggiungendo algebricamente al valore di RFTE dei mesi del 2021 la realizzazione di una variabile casuale con media 0 e ds pari al 10% del RFTE del mese. 
+
+
+
 
 
 
