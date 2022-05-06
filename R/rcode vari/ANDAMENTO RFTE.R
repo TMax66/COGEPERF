@@ -197,24 +197,75 @@ rtR<- function(dip){
 
 ##variazione fteerogato rispetto al disponibile---
 
-conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
-                        Database = "ObiettiviStrategici2022", Port = 1433)
 
-query <- "SELECT Pesatura, Valorizzato, Anno, Target, PercFTED, FTED, PercFTEC, FTEC, CentroReferenza_PercFTED, CentroReferenza_FTED, CentroReferenza_PercFTEC, CentroReferenza_FTEC, AttivitaRoutinaria_PercFTED, AttivitaRoutinaria_FTED, AttivitaRoutinaria_PercFTEC, AttivitaRoutinaria_FTEC, AttivitaValorizzataPerproduzioni_PercFTED, AttivitaValorizzataPerproduzioni_FTED, AttivitaValorizzataPerproduzioni_PercFTEC, AttivitaValorizzataPerproduzioni_FTEC, AreaStrategica, ObiettivoGenerale, ObiettivoOperativo, Indicatore, CriteriAttivita, Dipartimento, Reparto, Struttura, TipologiaIndicatore FROM vSchedaBudget"
+varfte <- tabIZSLER %>% 
+  rename(Anno = ANNO) %>% 
+  filter(Anno >= 2021) %>% 
+  group_by(Dipartimento,Anno, MESE ) %>% 
+  summarise_at(c("FTED", "FTEC"), sum, na.rm = T) %>% 
+  mutate(FTET = FTED+FTEC) %>% 
+  
+  left_join(
+    (dtProg %>% 
+       filter(Dipartimento != "Dipartimento Amministrativo") %>% 
+       mutate(Dipartimento = recode(Dipartimento, 
+                                    "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" , 
+                                    "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia", 
+                                    "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale", 
+       )
+       ) %>% 
+       mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%  
+       group_by( Dipartimento) %>%
+       summarise(FTED = sum(FTED, na.rm = T), 
+                 FTEC = sum(FTEC, na.rm = T)) %>% 
+       rowwise() %>% 
+       mutate(FT21 = sum(FTED, FTEC)) %>% 
+       select(-FTED, -FTEC)), by = c("Dipartimento")) %>%  
+  filter(!is.na(FT21)) 
 
-ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione scheda budget  in quanto prende i dati dei fte programmati nelle schede budget
-  mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
-         Valorizzato = ifelse(Valorizzato != "no", "si", "no")) 
 
-ftep22r<-ftep22 %>% 
-  filter(Valorizzato == "si") %>% 
-  group_by(Dipartimento, Reparto) %>% 
-  summarise(ftetot= sum(FTEC)+sum(FTED))
 
-ftep22D <- ftep22 %>% 
-  filter(Valorizzato == "si") %>% 
-  group_by(Dipartimento) %>% 
-  summarise(ftetot= sum(FTEC)+sum(FTED))
+varfte %>% 
+  ggplot()+
+  aes(x=MESE, y=FT21)+
+  geom_line(group = 1)+
+  geom_point(aes(x=MESE, y=FTET))+
+  geom_line(aes(x=MESE, y=FTET))+
+  ylim(0, max(varfte$FT21+3))+
+  facet_wrap(Dipartimento~., scales = "free")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
+#                         Database = "ObiettiviStrategici2022", Port = 1433)
+# 
+# query <- "SELECT Pesatura, Valorizzato, Anno, Target, PercFTED, FTED, PercFTEC, FTEC, CentroReferenza_PercFTED, CentroReferenza_FTED, CentroReferenza_PercFTEC, CentroReferenza_FTEC, AttivitaRoutinaria_PercFTED, AttivitaRoutinaria_FTED, AttivitaRoutinaria_PercFTEC, AttivitaRoutinaria_FTEC, AttivitaValorizzataPerproduzioni_PercFTED, AttivitaValorizzataPerproduzioni_FTED, AttivitaValorizzataPerproduzioni_PercFTEC, AttivitaValorizzataPerproduzioni_FTEC, AreaStrategica, ObiettivoGenerale, ObiettivoOperativo, Indicatore, CriteriAttivita, Dipartimento, Reparto, Struttura, TipologiaIndicatore FROM vSchedaBudget"
+# 
+# ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione scheda budget  in quanto prende i dati dei fte programmati nelle schede budget
+#   mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
+#          Valorizzato = ifelse(Valorizzato != "no", "si", "no")) 
+# 
+# ftep22r<-ftep22 %>% 
+#   filter(Valorizzato == "si") %>% 
+#   group_by(Dipartimento, Reparto) %>% 
+#   summarise(ftetot= sum(FTEC)+sum(FTED))
+# 
+# ftep22D <- ftep22 %>% 
+#   filter(Valorizzato == "si") %>% 
+#   group_by(Dipartimento) %>% 
+#   summarise(ftetot= sum(FTEC)+sum(FTED))
 
 
 
