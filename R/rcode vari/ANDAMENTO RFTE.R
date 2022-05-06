@@ -197,7 +197,7 @@ rtR<- function(dip){
 
 ##variazione fteerogato rispetto al disponibile---
 
-
+###x dip
 varfte <- tabIZSLER %>% 
   rename(Anno = ANNO) %>% 
   filter(Anno >= 2021) %>% 
@@ -234,13 +234,86 @@ varfte %>%
   ylim(0, max(varfte$FT21+3))+
   facet_wrap(Dipartimento~., scales = "free")
 
+##xrep
 
+varfteR <- tabIZSLER %>% 
+  filter(Dipartimento != "Dipartimento Amministrativo") %>% 
+  rename(Anno = ANNO) %>% 
+  filter(Anno >= 2021) %>% 
+  group_by(Dipartimento,Reparto, Anno, MESE ) %>% 
+  summarise_at(c("FTED", "FTEC"), sum, na.rm = T) %>% 
+  mutate(FTET = FTED+FTEC) %>% 
+  left_join(   
+  
+  (dtProg %>% 
+     filter(Dipartimento != "Dipartimento Amministrativo") %>% 
+     mutate(Dipartimento = recode(Dipartimento, 
+                                  "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" , 
+                                  "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia", 
+                                  "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale", 
+     ), 
+     Reparto = recode(Reparto, 
+                      "STBO-FE-MO" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA", 
+                      "STPR-PC" = "SEDE TERRITORIALE DI PIACENZA - PARMA", 
+                      "STFO-RA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA", 
+                      "STRE" = "SEDE TERRITORIALE DI REGGIO EMILIA", 
+                      "STBG-BI-SO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO", 
+                      "STLO-MI" = "SEDE TERRITORIALE DI LODI - MILANO", 
+                      "STCR-MN" = "SEDE TERRITORIALE DI CREMONA - MANTOVA", 
+                      "STPV" = "SEDE TERRITORIALE DI PAVIA", 
+                      "STBS" = "SEDE TERRITORIALE DI BRESCIA",
+                      "RPP" = "REPARTO PRODUZIONE PRIMARIA", 
+                      "RCABO" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)", 
+                      "RCA" = "REPARTO CONTROLLO ALIMENTI", 
+                      "RCAM" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI", 
+                      "RVIR" = "REPARTO VIROLOGIA", 
+                      "RVVPB" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE", 
+                      "RTBA" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE", 
+                      "RPCMB" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO", 
+                      "AREG" = "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA", 
+                      "GESTCENT" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
+                      "SORVEPIDEM" = "SORVEGLIANZA EPIDEMIOLOGICA", 
+                      "FORMAZIONE" = "FORMAZIONE E BIBLIOTECA"
+     )
+     ) %>%  
+     mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
+  group_by( Dipartimento, Reparto) %>%
+  summarise(FTED = sum(FTED, na.rm = T), 
+            FTEC = sum(FTEC, na.rm = T)) %>% 
+  rowwise() %>% 
+  mutate(FT21 = sum(FTED, FTEC))), by = c("Dipartimento", "Reparto") ) %>% 
+  mutate(varFTE = FTET-FT21) %>% 
+  group_by(Dipartimento, Reparto) %>% 
+  summarise(varM = mean(varFTE)) 
 
+varfteR %>% 
+  filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA") %>%  
+  ggplot()+
+  aes(x=MESE, y=FTET)+
+  geom_point()+
+  geom_line()+
+  geom_line(aes(x=MESE, y=FT21), color = "red")+
+  ylim(0,max(35))+
+  facet_wrap(Reparto~., scales = "free")
 
+varfteR %>% 
+  filter(Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE") %>%  
+  ggplot()+
+  aes(x=MESE, y=varFTE)+
+  geom_point()+
+  geom_line()+
+  ylim(-6,3)+
+  facet_wrap(Reparto~., scales = "free")
+ 
 
-
-
-
+varfteR %>% 
+  filter(!is.na(varM)) %>% 
+  ggplot()+
+  aes(x=varM, y = Reparto )+
+  geom_point()+
+  geom_segment(aes(x=0, xend=varM, y=Reparto, yend=Reparto), col= "darkgrey")+
+  facet_wrap(Dipartimento~., scales = "free")
+ 
 
 
 
