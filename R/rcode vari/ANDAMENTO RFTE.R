@@ -317,6 +317,239 @@ varfteR %>%
 
 
 
+##eccedenze orarie mensili ----
+
+#ore di lavoro previste per il 2021 e per mese---
+library(readxl)
+festivi <- read_excel("data/raw/festivi.xlsx")
+
+library(lubridate)
+f <- festivi %>%
+  mutate(g = wday(data, label= TRUE), 
+         Mese = month(data)) %>% 
+  filter(!g %in% c("sab", "dom")) %>% 
+  group_by(Mese) %>% 
+  count()
+
+
+hC_21 <- tibble(
+  giorni = seq(dmy("1/1/2021"), dmy("31/12/2021"), by = "day")
+) %>% 
+  mutate(gg=wday(giorni, label = TRUE), 
+         Mese=month(giorni)) %>% 
+  filter(!gg %in% c("sab", "dom")) %>% 
+  group_by(Mese) %>% 
+  count() %>%  
+  left_join(f, by="Mese") %>%
+  mutate(n.y = ifelse(is.na(n.y), 0, n.y),
+         glav=n.x-n.y, 
+         Comparto = 7.2*glav, 
+         Dirigenza = 7.6*glav) %>% 
+  ungroup() %>%
+  select(Mese, Comparto, Dirigenza) %>% 
+  pivot_longer(cols = 2:3, names_to = "Dirigente", values_to = "h") 
+
+
+#ore di lavoro previste per struttura e per contratto
+
+library(readxl)
+dati22 <- read_excel(here("data", "raw", "presenze2022.xlsx"))
+
+CC <- readRDS(here("data", "processed", "CC.rds"))
+
+
+oreC <- dati22 %>% 
+  mutate(peror = as.numeric(`Perc Orario`)) %>%  
+  left_join(  
+    (CC %>% 
+       select(Dipartimento, Reparto, Laboratorio, CDC, CodiceCDC) %>% 
+       unique() ) , by = c("CODICE_CDC" = "CodiceCDC")) %>%   
+  
+  # mutate(Laboratorio = recode(Laboratorio, 
+  #                             "LABORATORIO DI CONTROLLO DI PRODOTTI BIOLOGICI, FARMACEUTICI E CONVALIDA DI PROCESSI PRODUTTIVI" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO", 
+  #                             "LABORATORIO PRODUZIONE TERRENI" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO", 
+  #                             "LABORATORIO ANALISI GENOMICHE, LABORATORIO DIAGNOSTICA MOLECOLARE, OGM" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE", 
+  #                             "LABORATORIO BATTERIOLOGIA SPECIALIZZATA" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE", 
+  #                             "LABORATORIO DI PROTEOMICA E DIAGNOSTICA TSE" = "REPARTO VIROLOGIA", 
+  #                             "LABORATORIO DI VIROLOGIA E SIEROLOGIA SPECIALIZZATA, MICROSCOPIA ELETTRONICA" = "REPARTO VIROLOGIA", 
+  #                             "LABORATORIO CHIMICA APPLICATA ALLE TECNOLOGIE ALIMENTARI" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI", 
+  #                             "LABORATORIO CONTAMINANTI AMBIENTALI" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI", 
+  #                             "LABORATORIO MANGIMI E TOSSICOLOGIA" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI")) %>%  
+  mutate(Dirigente = ifelse(Dirigente == "N", "Comparto", "Dirigenza"), 
+         Dipartimento = casefold(Dipartimento, upper= TRUE)) %>%  
+  filter(!Dipartimento %in% c("DIPARTIMENTO AMMINISTRATIVO" , "COSTI COMUNI LOMBARDIA", "DIREZIONE GENERALE")) %>% 
+  select(Dipartimento, Reparto, Laboratorio, Dirigente,peror) %>%  
+
+  left_join(
+    hC_21, by="Dirigente") %>%    
+    mutate(hcontr  = h*(peror/100)) %>% 
+  group_by(Dipartimento, Reparto, Laboratorio, Dirigente, Mese) %>% 
+  summarise(hcontr= sum(hcontr))   
+
+  
+  
+  
+  left_join(
+    oreW, by=c("Mese")
+  ) %>% View()
+
+
+
+oreC %>% 
+  group_by(Dipartimento, Reparto, Laboratorio) %>% 
+  count() %>% View()
+
+oreW%>% 
+  group_by(Dipartimento, Reparto, Laboratorio) %>% 
+  count() %>% View()
+
+
+
+  # select(Dipartimento, REPARTO, Laboratorio, Dirigente,  Mese, hcontr) %>%  
+  # group_by(Dipartimento, REPARTO, Laboratorio, Dirigente) %>%
+  # summarise(hcontr=sum(hcontr, na.rm = TRUE)) %>%
+  # pivot_wider(names_from = Dirigente, values_from = hcontr) %>%
+  # mutate(htot=N+S) %>%
+  # rename("Comparto" = N, "Dirigenza" = S, "Reparto"= REPARTO) %>%
+  # mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%
+  # filter(!Dipartimento == "DIPARTIMENTO AMMINISTRATIVO") %>%
+  # ungroup() %>%
+  # select(Laboratorio, Comparto, Dirigenza)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ore erogate nel 2021
+ore <- readRDS(here("data", "processed", "ore.rds"))
+names(ore)[1:6] <- c("Dipartimento", "Reparto", "Laboratorio", "CDC", "CodiceCC", "ANNO")
+
+oreW <- ore %>% 
+  
+  filter( !Dipartimento %in% c("Non applicabile", "Costi Comuni e Centri contabili", 
+                               "Dipartimento amministrativo", "Direzione Amministrativa", 
+                               "Direzione Generale") &
+            #!Reparto %in% c("GESTIONE CENTRALIZZATA DELLE RICHIESTE")&
+            !is.na(Dirigente) & 
+            !is.na(Ore)) %>% 
+  filter( !str_detect(Laboratorio, "Costi")) %>%  
+  mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza"),
+         Ore = ifelse(Ore == SmartWorking, Ore, Ore+SmartWorking)) %>%   
+  group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente, Mese) %>% 
+  summarise(hworked = sum(Ore, na.rm = T)) %>%  
+  filter(hworked != 0) %>%  
+  ungroup() %>% 
+  filter(ANNO == 2021) %>% 
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
+  filter(!Reparto == "COSTI COMUNI LOMBARDIA") %>% 
+  select(-ANNO)  
+
+  
+
+  
+
+
+
+# oreW %>% 
+#   left_join(
+#     oreC, by=c("Laboratorio")
+#   ) %>% 
+#   mutate(eccC = Comparto.x-Comparto.y, 
+#          eccD = Dirigenza.x-Dirigenza.y) %>% 
+#   filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA") %>% 
+#   ggplot()+
+#   aes(x=Mese, y = eccC)+
+#   geom_point()+
+#   geom_line()+
+#   geom_point(aes(x=Mese, y = eccD), col="blue")+
+#   geom_line(aes(x=Mese, y = eccD), col="blue")+
+#   facet_wrap(Laboratorio~., scales = "free")
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+#   
+# 
+# 
+# ore <- readRDS(here("data", "processed", "ore.rds"))
+# names(ore)[1:6] <- c("Dipartimento", "Reparto", "Laboratorio", "CDC", "CodiceCC", "ANNO")
+# 
+# oreW <- ore %>% 
+#    
+#   filter( !Dipartimento %in% c("Non applicabile", "Costi Comuni e Centri contabili", 
+#                                "Dipartimento amministrativo", "Direzione Amministrativa", 
+#                                "Direzione Generale") &
+#             #!Reparto %in% c("GESTIONE CENTRALIZZATA DELLE RICHIESTE")&
+#             !is.na(Dirigente) & 
+#             !is.na(Ore)) %>% 
+#   filter( !str_detect(Laboratorio, "Costi")) %>%  
+#   mutate(Dirigente = recode(Dirigente, N = "Comparto", S = "Dirigenza"),
+#          Ore = ifelse(Ore == SmartWorking, Ore, Ore+SmartWorking)) %>%   
+#   group_by(ANNO, Dipartimento, Reparto, Laboratorio, Dirigente, Mese) %>% 
+#   summarise(hworked = sum(Ore, na.rm = T)) %>%  
+#   filter(hworked != 0) %>%  
+#   pivot_wider(names_from = "Dirigente", values_from = c("hworked"), values_fill = 0) %>%  
+#   ungroup() %>% 
+#   filter(ANNO == 2021) %>%  
+#   select(Dipartimento,Reparto,Laboratorio,Mese,Comparto,Dirigenza) %>% 
+#   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) 
+#  
+#   
+# 
+# 
+# oreW %>% 
+# left_join(
+#   oreC, by=c("Laboratorio")
+# ) %>% 
+#   mutate(eccC = Comparto.x-Comparto.y, 
+#          eccD = Dirigenza.x-Dirigenza.y) %>% 
+#   filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA") %>% 
+#   ggplot()+
+#   aes(x=Mese, y = eccC)+
+#   geom_point()+
+#   geom_line()+
+#   geom_point(aes(x=Mese, y = eccD), col="blue")+
+#   geom_line(aes(x=Mese, y = eccD), col="blue")+
+#   facet_wrap(Laboratorio~., scales = "free")
+#   
+
+
+
+         
+          
+
+  # summarise(mC = mean(Comparto), 
+  #           mD = mean(Dirigenza), 
+  #           sC = sum(Comparto), 
+  #           sD = sum(Dirigenza), 
+  #           GL = sum(glav))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
