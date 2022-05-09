@@ -82,21 +82,55 @@ dtmensili <- tabIZSLER %>%
          delta = high-low, 
          fakep = RFTE+rnorm(12, 0, 0.10*RFTE), 
          fteTD = 150.1*(FTp/100), 
-         fteTC = 142.2*(FTp/100)) %>% 
+         fteTC = 142.2*(FTp/100),
+         RFTEc= RTc/(FTET*(FTp/100)), 
+         lowc= RFTEc- 0.10*RFTEc, 
+         highc = RFTEc + 0.10*RFTEc, 
+         deltac = high-low, 
+         fakepc = RFTEc+rnorm(12, 0, 0.10*RFTEc), 
+         ) %>% 
   left_join(ftp, by=c("Dipartimento"))  
 
+dtmensili %>% 
+  filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA") %>% 
+ggplot()+
+  aes(x = MESE, y = RFTE)+
+  geom_point()+
+  geom_line(group = 1)+
+  geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha = 0.5) +
+  geom_point(aes(x=MESE, y=fakep), color="red") +
+  #facet_wrap(Dipartimento~., ncol = 1, scales = "free")+
+  scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+  theme_bw()
 
-  
+
+dtmensili %>% 
+  ggplot()+
+  aes(x = MESE, y = RFTEc)+
+  geom_point()+
+  geom_line(group = 1)+
+  geom_ribbon(aes(ymin = lowc, ymax = RFTEc), fill = "grey70", alpha= 0.5) +
+  geom_point(aes(x=MESE, y=fakepc), color="red") +
+  facet_wrap(Dipartimento~., ncol = 1, scales = "free")+
+  scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+  theme_bw()
+
+
+
+
   
   
  rfte<- function(dip){  
-  dtmensili %>% 
+   dtmensili %>% 
      filter(Dipartimento == dip) %>% 
-  ggplot()+
-  aes(x = MESE, y = RFTE)+
-  geom_line(group = 1)+
-  geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha= 0.5) +
-  geom_point(aes(x=MESE, y=fakep), color="red") 
+     ggplot()+
+     aes(x = MESE, y = RFTE)+
+     geom_point()+
+     geom_line(group = 1)+
+     geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha = 0.5) +
+     #geom_point(aes(x=MESE, y=fakep), color="red") +
+     scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+     theme_bw()
  }
 
 
@@ -106,9 +140,10 @@ fte <- function(dip){
   ggplot()+aes(x = MESE, y = FTET)+
   #aes(x = MESE, y = FTET*(FTp/100))+
   geom_line(group = 1)+
-  geom_point()+
+  geom_point()+  scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+    theme_bw()
     #geom_line(aes(x = MESE, y = FT21), color = "red")
-  geom_line(aes(x = MESE, y = FT21+(FT21*(ft))), color = "red")
+  #geom_line(aes(x = MESE, y = FT21+(FT21*(ft))), color = "red")
   # facet_wrap(Dipartimento ~ ., scales = "free")
 }
 
@@ -120,16 +155,25 @@ rt<- function(dip){
   ggplot()+
   aes(x = MESE, y = RT)+
   geom_line(group = 1)+
-  geom_point()
+  geom_point()+
+    scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+    theme_bw()
 }
 
 library(patchwork)
 
   
-rfte("DIPARTIMENTO AREA TERRITORIALE LOMBARDIA")/rt("DIPARTIMENTO AREA TERRITORIALE LOMBARDIA")/fte("DIPARTIMENTO AREA TERRITORIALE LOMBARDIA")
-rfte("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA")/rt("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA")/fte("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA")
-rfte("DIPARTIMENTO SICUREZZA ALIMENTARE")/rt("DIPARTIMENTO SICUREZZA ALIMENTARE")/fte("DIPARTIMENTO SICUREZZA ALIMENTARE")
-rfte("DIPARTIMENTO TUTELA E SALUTE ANIMALE")/rt("DIPARTIMENTO TUTELA E SALUTE ANIMALE")/fte("DIPARTIMENTO TUTELA E SALUTE ANIMALE")
+rfte("DIPARTIMENTO AREA TERRITORIALE LOMBARDIA")/rt("DIPARTIMENTO AREA TERRITORIALE LOMBARDIA")/fte("DIPARTIMENTO AREA TERRITORIALE LOMBARDIA")+
+  plot_annotation('DIPARTIMENTO AREA TERRITORIALE LOMBARDIA')
+
+rfte("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA")/rt("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA")/fte("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA")+
+  plot_annotation('DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA')
+
+rfte("DIPARTIMENTO SICUREZZA ALIMENTARE")/rt("DIPARTIMENTO SICUREZZA ALIMENTARE")/fte("DIPARTIMENTO SICUREZZA ALIMENTARE")+
+  plot_annotation('DIPARTIMENTO SICUREZZA ALIMENTARE')
+
+rfte("DIPARTIMENTO TUTELA E SALUTE ANIMALE")/rt("DIPARTIMENTO TUTELA E SALUTE ANIMALE")/fte("DIPARTIMENTO TUTELA E SALUTE ANIMALE")+
+  plot_annotation('DIPARTIMENTO TUTELA E SALUTE ANIMALE')
 
 
 
@@ -157,41 +201,74 @@ dtmensiliR <-  tabIZSLER %>%
          fteTC = 142.2*(FTp/100))
    
 
-rfteR<- function(dip){  
+rfteR<- function(rep){  
   dtmensiliR %>% 
-    filter(Dipartimento == dip) %>% 
+    filter(Reparto == rep) %>% 
     ggplot()+
     aes(x = MESE, y = RFTE)+
+    geom_point()+
     geom_line(group = 1)+
     geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha= 0.5) +
    # geom_point(aes(x=MESE, y=fakep), color="red") +
-    facet_wrap(Reparto ~., scales = "free" )
+   # facet_wrap(Reparto ~., scales = "free" )+
+    scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+    theme_bw()
 }
 
 
 
-fteR <- function(dip){   
+fteR <- function(rep){   
   dtmensiliR %>% 
-    filter(Dipartimento == dip) %>% 
+    filter(Reparto == rep) %>% 
     ggplot()+
     aes(x = MESE, y = FTET)+
     geom_line(group = 1)+
     geom_point()+
-  facet_wrap(Reparto ~., scales = "free" )
+  # facet_wrap(Reparto ~., scales = "free" )
+    scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+    theme_bw()
 }
 
 
 
-rtR<- function(dip){ 
+rtR<- function(rep){ 
   
   dtmensiliR %>% 
-    filter(Dipartimento == dip) %>% 
+    filter(Reparto == rep) %>% 
     ggplot()+
     aes(x = MESE, y = RT)+
     geom_line(group = 1)+
     geom_point()+
-    facet_wrap(Reparto ~., scales = "free" )
+    #facet_wrap(Reparto ~., scales = "free" )
+    scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+    theme_bw()
 }
+
+
+rfteR("ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA")/
+  rtR("ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA")/
+  fteR("ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA")+
+  plot_annotation('ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA')
+
+rfteR("SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA")/
+  rtR("SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA")/
+  fteR("SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA")+
+  plot_annotation('SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA')
+
+rfteR("SEDE TERRITORIALE DI FORLÌ - RAVENNA")/
+  rtR("SEDE TERRITORIALE DI FORLÌ - RAVENNA")/
+  fteR("SEDE TERRITORIALE DI FORLÌ - RAVENNA")+
+  plot_annotation('SEDE TERRITORIALE DI FORLÌ - RAVENNA')
+
+rfteR("SEDE TERRITORIALE DI PIACENZA - PARMA")/
+  rtR("SEDE TERRITORIALE DI PIACENZA - PARMA")/
+  fteR("SEDE TERRITORIALE DI PIACENZA - PARMA")+
+  plot_annotation('SEDE TERRITORIALE DI PIACENZA - PARMA')
+
+rfteR("SEDE TERRITORIALE DI REGGIO EMILIA")/
+  rtR("SEDE TERRITORIALE DI REGGIO EMILIA")/
+  fteR("SEDE TERRITORIALE DI REGGIO EMILIA")+
+  plot_annotation('SEDE TERRITORIALE DI REGGIO EMILIA')
 
 
 
@@ -227,12 +304,15 @@ varfte <- tabIZSLER %>%
 
 varfte %>% 
   ggplot()+
-  aes(x=MESE, y=FT21)+
+  aes(x=MESE, y=FTET)+
   geom_line(group = 1)+
   geom_point(aes(x=MESE, y=FTET))+
-  geom_line(aes(x=MESE, y=FTET))+
+  geom_line(aes(x=MESE, y=FT21), col = "red", lty = 2)+
   ylim(0, max(varfte$FT21+3))+
-  facet_wrap(Dipartimento~., scales = "free")
+  labs(y="FTET")+
+  facet_wrap(Dipartimento~., scales = "free")+
+    scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+    theme_bw()
 
 ##xrep
 
@@ -281,38 +361,41 @@ varfteR <- tabIZSLER %>%
   summarise(FTED = sum(FTED, na.rm = T), 
             FTEC = sum(FTEC, na.rm = T)) %>% 
   rowwise() %>% 
-  mutate(FT21 = sum(FTED, FTEC))), by = c("Dipartimento", "Reparto") ) %>% 
+  mutate(FT21 = sum(FTED, FTEC))), by = c("Dipartimento", "Reparto") ) %>%  
   mutate(varFTE = FTET-FT21) %>% 
-  group_by(Dipartimento, Reparto) %>% 
-  summarise(varM = mean(varFTE)) 
+  filter(!Reparto == "COSTI COMUNI LOMBARDIA")  %>%  
+  group_by(Dipartimento, Reparto) %>%
+  summarise(varM = mean(varFTE))
 
 varfteR %>% 
-  filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA") %>%  
+  filter(Dipartimento == "DIREZIONE SANITARIA") %>%  
   ggplot()+
   aes(x=MESE, y=FTET)+
   geom_point()+
   geom_line()+
-  geom_line(aes(x=MESE, y=FT21), color = "red")+
-  ylim(0,max(35))+
-  facet_wrap(Reparto~., scales = "free")
+  geom_line(aes(x=MESE, y=FT21), color = "blue", lty=2)+
+  ylim(0,max(20))+
+  facet_wrap(Reparto~., scales = "free")+
+  scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+  theme_bw()+
+  labs(title= "STRUTTURE IN STAFF ALLA DIREZIONE SANITARIA")
+  
 
-varfteR %>% 
-  filter(Dipartimento == "DIPARTIMENTO TUTELA E SALUTE ANIMALE") %>%  
-  ggplot()+
-  aes(x=MESE, y=varFTE)+
-  geom_point()+
-  geom_line()+
-  ylim(-6,3)+
-  facet_wrap(Reparto~., scales = "free")
+ 
  
 
 varfteR %>% 
   filter(!is.na(varM)) %>% 
   ggplot()+
-  aes(x=varM, y = Reparto )+
-  geom_point()+
+  aes(x=varM, y = Reparto, label = round(varM, 1) )+
+  geom_point(size = 9, col="steelblue", alpha = 0.5)+
+  geom_text()+
   geom_segment(aes(x=0, xend=varM, y=Reparto, yend=Reparto), col= "darkgrey")+
-  facet_wrap(Dipartimento~., scales = "free")
+  labs(x= "media annuale delle differenze tra FTE disponibili e FTE erogati")+
+  geom_vline(xintercept = 0, col = "red", lty=2)+
+  theme_bw()
+  
+  #facet_wrap(Dipartimento~., scales = "free")
  
 
 
