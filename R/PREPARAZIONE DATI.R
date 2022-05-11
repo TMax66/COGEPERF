@@ -10,7 +10,7 @@ library(odbc)
 ### dati   ore lavorate dal personale izsler----
 conOre <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02",
                       Database = "DW_COGE_DEV", Port = 1433)
-### dati accettazioni effettuate dalla gestione centralizzata----
+## dati accettazioni effettuate dalla gestione centralizzata----
 # conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
 #                          Database = "IZSLER", Port = 1433)
 
@@ -125,28 +125,30 @@ T1 %>% ##attività costi e fte
 acc <- conAcc%>% tbl(sql(queryAcc)) %>% as_tibble() 
 
 accV <- acc %>% 
-  mutate(tipoprove = ifelse(Prova=="Prova Chimica", "Prova Chimica", 
-                            ifelse(Prova== "Prova Sierologica", "Prova Sierologica", 
-                                   ifelse(Prova == "Parere Tecnico", "Parere Tecnico", "Prova Diagnostica/Alimenti")))) %>%
+
+  
+  mutate(tipoprove = ifelse(gProva=="Prova Chimica", "Prova Chimica", 
+                            ifelse(gProva== "Prova Sierologica", "Prova Sierologica", 
+                                   ifelse(gProva == "Parere Tecnico", "Parere Tecnico", "Prova Diagnostica/Alimenti")))) %>%   
   mutate(Valorizzazione = ifelse(tipoprove == "Prova Chimica", 3.70, 
                                  ifelse(tipoprove == "Prova Sierologica", 0.20,
                                         ifelse(tipoprove == "Prova Diagnostica/Alimenti", 0.72, 0))))%>% 
-  group_by(Nconf) %>% 
-  mutate(Valore = sum(Valorizzazione) ) %>% 
-  select(-Valorizzazione, -Finalita) %>% 
-  distinct(Nconf, .keep_all = TRUE) %>% 
-  mutate(Valore =  0.07*(Valore)+Valore ) %>% 
-  group_by(dtreg, PC) %>% 
+  group_by(Conferimento) %>% 
+  mutate(Valore = sum(Valorizzazione) ) %>%  
+  select(-Valorizzazione) %>% 
+  distinct(Conferimento, .keep_all = TRUE) %>%  
+  mutate(Valore =  0.07*(Valore)+Valore ) %>%  
+  group_by(Data_Registrazione, Nome_Stazione_Inserimento) %>% 
   summarise(n.conf = n(), 
-            Valore = sum(Valore),
-            ncamp = sum(NrCampioni, na.rm = TRUE)) %>% 
-  mutate(Anno = year(dtreg), 
-         MESE = month(dtreg)) %>%   
+            Valore = sum(Valore, na.rm = TRUE),
+            ncamp = sum(NrCampioni, na.rm = TRUE)) %>%  
+  mutate(Anno = year(Data_Registrazione), 
+         MESE = month(Data_Registrazione)) %>%    
   group_by(Anno, MESE) %>% 
-  summarise(n.conf = sum(n.conf), 
-            Valore = sum(Valore)) %>% 
+  summarise(n.conf = sum(n.conf, na.rm = TRUE),  
+            Valore = sum(Valore)) %>%   
   tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
-         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>% 
+         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>%  
 saveRDS(here("data", "processed",  "GCR.rds"))
 
 
