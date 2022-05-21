@@ -1,6 +1,9 @@
 library(tidyverse)
 library(here)
- 
+library(openxlsx)
+# library(tidyquant)
+library(tidyverse)
+# library(timetk)
 
 tabIZSLER <- readRDS(file = here("data", "processed",   "TabellaGenerale.rds"))
 FTEPD <- readRDS(file = here("data", "processed",   "FTEPD.rds"))
@@ -91,7 +94,7 @@ dtmensili <- tabIZSLER %>%
          ) %>% 
   left_join(ftp, by=c("Dipartimento"))  
 
-dtmensili %>% 
+p <- dtmensili %>% 
   filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA") %>% 
 ggplot()+
   aes(x = MESE, y = RFTE)+
@@ -102,6 +105,25 @@ ggplot()+
   #facet_wrap(Dipartimento~., ncol = 1, scales = "free")+
   scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
   theme_bw()
+
+t <- dtmensili %>% 
+  filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA") %>%
+  ungroup() %>% 
+  select(Anno, MESE, RT, FTET, RFTE, low)
+
+wb <- createWorkbook()
+
+addWorksheet(wb, sheetName = "RFTE")
+
+print(p)
+
+wb %>% insertPlot(sheet = "RFTE", startCol = "A", startRow = 3)
+
+writeDataTable(wb, sheet = "RFTE", x = t)
+
+saveWorkbook(wb, "RFTE_DipLOMB.xlsx", overwrite = TRUE)
+
+
 
 
 dtmensili %>% 

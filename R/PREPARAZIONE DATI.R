@@ -7,15 +7,16 @@ library(DBI)
 library(odbc)
 
 #CONNESSIONI AI DATABASE-------
-### dati   ore lavorate dal personale izsler----
-conOre <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02",
-                      Database = "DW_COGE_DEV", Port = 1433)
-## dati accettazioni effettuate dalla gestione centralizzata----
-# conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
-#                          Database = "IZSLER", Port = 1433)
 
+## dati   ore lavorate dal personale izsler DATA WAREHOUSE CONTROLLO DI GESTIONE  ----
+conOre <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02",
+                         Database = "DW_COGE", Port = 1433)
+
+
+## dati accettazioni effettuate dalla gestione centralizzata----
 conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
                          Database = "DarwinSqlSE", Port = 1433)
+
 
 ### dati da dbase performance berenice per il 2021 -----
 conPerf <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
@@ -37,8 +38,6 @@ cc <- conOre %>% tbl(sql(queryCoge)) %>% as_tibble()
        # filter(!idClassificazione %in% c("-5"))# escludo i controlli interni
 
 ###TABELLE-----
-
-
 
 T1 <- cc %>% #tabella con prestazioni (tariffato, fatturato) e costi
   group_by(ANNO, MESE,Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
