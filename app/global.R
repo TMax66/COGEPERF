@@ -12,14 +12,14 @@ library("officer")
 library("DT")
 library("lubridate")
 library("fmsb")
-# library("summaryBox")
 library("ECharts2Shiny")
 library("formattable")
 library("fmsb")
-#library(flexdashboard)
-# library("dashboardthemes")
+library(openxlsx)
+library(patchwork)
+library(shinyWidgets)
 
-#
+ 
 
 #Carico i dati----
 #tabIZSLER <- readRDS(file = here( "data", "processed", "TABELLA.rds"))#-tabella complessiva izsler esami prodotti orelav##
@@ -69,7 +69,7 @@ prj <- readRDS(file = here("data", "processed",  "prj.rds"))#-tabella progetti d
 pub <- readRDS(file = here("data", "processed",  "pub.rds"))#-tabella pubblicazioni
 
 
-#perf <- readRDS( "performance.RDS"))
+#perf <- readRDS( "performance.rds"))
 
 
 
@@ -85,7 +85,7 @@ ValueBOX <- function(dt, Variabile, Variabile2 = NULL, Titolo, colore, icona){
     valore <- round(sum(dt[, Variabile]/sum(dt[, Variabile2])),2)
   }
   
-  valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona), color = colore)
+  valueBox(prettyNum(valore, big.mark = ".", decimal.mark = ","), Titolo, icon = icon(icona, verify_fa = FALSE), color = colore)
 }
 
 #TABELLA IZSLER aggregato per dipartimenti con FTE mensile (già cumulato)----
@@ -116,3 +116,90 @@ pub <- pub %>%
          Oth = ifelse(Congr == "Others" , "Others", NA), 
          IF = as.numeric(IF))  
 
+
+
+# #Dati per monitoraggio RFTE homepage----
+ftp22 <- readRDS(file = here("data", "processed",   "ftep22.rds")) # questo file è prodotto dal codice "codice per fte programmati.R" che si
+                                                                   #trova nella cartella preparazione dati
+dtProg <- readRDS(here("data","processed", "datiSB.rds"))#
+
+ftp <- dtProg %>%
+  filter(Dipartimento != "Dipartimento Amministrativo" & Valorizzazione == "si") %>%
+  mutate(Dipartimento = recode(Dipartimento,
+                               "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" ,
+                               "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia",
+                               "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale",
+  )
+  ) %>%
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%
+  group_by( Dipartimento) %>%
+  summarise(FTED = sum(FTED, na.rm = T),
+            FTEC = sum(FTEC, na.rm = T)) %>%
+  rowwise() %>%
+  mutate(FT21 = sum(FTED, FTEC)) %>%
+  select(Dipartimento, FT21) %>%
+  ungroup()
+
+
+dtmensili <- tabIZSLER %>%
+  rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI,
+          "COSTI" = TotCost,   Anno = ANNO) %>%
+  group_by(Dipartimento,Anno, MESE ) %>%
+  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+  mutate(RT = (Valorizzazione+VP+AI),
+         FTET = FTED+FTEC,
+         Prestazionic = cumsum(Prestazioni),
+         Valorizzazionec = cumsum(Valorizzazione),
+         VPc = cumsum(VP),
+         AIc = cumsum(AI),
+         COSTIc = cumsum(COSTI),
+         RTc = cumsum(RT)) %>%
+  filter(Prestazionic >0) %>%
+  filter(Anno >=2021) %>%
+  left_join(FTEPD ,  by=c("Dipartimento",  "Anno" = "anno")) %>%
+  mutate(RFTE = RT/(FTET*(FTp/100)),
+         low= RFTE- 0.10*RFTE,
+         high = RFTE + 0.10*RFTE,
+         delta = high-low,
+         rfte22 = ifelse(Anno==2022, RFTE, 0),
+         fteTD = 150.1*(FTp/100),
+         fteTC = 142.2*(FTp/100),
+         RFTEc= RTc/(FTET*(FTp/100)),
+         lowc= RFTEc- 0.10*RFTEc,
+         highc = RFTEc + 0.10*RFTEc
+  ) %>%
+  left_join(ftp, by=c("Dipartimento"))
+
+
+#Dati per monitoraggio RFTE pagine dipartimenti----
+
+dtmensiliR <-  tabIZSLER %>%
+  rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI,
+          "COSTI" = TotCost,   Anno = ANNO) %>%
+  group_by(Dipartimento,Reparto,Anno, MESE ) %>%
+  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
+  mutate(RT = (Valorizzazione+VP+AI),
+         FTET = FTED+FTEC,
+         Prestazionic = cumsum(Prestazioni),
+         RTc = cumsum(RT)) %>%
+  filter(Prestazionic >0) %>%
+  filter(Anno >=2021) %>%
+  left_join(
+    (FTEPREP %>%
+       mutate(
+          Dipartimento = recode(Dipartimento,
+                                "DIPARTIMENTO TUTELA SALUTE ANIMALE" = "DIPARTIMENTO TUTELA E SALUTE ANIMALE"),
+          Reparto= recode(Reparto,
+                          "SEDE TERRITORIALE DI FORLÃŒ - RAVENNA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA")
+
+       )),  by=c("Dipartimento","Reparto",  "Anno" = "anno")) %>%
+  mutate(RFTE = RT/(FTET*(FTp/100)),
+         low= RFTE- 0.10*RFTE,
+         fteTD = 150.1*(FTp/100),
+         fteTC = 142.2*(FTp/100),
+         rfte22 = ifelse(Anno==2022, RFTE, 0),
+         RFTEc= RTc/(FTET*(FTp/100)),
+         lowc= RFTEc- 0.10*RFTEc,
+         highc = RFTEc + 0.10*RFTEc)
+# 
+# 

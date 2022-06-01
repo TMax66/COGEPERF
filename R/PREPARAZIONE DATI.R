@@ -9,13 +9,22 @@ library(odbc)
 #CONNESSIONI AI DATABASE-------
 
 ## dati   ore lavorate dal personale izsler DATA WAREHOUSE CONTROLLO DI GESTIONE  ----
+
+# conOre <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbtest02", 
+#                          Database = "DW_COGE_DEV", Port = 1433)
+
+
 conOre <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02",
                          Database = "DW_COGE", Port = 1433)
 
 
 ## dati accettazioni effettuate dalla gestione centralizzata----
-conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
-                         Database = "DarwinSqlSE", Port = 1433)
+# conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
+#                          Database = "DarwinSqlSE", Port = 1433)
+
+
+
+
 
 
 ### dati da dbase performance berenice per il 2021 -----
@@ -26,7 +35,7 @@ conPerf <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS
 conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
                         Database = "ObiettiviStrategici2022", Port = 1433)
 
-source(here("R","sql.R"))
+source("sql.R")
 
 
 #PREPARAZIONE DATI PER DASHBOARD PERFORMANCES----
@@ -73,6 +82,16 @@ ore <- conOre %>% tbl(sql(queryOre)) %>% as_tibble()  ### FTEq
 #ore <- readRDS("ore.rds")
 
 names(ore)[1:6] <- c("Dipartimento", "Reparto", "Laboratorio", "CDC", "CodiceCC", "ANNO")
+
+
+
+ore <- ore %>% 
+  filter(Ruolo != "RICERCA SANITARIA E SUPPORTO RIC. SAN.")
+  
+
+
+
+
 
 mesi <- seq(1:12)
 ftec <- 142.2 ## 142.2 DERIVA DA (36*47.4)/12  
@@ -121,6 +140,8 @@ T1 %>% ##attività costi e fte
 
 
 ## TABELLA GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA----
+
+
 acc <- conAcc%>% tbl(sql(queryAcc)) %>% as_tibble() 
 
 accV <- acc %>% 
@@ -155,7 +176,7 @@ saveRDS(here("data", "processed",  "GCR.rds"))
 
 ##DATI DA PROGETTI DI RICERCA----
 
-prj <- read_excel(sheet = "PRJ",here("data", "raw", "prj2021.xlsx"))
+prj <- read_excel(here("data", "raw", "progettiR.xlsx"))
 
 
 
@@ -206,7 +227,7 @@ pubblicazioni %>% filter(OA >= 2019) %>%
 saveRDS(., file = here("data", "processed",   "pub.rds"))
 
 ##DATI DA DBASE PERFORMANCE (OBIETTIVI, INDICATORI, TARGET, RISULTATO, FTEQ PROGRAMMATI)-----
-source("codici performance 2021.R")## dati delle performance 2021
+source(here("R","codici performance 2021.R"))## dati delle performance 2021
 
 ### dati performance 2022----
 
@@ -218,7 +239,7 @@ source("codici performance 2021.R")## dati delle performance 2021
 ## 2021 e 2022
 #questa stringa esegue le istruzioni che ci sono nel file "codici per fte programmati.R" e 
 #salva nella cartella /data/processed i file che servono i calcoli degli FTE programmati da cui si ottiene il RFTEprog
-source( "codici per fte programmati.R")
+source( here( "R","codici per fte programmati.R"))
 
 # ##DATI FTEQ programmati 2022--- #
 # 

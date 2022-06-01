@@ -1,41 +1,31 @@
+library(tidyverse)
+library(here)
+library(readxl)
 
-
-pr <-  prj %>% 
-                 mutate("Stato" = ifelse(annofine < 2021, "Archiviato", "Attivo")) %>% 
-                 filter(Stato == "Attivo" & annoinizio <= 2021)
-
-
+library(gt)
 
  
-pr  %>%
-    group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient ) %>%
-    
-    summarise(Budget = sum(Budget)) %>% View()
-  #   ungroup() %>%
-  #     group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient, Budget, nUO) %>% 
-  #    # summarise(Durata = as.numeric(DataFine-DataInizio), 
-  #              # R = as.numeric(date("2019-12-31")-date(DataInizio)), 
-  #               #Realizzazione = ifelse(R>Durata, 100, 100*(R/Durata)),
-  #               #Realizzazione = paste(round(Realizzazione, 0), "%") )%>% 
-  #     mutate(DataInizio = as.character(DataInizio), 
-  #            DataFine = as.character(DataFine)) #%>% 
-  #     #arrange(Realizzazione) %>% 
-  #    # select(-R, -Durata)
-  #   
- 
-  
-  
-  pr %>%
-    group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient) %>% 
-    summarise(Budget = sum(Budget), nUO = n()) %>% 
-    ungroup() %>% 
-    group_by(CodIDIzler, Tipologia, DataInizio, DataFine, Descrizione, RespScient, Budget, nUO) %>% 
-    summarise(Durata = as.numeric(DataFine-DataInizio), 
-              R = as.numeric(date("2019-12-31")-date(DataInizio)), 
-              Realizzazione = ifelse(R>Durata, 100, 100*(R/Durata)),
-              Realizzazione = paste(round(Realizzazione, 0), "%") )%>% 
-    mutate(DataInizio = as.character(DataInizio), 
-           DataFine = as.character(DataFine)) %>% 
-    arrange(Realizzazione) %>% 
-    select(-R, -Durata) %>% View()
-  
+
+pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
+pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
+pubblicazioni$AU <- str_remove(pubblicazioni$AU, " ")
+pubblicazioni$AU <- gsub("_", " ", pubblicazioni$AU)
+pubblicazioni$Nome <- str_extract( pubblicazioni$AU, ",.*$")
+pubblicazioni$Nome <- str_remove(pubblicazioni$Nome, ",")
+pubblicazioni$Nome <- gsub("\\s.*$", "", pubblicazioni$Nome)
+pubblicazioni$Cognome <- gsub(",.*$", "", pubblicazioni$AU)
+
+
+
+pub <- pubblicazioni %>% 
+  mutate(articoliif = ifelse(Congr == "IF ; Int" | Congr == "IF",  "IF", NA), 
+         INT = ifelse(Congr == "IF ; Int" | Congr == "Int",  "Int", NA ), 
+         NAZ = ifelse(Congr == "Naz", "Naz", NA), 
+         Oth = ifelse(Congr == "Others" , "Others", NA), 
+         IF = as.numeric(IF))  
+
+
+
+
+
+

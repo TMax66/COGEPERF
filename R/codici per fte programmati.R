@@ -5,7 +5,25 @@
 dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
 ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione scheda budget  in quanto prende i dati dei fte programmati nelle schede budget
   mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
-         Valorizzato = ifelse(Valorizzato != "no", "si", "no"))  
+         Valorizzato = ifelse(Valorizzato != "no", "si", "no"),
+         Dipartimento = recode(Dipartimento,
+                               "DIPARTIMENTO TUTELA SALUTE ANIMALE" = "DIPARTIMENTO TUTELA E SALUTE ANIMALE")) %>% 
+  mutate(Valorizzato = ifelse(Struttura == "GESTIONE CENTRALIZZATA DELLE RICHIESTE" &
+                                Indicatore == "Volume attività erogata per FTE  (Ricavo per FTE)", "si", Valorizzato))
+#saveRDS(ftep22, file = "ftep22.rds")
+
+
+
+# FTE PROGRAMMATI PER IZSLER----
+
+prod<-ftep22 %>% 
+  select(Dipartimento, Reparto, Struttura, FTED = AttivitaValorizzataPerproduzioni_FTED, FTEC =AttivitaValorizzataPerproduzioni_FTEC) %>% 
+  distinct() %>% 
+  summarise(FTED_si = sum(FTED), 
+            FTEC_si = sum(FTEC), 
+            FTED_tot = sum(FTED), 
+            FTEC_tot = sum(FTEC)) 
+
 
 dtProg %>%
   group_by(Valorizzazione) %>%
@@ -24,19 +42,34 @@ rbind(
 
 ftep22 %>% 
   filter(!str_detect(ObiettivoOperativo,"2.1.9.")) %>%
-  summarise(FTED_si = sum(FTED[Valorizzato == "si"], na.rm = TRUE),
-            FTEC_si = sum(FTEC[Valorizzato == "si"], na.rm = TRUE),
-            FTED_tot = sum(FTED, na.rm = TRUE), 
-            FTEC_tot = sum(FTEC, na.rm = TRUE)) %>%
+  summarise(FTED_si = sum(FTED[Valorizzato == "si"], na.rm = TRUE)+ prod$FTED_si,
+            FTEC_si = sum(FTEC[Valorizzato == "si"], na.rm = TRUE)+ prod$FTEC_si,
+            FTED_tot = sum(FTED, na.rm = TRUE)+ prod$FTED_tot, 
+            FTEC_tot = sum(FTEC, na.rm = TRUE)+ prod$FTEC_tot) %>% 
   mutate(FTE_si = FTED_si + FTEC_si,
          FTE_tot = FTED_tot + FTEC_tot) %>% 
   mutate(FTE_perc = 100*(FTE_si/FTE_tot), 
          anno = 2022) %>% 
   select(anno, FTp = FTE_perc) %>% 
   
-  ungroup()  
-) %>% 
-  saveRDS(here("data", "processed", "FTp.rds"))
+  ungroup()    
+) %>%  
+
+saveRDS(here("data", "processed", "FTp.rds"))
+
+# FTE PROGRAMMATI PER DIPARTIMENTO----
+prodDip <- ftep22 %>% 
+  select(Dipartimento, Reparto, Struttura, FTED = AttivitaValorizzataPerproduzioni_FTED, FTEC =AttivitaValorizzataPerproduzioni_FTEC) %>% 
+  distinct() %>% 
+  group_by(Dipartimento) %>%
+  summarise(FTED_si = sum(FTED), 
+            FTEC_si = sum(FTEC), 
+            FTED_tot = sum(FTED), 
+            FTEC_tot = sum(FTEC)) %>% 
+  filter(FTED_si != 0) %>% 
+  mutate(anno = 2022)
+
+
 
 
 dtProg %>% 
@@ -66,16 +99,22 @@ dtProg %>%
   
   rbind( 
   
-  ftep22 %>% 
-  mutate(anno = rep(2022, nrow(.))) %>%  
-  mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
-         Valorizzato = ifelse(Valorizzato != "no", "si", "no")) %>% 
-  filter(!str_detect(ObiettivoOperativo,"2.1.9.")) %>%  
-  group_by(anno, Dipartimento) %>% 
-  summarise(FTED_si = sum(FTED[Valorizzato == "si"], na.rm = TRUE),
-            FTEC_si = sum(FTEC[Valorizzato == "si"], na.rm = TRUE),
-            FTED_tot = sum(FTED, na.rm = TRUE), 
-            FTEC_tot = sum(FTEC, na.rm = TRUE)) %>%
+    ftep22 %>% 
+      mutate(anno = rep(2022, nrow(.))) %>%  
+      mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
+             Valorizzato = ifelse(Valorizzato != "no", "si", "no")) %>% 
+      filter(!str_detect(ObiettivoOperativo,"2.1.9.")) %>%  
+      group_by(anno, Dipartimento) %>% 
+      summarise(FTED_si = sum(FTED[Valorizzato == "si"], na.rm = TRUE), 
+                FTEC_si = sum(FTEC[Valorizzato == "si"], na.rm = TRUE), 
+                FTED_tot = sum(FTED, na.rm = TRUE), 
+                FTEC_tot = sum(FTEC, na.rm = TRUE)) %>% 
+      rbind(prodDip) %>%  
+      group_by(Dipartimento, anno) %>% 
+      summarise(FTED_si = sum(FTED_si), 
+                FTEC_si = sum(FTEC_si), 
+                FTED_tot = sum(FTED_tot), 
+                FTEC_tot = sum(FTEC_tot)) %>%
   mutate(FTE_si = FTED_si + FTEC_si,
          FTE_tot = FTED_tot + FTEC_tot) %>% 
   mutate(FTE_perc = 100*(FTE_si/FTE_tot)) %>% 
@@ -84,7 +123,29 @@ dtProg %>%
   ungroup()    
   
   ) %>%  
+
+
   saveRDS( here("data", "processed", "FTEPD.rds"))
+
+
+
+
+
+
+# FTE PROGRAMMATI X REPARTO----
+
+
+prodRep <- ftep22 %>% 
+  select(Dipartimento, Reparto, Struttura, FTED = AttivitaValorizzataPerproduzioni_FTED, FTEC =AttivitaValorizzataPerproduzioni_FTEC) %>% 
+  distinct() %>% 
+  group_by(Dipartimento, Reparto) %>%
+  summarise(FTED_si = sum(FTED), 
+            FTEC_si = sum(FTEC), 
+            FTED_tot = sum(FTED), 
+            FTEC_tot = sum(FTEC)) %>% 
+  filter(FTED_si != 0)
+
+
 
 
 dtProg %>% 
@@ -136,13 +197,19 @@ dtProg %>%
   
   rbind(
     
-  ftep22 %>% 
+    ftep22 %>% 
     filter(!str_detect(ObiettivoOperativo,"2.1.9.")) %>%  
-      group_by(Dipartimento, Reparto) %>%  
-      summarise(FTED_si = sum(FTED[Valorizzato == "si"], na.rm = TRUE),
-                FTEC_si = sum(FTEC[Valorizzato == "si"], na.rm = TRUE),
-                FTED_tot = sum(FTED, na.rm = TRUE), 
-                FTEC_tot = sum(FTEC, na.rm = TRUE)) %>%
+    group_by(Dipartimento, Reparto) %>%  
+    summarise(FTED_si = sum(FTED[Valorizzato == "si"], na.rm = TRUE),
+              FTEC_si = sum(FTEC[Valorizzato == "si"], na.rm = TRUE),
+              FTED_tot = sum(FTED, na.rm = TRUE), 
+              FTEC_tot = sum(FTEC, na.rm = TRUE)) %>% 
+    rbind(prodRep) %>%  
+    group_by(Dipartimento, Reparto) %>%
+    summarise(FTED_si = sum(FTED_si),
+              FTEC_si = sum(FTEC_si),
+              FTED_tot = sum(FTED_tot),
+              FTEC_tot = sum(FTEC_tot)) %>% 
       mutate(FTE_si = FTED_si + FTEC_si,
              FTE_tot = FTED_tot + FTEC_tot,   
              FTE_perc = 100*(FTE_si/FTE_tot)) %>%  
@@ -151,10 +218,8 @@ dtProg %>%
       select(anno, Dipartimento, Reparto,  FTp = FTE_perc)  
       
   ) %>%  filter(FTp > 0) %>% 
-  mutate(Reparto= ifelse(Reparto == "SEDE TERRITORIALE DI FORLÃŒ - RAVENNA" , "SEDE TERRITORIALE DI FORLÌ - RAVENNA", Reparto)) %>% 
-
-  
-  saveRDS(here("data", "processed",  "FTEPREP.rds"))
+  mutate(Reparto= ifelse(Reparto == "SEDE TERRITORIALE DI FORLÃŒ - RAVENNA" , "SEDE TERRITORIALE DI FORLÌ - RAVENNA", Reparto)) %>%  
+saveRDS(here("data", "processed",  "FTEPREP.rds"))
 
 
 

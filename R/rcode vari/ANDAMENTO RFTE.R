@@ -1,34 +1,34 @@
 library(tidyverse)
 library(here)
 library(openxlsx)
-# library(tidyquant)
 library(tidyverse)
-# library(timetk)
+ 
 
 tabIZSLER <- readRDS(file = here("data", "processed",   "TabellaGenerale.rds"))
 FTEPD <- readRDS(file = here("data", "processed",   "FTEPD.rds"))
-conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
-                        Database = "ObiettiviStrategici2022", Port = 1433)
-query <- "SELECT Pesatura, Valorizzato, Anno, Target, PercFTED, FTED, PercFTEC, FTEC, CentroReferenza_PercFTED, CentroReferenza_FTED, CentroReferenza_PercFTEC, CentroReferenza_FTEC, AttivitaRoutinaria_PercFTED, AttivitaRoutinaria_FTED, AttivitaRoutinaria_PercFTEC, AttivitaRoutinaria_FTEC, AttivitaValorizzataPerproduzioni_PercFTED, AttivitaValorizzataPerproduzioni_FTED, AttivitaValorizzataPerproduzioni_PercFTEC, AttivitaValorizzataPerproduzioni_FTEC, AreaStrategica, ObiettivoGenerale, ObiettivoOperativo, Indicatore, CriteriAttivita, Dipartimento, Reparto, Struttura, TipologiaIndicatore FROM vSchedaBudget"
+ftp22 <- readRDS(file = here("data", "processed",   "ftep22.rds"))
+# conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
+#                         Database = "ObiettiviStrategici2022", Port = 1433)
+# query <- "SELECT Pesatura, Valorizzato, Anno, Target, PercFTED, FTED, PercFTEC, FTEC, CentroReferenza_PercFTED, CentroReferenza_FTED, CentroReferenza_PercFTEC, CentroReferenza_FTEC, AttivitaRoutinaria_PercFTED, AttivitaRoutinaria_FTED, AttivitaRoutinaria_PercFTEC, AttivitaRoutinaria_FTEC, AttivitaValorizzataPerproduzioni_PercFTED, AttivitaValorizzataPerproduzioni_FTED, AttivitaValorizzataPerproduzioni_PercFTEC, AttivitaValorizzataPerproduzioni_FTEC, AreaStrategica, ObiettivoGenerale, ObiettivoOperativo, Indicatore, CriteriAttivita, Dipartimento, Reparto, Struttura, TipologiaIndicatore FROM vSchedaBudget"
+# 
+# ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione scheda budget  in quanto prende i dati dei fte programmati nelle schede budget
+#   mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
+#          Valorizzato = ifelse(Valorizzato != "no", "si", "no"),
+#          Dipartimento = recode(Dipartimento,
+#                                "DIPARTIMENTO TUTELA SALUTE ANIMALE" = "DIPARTIMENTO TUTELA E SALUTE ANIMALE")) 
 
-ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione scheda budget  in quanto prende i dati dei fte programmati nelle schede budget
-  mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
-         Valorizzato = ifelse(Valorizzato != "no", "si", "no"),
-         Dipartimento = recode(Dipartimento,
-                               "DIPARTIMENTO TUTELA SALUTE ANIMALE" = "DIPARTIMENTO TUTELA E SALUTE ANIMALE")) 
-
-ftep22r<-ftep22 %>% 
-  filter(Valorizzato == "si") %>% 
-  group_by(Dipartimento, Reparto) %>% 
-  summarise(ftetot= sum(FTEC)+sum(FTED))
-
-ftep22D <- ftep22 %>% 
-  filter(Valorizzato == "si") %>% 
-  group_by(Dipartimento) %>% 
-  summarise(ftetot= sum(FTEC)+sum(FTED))
+# ftep22r<-ftep22 %>% 
+#   filter(Valorizzato == "si") %>% 
+#   group_by(Dipartimento, Reparto) %>% 
+#   summarise(ftetot= sum(FTEC)+sum(FTED))
+# 
+# ftep22D <- ftep22 %>% 
+#   filter(Valorizzato == "si") %>% 
+#   group_by(Dipartimento) %>% 
+#   summarise(ftetot= sum(FTEC)+sum(FTED))
 
 
-dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
+dtProg <- readRDS(here("data","processed", "datiSB.rds"))
 
 ftp <- dtProg %>% 
   filter(Dipartimento != "Dipartimento Amministrativo" & Valorizzazione == "si") %>% 
@@ -44,14 +44,6 @@ ftp <- dtProg %>%
             FTEC = sum(FTEC, na.rm = T)) %>% 
   rowwise() %>% 
   mutate(FT21 = sum(FTED, FTEC)) %>% 
-  #group_by(   Dipartimento) %>% 
-  # filter(Valorizzazione == "si") %>%  
-  # mutate(FTp = round(100*prop.table(FT), 1)) %>%   
-  # select(-FTED, -FTEC) %>%  
-  # group_by(  Dipartimento, Valorizzazione) %>%  
-  # filter(Valorizzazione== "si") %>%  
-  # ungroup() %>%
-  # mutate(anno = rep(2021, nrow(.))) %>% 
   select(Dipartimento, FT21) %>% 
   ungroup()   
   
@@ -83,33 +75,36 @@ dtmensili <- tabIZSLER %>%
          low= RFTE- 0.10*RFTE, 
          high = RFTE + 0.10*RFTE, 
          delta = high-low, 
-         fakep = RFTE+rnorm(12, 0, 0.10*RFTE), 
+         rfte22 = ifelse(Anno==2022, RFTE, 0),
          fteTD = 150.1*(FTp/100), 
          fteTC = 142.2*(FTp/100),
          RFTEc= RTc/(FTET*(FTp/100)), 
          lowc= RFTEc- 0.10*RFTEc, 
          highc = RFTEc + 0.10*RFTEc, 
-         deltac = high-low, 
-         fakepc = RFTEc+rnorm(12, 0, 0.10*RFTEc), 
+         deltac = high-low
          ) %>% 
   left_join(ftp, by=c("Dipartimento"))  
 
-p <- dtmensili %>% 
-  filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA") %>% 
+
+rfte22point <- dtmensili %>%
+  select(Dipartimento, Anno, MESE, RFTE, RFTEc) %>%  
+  filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA" & Anno == 2022) 
+
+dtmensili %>% 
+  filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA" & Anno == 2021) %>% 
 ggplot()+
   aes(x = MESE, y = RFTE)+
   geom_point()+
   geom_line(group = 1)+
   geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha = 0.5) +
-  geom_point(aes(x=MESE, y=fakep), color="red") +
-  #facet_wrap(Dipartimento~., ncol = 1, scales = "free")+
+  geom_point(data = rfte22point, aes(x=MESE, y=RFTE), color="red") +
   scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
   theme_bw()
 
 t <- dtmensili %>% 
   filter(Dipartimento == "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA") %>%
   ungroup() %>% 
-  select(Anno, MESE, RT, FTET, RFTE, low)
+  select(Anno, MESE, RT, FTET, RFTE)
 
 wb <- createWorkbook()
 
@@ -127,12 +122,13 @@ saveWorkbook(wb, "RFTE_DipLOMB.xlsx", overwrite = TRUE)
 
 
 dtmensili %>% 
+  filter( Anno == 2021) %>%
   ggplot()+
   aes(x = MESE, y = RFTEc)+
   geom_point()+
   geom_line(group = 1)+
   geom_ribbon(aes(ymin = lowc, ymax = RFTEc), fill = "grey70", alpha= 0.5) +
-  geom_point(aes(x=MESE, y=fakepc), color="red") +
+  geom_point(data = subset(rfte22point,Dipartimento = "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA"), aes(x=MESE, y=RFTEc), color="red")+
   facet_wrap(Dipartimento~., ncol = 1, scales = "free")+
   scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
   theme_bw()
@@ -144,13 +140,13 @@ dtmensili %>%
   
  rfte<- function(dip){  
    dtmensili %>% 
-     filter(Dipartimento == dip) %>% 
+     filter(Dipartimento == dip & Anno ==2021) %>% 
      ggplot()+
      aes(x = MESE, y = RFTE)+
      geom_point()+
      geom_line(group = 1)+
      geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha = 0.5) +
-     #geom_point(aes(x=MESE, y=fakep), color="red") +
+     geom_point(data = subset(rfte22point,Dipartimento = dip), aes(x=MESE, y=RFTEc), color="red")+
      scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
      theme_bw()
  }
