@@ -25,7 +25,10 @@ cc <- cc %>%
                               "Riparazioni e manutenzioni" = "Costi Indiretti",
                               "Utenze" = "Costi Indiretti",
                               "Formazione" = "Costi Indiretti",
-                              "Altri servizi" = "Costi Indiretti"
+                              "Altri servizi" = "Costi Indiretti", 
+                              "Ricavi da produzione" = "Produzione", 
+                              "Prestazioni" = "Produzione", 
+                              "Vendite prodotti" = "Produzione"
                               )) 
 
 
@@ -34,44 +37,80 @@ ricavi <-  cc %>%  filter(ANNO == 2021, Costi == "Ricavo") %>%
   mutate(Ricavi = ifelse(Pagamento=="Pagamento", Fatturato,Tariffario), 
          Ricavi = ifelse(Classe == "Vendite prodotti", Fatturato, Ricavi), 
          Ricavi = ifelse(Classe == "Ricavi da produzione",Tariffario, Ricavi )) %>% 
-    group_by(Dipartimento, Categoria, Classe) %>%  
-    summarise(ricavi = sum(Ricavi, na.rm = TRUE)) %>% 
-    pivot_wider(names_from = "Dipartimento", values_from = "ricavi") %>%
-    ungroup() %>% 
-  mutate("Direzione Amministrativa" = rep(0, nrow(.)))  
+    group_by(Dipartimento, Categoria, Classe, Tipologia_Costi) %>%  
+    summarise(value = sum(Ricavi, na.rm = TRUE)) %>%  
+  rbind(tibble(
+    Dipartimento = "Direzione Amministrativa", 
+    Categoria = "Proventi per attività", 
+    Classe = "Prestazioni",
+    Tipologia_Costi = "Produzione", 
+    value = 0
+  ))
+
+
+
+    #pivot_wider(names_from = "Dipartimento", values_from = "ricavi") %>%
+   # ungroup() %>% 
+  #mutate("Direzione Amministrativa" = rep(0, nrow(.)))  %>% View(
 
 costiD <- cc %>%  filter(ANNO == 2021, Costi == "Costo", Tipologia_Costi == "Costi Diretti") %>%  
-  group_by(Dipartimento, Categoria, Classe) %>%  
-  summarise(costi = sum(Costo, na.rm = TRUE)) %>% 
-  pivot_wider(names_from = "Dipartimento", values_from = "costi") %>%
-  ungroup() %>% 
-  select (- "Non applicabile")  
+  group_by(Dipartimento, Categoria, Classe, Tipologia_Costi) %>%  
+  summarise(value = sum(Costo, na.rm = TRUE))   
+ # pivot_wider(names_from = "Dipartimento", values_from = "costi") %>%
+ # ungroup() %>% 
+ # select (- "Non applicabile")  
 
 
 costiIND <- cc %>%  filter(ANNO == 2021, Costi == "Costo", Tipologia_Costi == "Costi Indiretti") %>%  
-  group_by(Dipartimento, Categoria, Classe) %>%  
-  summarise(costi = sum(Costo, na.rm = TRUE)) %>% 
-  pivot_wider(names_from = "Dipartimento", values_from = "costi") %>%
-  ungroup() 
+  group_by(Dipartimento, Categoria, Classe, Tipologia_Costi) %>%  
+  summarise(value = sum(Costo, na.rm = TRUE))  
+  # pivot_wider(names_from = "Dipartimento", values_from = "costi") %>%
+  # ungroup() 
 
 R1 <- ricavi %>% 
   rbind(costiD) %>% 
-  rbind(costiIND)
+  rbind(costiIND) %>% 
+  pivot_wider(names_from = "Dipartimento", values_from = "value") %>%    
+  ungroup() %>% 
+    select(- Categoria) 
+  
 
+ 
+  
 
-T <- R1 %>% select(- Categoria) %>% 
+  # 
+  # 
+  # R1 %>% 
+  # group_by(Tipologia_Costi ) %>% 
+  #   summarise_if(is.numeric, sum, na.rm = TRUE) %>% 
+  #   cbind( 
+  #     tibble(Classe = c("Totale Costi Diretti", "Totale Costi Indiretti", "Totale Valore della Produzione"))
+  #            ) %>% 
+  #   pivot_longer(cols = 2:11, names_to = "Dipartimento", values_to = "value") %>%  
+  #   group_by(Dipartimento) %>% 
+  #   mutate("I Margine" =  100*(value[Classe ==  "Totale Costi Diretti"]/ value[Classe == "Totale Valore della Produzione"])) %>% View()
+  #   
+  # 
+  #   
+  # rbind(R1) %>%  
+    
+ 
+  
+# TABELLA PER TIPOLOGIA DI COSTI
+T <- R1 %>% select(-Tipologia_Costi,  -`Non applicabile` ) %>% 
   gt(rowname_col = "Classe")
 
-T %>%
-  cols_move_to_start(
-    columns =  8:10
-  ) %>% 
+T <- T %>%
   cols_move_to_end(
-    columns = 2
+    columns = 2 
   ) %>% 
+  cols_move_to_start(
+    columns =  c(8:10)
+  ) %>%  
+  
   tab_spanner(
     label = "Direzione",
-    columns = c("Direzione Generale", "Direzione Sanitaria", "Direzione Amministrativa" )
+    columns = 8:10
   ) %>% 
   tab_spanner(
     label = "Dipartimenti tecnici",
@@ -80,14 +119,14 @@ T %>%
   
   tab_row_group(
     label = "Costi indiretti",
-    rows = 11:20) %>% 
+    rows = 11:20) %>%
   tab_row_group(
     label = "Costi diretti",
-    rows = 4:10) %>% 
+    rows = 4:10) %>%
   tab_row_group(
     label = "Proventi per attività",
-    rows = 1:3) %>% 
-  
+    rows = 1:3) %>%
+
   summary_rows(
     groups = "Proventi per attività",
     formatter = fmt_currency,
@@ -123,9 +162,34 @@ T %>%
     row_group.border.top.color = "black",
     row_group.border.bottom.color = "black"
   ) 
-  
-  
 
+## IL CODICE QUI SOTTO CREA UNA TABELLA A PARTE CHE RIPORTA PER DIP I TOTALI E I MARGINI
+tx<-extract_summary(T)
+
+Tx <- tx[["summary_df_data_list"]][["Costi indiretti"]] %>% 
+  rbind(
+    tx[["summary_df_data_list"]][["Costi diretti"]]
+  ) %>% 
+  rbind(
+    tx[["summary_df_data_list"]][["Proventi per attività"]]
+  ) %>% 
+  select(-Classe, -group_id)  
+  
+M <-Tx %>% summarise(across(where(is.numeric), mrg))  %>% 
+  mutate(rowname = "Primo Margine")  
+ 
+Tx %>% 
+  rbind(M) %>% 
+  gt()
+
+
+  
+  
+mrg <- function(x){
+  
+  x[3]/x[2]
+}
+  
 
 
 # cc %>% filter(ANNO == 2021) %>%
