@@ -1,6 +1,11 @@
 library(tidyverse)
 library(here)
 library(gt)
+library(readr)
+library(readxl)
+library(lubridate)
+library(DBI)
+library(odbc)
 
 cc <- readRDS(here("data", "processed","CC.rds"))
 
@@ -190,6 +195,36 @@ mrg <- function(x){
   x[3]/x[2]
 }
   
+
+
+
+
+
+###################################
+
+coge <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02",
+                         Database = "DW_COGE", Port = 1433)
+
+source(here("app", "appcostiricavi", "R", "Nuovo Controllo di Gestione", "sql.R"))
+
+
+cc <- coge %>% tbl(sql(dw_coge)) %>% as_tibble()
+saveRDS(cc, here("app", "appcostiricavi", "R", "Nuovo Controllo di Gestione","cg.RDS"))
+
+
+View(cc)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # cc %>% filter(ANNO == 2021) %>%
