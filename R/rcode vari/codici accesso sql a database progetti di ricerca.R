@@ -31,11 +31,7 @@ query <- "SELECT
           RelazioneIntermediaDaInviare, 
           DataInizio, 
           DataFine, 
-          Anno, 
-          StatoRelazioneIntermedia.Descrizione AS RelIntermedia
-FROM            ProgettiAccordi INNER JOIN
-                         StatoRelazioneIntermedia ON ProgettiAccordi.Codice = StatoRelazioneIntermedia.Codice
-          
+          Anno
 FROM      ProgettiAccordi"
 
 
