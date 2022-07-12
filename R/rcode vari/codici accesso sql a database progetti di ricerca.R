@@ -75,5 +75,20 @@ prj %>%
   filter(annofine == 2022 |
            annoIntermedia == 2022) %>%
   select(Codice, Tipologia, MatrRespScientifico, DataInizio, DataFine, 
-         RelIntermedia, DataScadenzaRelazioneFinale, DataScadenzaRelazioneIntermedia, Prolungato, 
-         InviatoSollecitoRelazioneFinale, InviatoSollecitoRelazioneIntermedia, RelazioneIntermediaDaInviare) %>%  View()
+         Stato, StatoRelazioneIntermedia , DataScadenzaRelazioneFinale, DataScadenzaRelazioneIntermedia, Prolungato, 
+         InviatoSollecitoRelazioneFinale, InviatoSollecitoRelazioneIntermedia, RelazioneIntermediaDaInviare) %>% 
+  mutate(Stato = recode(Stato,
+   `1`= "annullato", 
+   `2` = "inviato", 
+   `3` = "in attesa", 
+   `4` = "in corso", 
+   `5` = "terminato", 
+   `6` = "terminato non richiesta relazione"), 
+    StatoRelazioneIntermedia = recode(StatoRelazioneIntermedia, 
+   `0` = "non impostato", 
+   `1` = "non prevista", 
+   `2` = "non inviata", 
+   `3` = "inviata", 
+   `4` = "approvata", 
+   `5` = "non approvata")
+    )
