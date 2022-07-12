@@ -91,4 +91,8 @@ prj %>%
    `3` = "inviata", 
    `4` = "approvata", 
    `5` = "non approvata")
-    )
+    ) %>%  
+  filter(Stato == "in corso" &
+           StatoRelazioneIntermedia != "non prevista", 
+         DataScadenzaRelazioneIntermedia <= "2022-06-30") %>%  View()
+
