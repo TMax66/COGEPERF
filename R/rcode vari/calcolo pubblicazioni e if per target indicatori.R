@@ -1,6 +1,7 @@
 ###n.pubblicazioni triennio per struttura-----
 library(tidyverse)
 library(here)
+library(readxl)
 
 library(gt)
 
@@ -24,8 +25,7 @@ pub <- pub %>%
 tabIZSLER %>% ungroup() %>% 
   filter(!Dipartimento %in% c("DIREZIONE GENERALE", "COSTI COMUNI E CENTRI CONTABILI", "NON APPLICABILE") ) %>%  
   select(ANNO, Dipartimento) %>% 
-  unique() %>% 
- 
+  unique() %>%  
   
   left_join(
     
@@ -65,8 +65,8 @@ tabIZSLER %>%
           count(NR) %>% 
           summarise("Pubblicazioni" = sum(n))) , by = c("Reparto", "ANNO" ="OA")) %>% 
   
-          filter(!is.na(Pubblicazioni)) %>% 
-    pivot_wider(names_from = "ANNO", values_from = "Pubblicazioni") %>%  ungroup() %>% 
+          filter(!is.na(Pubblicazioni)) %>%  
+    pivot_wider(names_from = "ANNO", values_from = "Pubblicazioni") %>%  ungroup() %>% View()
     mutate(media = rowMeans(.[3:5], na.rm = T), 
            atteso = round(0.10*media,0), 
            target = round(atteso+media, 0)) %>% 
@@ -215,14 +215,70 @@ tabIZSLER %>% ungroup() %>%
   
      
       
+# Monitoraggio pubblicazioni al 30062022----
 
+anag <- readRDS(here("data", "processed", "anagforpub.RDS"))
+
+
+pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
+pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
+pubblicazioni$AU <- str_remove(pubblicazioni$AU, " ")
+pubblicazioni$AU <- gsub("_", " ", pubblicazioni$AU)
+pubblicazioni$Nome <- str_extract( pubblicazioni$AU, ",.*$")
+pubblicazioni$Nome <- str_remove(pubblicazioni$Nome, ",")
+pubblicazioni$Nome <- gsub("\\s.*$", "", pubblicazioni$Nome)
+pubblicazioni$Cognome <- gsub(",.*$", "", pubblicazioni$AU)
+
+pubblicazioni %>% filter(OA >= 2019) %>%
+  left_join(anag, by = c("Cognome" = "Cognome", "Nome" = "Nome", "OA" = "ANNO")) %>%  
+  # filter(Dirigente == "S") %>%  
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
+  saveRDS(., file = here("data", "processed",   "pub.rds"))
 
       
      
+tabIZSLER <- readRDS(file = here( "data", "processed", "TabellaGenerale.rds"))
+pub <- readRDS(file = here( "data", "processed", "pub.rds"))   
+
+pub <- pub %>% 
+  mutate(articoliif = ifelse(Congr == "IF ; Int" | Congr == "IF",  "IF", NA), 
+         INT = ifelse(Congr == "IF ; Int" | Congr == "Int",  "Int", NA ), 
+         NAZ = ifelse(Congr == "Naz", "Naz", NA), 
+         Oth = ifelse(Congr == "Others" , "Others", NA), 
+         IF = as.numeric(IF))  
+
       
       
-      
-      
+tabIZSLER %>%
+  select(ANNO, Dipartimento, Reparto) %>% 
+  filter(!Dipartimento %in% c("DIREZIONE GENERALE","COSTI COMUNI E CENTRI CONTABILI", "NON APPLICABILE" ) &
+           !Reparto %in% c("COSTI COMUNI LOMBARDIA", "DIREZIONE SANITARIA")) %>%  
+  
+  unique() %>% 
+  
+  left_join(
+    
+    ( pub %>%  
+        filter(articoliif == "IF") %>%
+        count(OA, Reparto, NR) %>%  
+        group_by(OA, Reparto) %>% 
+        count(NR) %>% 
+        summarise("Pubblicazioni" = sum(n))) , by = c("Reparto", "ANNO" ="OA")) %>%  
+  
+  filter(!is.na(Pubblicazioni), 
+         MESE == 1) %>%  ungroup() %>% 
+  select(-MESE) %>% 
+  
+  pivot_wider(names_from = "ANNO", values_from = "Pubblicazioni") %>%  ungroup() %>% 
+  mutate(media = rowMeans(.[3:5], na.rm = T), 
+       atteso = round(0.10*media,0), 
+       target = round(atteso+media, 0), 
+       avanzamento = 100*(`2022`/target)) %>%  
+ write.xlsx(file = "pubrep.xlsx")
+  
+  
+  # gt() %>% 
+  # gtsave("pubbreparto.rtf")
       
       
       
