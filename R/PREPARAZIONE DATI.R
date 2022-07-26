@@ -35,7 +35,10 @@ conPerf <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS
 conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
                         Database = "ObiettiviStrategici2022", Port = 1433)
 
+
+
 source(here("R","sql.R"))
+
 
 
 #PREPARAZIONE DATI PER DASHBOARD PERFORMANCES----
