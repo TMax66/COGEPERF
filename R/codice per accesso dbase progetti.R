@@ -26,6 +26,12 @@ matricole <- prjRicercatori %>%
               select(MatricolaSigma, Matricola, Nome, Cognome) , by = c("Matricola" = "MatricolaSigma"))
 saveRDS(matricole, here("data", "processed", "matricole.RDS"))
 
+prj <- readRDS(here("data", "processed", "prjxx.RDS"))
+prjuo <- readRDS(here("data", "processed", "prjuo.RDS"))
+matricole <- readRDS(here("data", "processed", "matricole.RDS"))
+
+
+
 
 
 prjx <-  prj %>% 
