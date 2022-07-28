@@ -18,9 +18,9 @@ conOre <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02
                          Database = "DW_COGE", Port = 1433)
 
 
-## dati accettazioni effettuate dalla gestione centralizzata----
-# conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
-#                          Database = "DarwinSqlSE", Port = 1433)
+# dati accettazioni effettuate dalla gestione centralizzata----
+conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.izsler.it",
+                         Database = "DarwinSqlSE", Port = 1433)
 
 
 
@@ -145,37 +145,45 @@ T1 %>% ##attività costi e fte
 ## TABELLA GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA----
 
 
-# acc <- conAcc%>% tbl(sql(queryAcc)) %>% as_tibble() 
-# 
-# accV <- acc %>% 
-# 
-#   
-#   mutate(tipoprove = ifelse(gProva=="Prova Chimica", "Prova Chimica", 
-#                             ifelse(gProva== "Prova Sierologica", "Prova Sierologica", 
-#                                    ifelse(gProva == "Parere Tecnico", "Parere Tecnico", "Prova Diagnostica/Alimenti")))) %>%   
-#   mutate(Valorizzazione = ifelse(tipoprove == "Prova Chimica", 3.70, 
-#                                  ifelse(tipoprove == "Prova Sierologica", 0.20,
-#                                         ifelse(tipoprove == "Prova Diagnostica/Alimenti", 0.72, 0))))%>% 
-#   group_by(Conferimento) %>% 
-#   mutate(Valore = sum(Valorizzazione) ) %>%  
-#   select(-Valorizzazione) %>% 
-#   distinct(Conferimento, .keep_all = TRUE) %>%  
-#   mutate(Valore =  0.07*(Valore)+Valore ) %>%  
-#   group_by(Data_Registrazione, Nome_Stazione_Inserimento) %>% 
-#   summarise(n.conf = n(), 
-#             Valore = sum(Valore, na.rm = TRUE),
-#             ncamp = sum(NrCampioni, na.rm = TRUE)) %>%  
-#   mutate(Anno = year(Data_Registrazione), 
-#          MESE = month(Data_Registrazione)) %>%    
-#   group_by(Anno, MESE) %>% 
-#   summarise(n.conf = sum(n.conf, na.rm = TRUE),  
-#             Valore = sum(Valore)) %>%   
-#   tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
-#          Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")  %>%  
-# saveRDS(here("data", "processed",  "GCR.rds"))
+source(here("R",  "sqlCGR.R"))
+
+acc <- conAcc%>% tbl(sql(queryAcc)) %>% as_tibble() 
+
+
+acc[,"FinalitaConferimento"] <- sapply(acc[, "FinalitaConferimento"], iconv, from = "latin1", to = "UTF-8", sub = "")
+acc[,"strutturaaccettante"] <- sapply(acc[, "strutturaaccettante"], iconv, from = "latin1", to = "UTF-8", sub = "")
+acc[,"comune"] <- sapply(acc[, "comune"], iconv, from = "latin1", to = "UTF-8", sub = "")
 
 
 
+acc %>%
+  
+  
+  mutate(tipoprove = ifelse(gProva=="Prova Chimica", "Prova Chimica",
+                            ifelse(gProva== "Prova Sierologica", "Prova Sierologica",
+                                   ifelse(gProva == "Parere Tecnico", "Parere Tecnico", "Prova Diagnostica/Alimenti")))) %>%
+  mutate(Valorizzazione = ifelse(tipoprove == "Prova Chimica", 3.70,
+                                 ifelse(tipoprove == "Prova Sierologica", 0.20,
+                                        ifelse(tipoprove == "Prova Diagnostica/Alimenti", 0.72, 0))))%>%   
+  
+  group_by(Anno, Conferimento) %>% 
+  mutate(Valore = sum(Valorizzazione) ) %>%  
+  select(-Valorizzazione) %>% 
+  
+  mutate(Valore =  0.07*(Valore)+Valore ) %>%  
+  distinct(Conferimento, .keep_all = TRUE) %>% 
+  mutate(Anno = year(Data_Registrazione),
+         MESE = month(Data_Registrazione)) %>%
+  group_by(Anno, MESE) %>% 
+  summarise(n.conf = n(), 
+            Valore = sum(Valore, na.rm = TRUE)) %>% 
+  tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE",
+         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE") %>%   
+saveRDS(here("data", "processed", "GCR.rds"))
+     
+    
+    
+    
 
 ##DATI DA PROGETTI DI RICERCA----
 

@@ -25,7 +25,7 @@ library(shinyWidgets)
 #tabIZSLER <- readRDS(file = here( "data", "processed", "TABELLA.rds"))#-tabella complessiva izsler esami prodotti orelav##
 
 tabIZSLER <- readRDS(file = here("data", "processed",   "TabellaGenerale.rds"))#-tabella complessiva izsler esami prodotti orelav##
-GCR <- readRDS(file = here("data", "processed",   "GCR.rds"))#-dati da gestione centralizzata della richiesta
+GCR <- readRDS(file = here("data", "processed", "GCR.rds"))#-dati da gestione centralizzata della richiesta
 
 #inserisco i dati relativi al numero di conferimenti e valorizzazione della GCR
 
@@ -120,7 +120,7 @@ pub <- pub %>%
 
 # #Dati per monitoraggio RFTE homepage----
 
-#ricaviCovid21 <- readRDS(here("data","processed", "ricavoCovid.RDS"))
+ricaviCovid21 <- readRDS(here("data","processed", "ricavoCovid.RDS"))
 
 
 
