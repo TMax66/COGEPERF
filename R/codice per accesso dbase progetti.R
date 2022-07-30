@@ -19,6 +19,8 @@ saveRDS(prj, here("data", "processed", "prjuo.RDS"))
 
 prjRicercatori <- con %>% tbl(sql(queryRic)) %>% as_tibble() 
 
+saveRDS(prjRicercatori,  here("data", "processed", "prjRicercatori.RDS"))
+
 matricole <- read_excel(here("data", "raw", "MatricoleSigmaGRU.xlsx")) 
 
 matricole <- prjRicercatori %>% 
@@ -29,18 +31,15 @@ saveRDS(matricole, here("data", "processed", "matricole.RDS"))
 prj <- readRDS(here("data", "processed", "prjxx.RDS"))
 prjuo <- readRDS(here("data", "processed", "prjuo.RDS"))
 matricole <- readRDS(here("data", "processed", "matricole.RDS"))
-
+prjRicercatori <- readRDS( here("data", "processed", "prjRicercatori.RDS"))
 
 
 
 
 prjx <-  prj %>% 
-  left_join( prjRicercatori, by=c("MatrRespScientifico" = "Matricola")) %>% 
+  left_join( prjRicercatori, by=c("MatrRespScientifico" = "Matricola")) %>% View()
   select(Codice, CodIDIzsler, DataInizio, DataFine, Descrizione, Tipologia, MatrRespScientifico, 
-         Cognome, Nome, FinCompApprovato) %>%  View()
-  
-  
-  
+         Cognome, Nome, FinCompApprovato) %>% 
   left_join(
     prjuo,  by = c("Codice" = "CodProgetto")) %>% 
   left_join(prjRicercatori, by=c("MatrRespScientifico" = "Matricola", "MatricolaRespScientUO" = "Matricola")) %>%  View()
