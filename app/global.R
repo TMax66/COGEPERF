@@ -145,6 +145,45 @@ ftp <- dtProg %>%
   select(Dipartimento, FT21) %>%
   ungroup()
 
+dtmensili <- tabIZSLER %>%
+  
+  rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI,
+          "COSTI" = TotCost,   Anno = ANNO) %>%
+  group_by(Dipartimento,Anno, MESE ) %>%
+  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%   
+  
+  left_join(
+    (ricaviCovid21 %>% 
+       select(Dipartimento, anno, mese, ricOVID) %>% 
+       group_by(Dipartimento, anno, mese) %>% 
+       summarise(ricovid = sum(ricOVID, na.rm = TRUE))), by = c("Dipartimento" = "Dipartimento", "Anno" = "anno", "MESE" = "mese")) %>%  
+  mutate(
+    ricovid = ifelse(is.na(ricovid), 0, ricovid ), 
+    RT = (Valorizzazione+VP+AI)-ricovid,
+    FTET = FTED+FTEC,
+    Prestazionic = cumsum(Prestazioni),
+    Valorizzazionec = cumsum(Valorizzazione),
+    VPc = cumsum(VP),
+    AIc = cumsum(AI),
+    COSTIc = cumsum(COSTI),
+    RTc = cumsum(RT)) %>%
+  filter(Prestazionic >0) %>%
+  filter(Anno >=2021) %>% 
+  left_join(FTEPD ,  by=c("Dipartimento",  "Anno" = "anno")) %>%  
+  mutate(RFTE = RT/(FTET*(FTp/100)),
+         low= RFTE- 0.10*RFTE,
+         high = RFTE + 0.10*RFTE,
+         delta = high-low,
+         rfte22 = ifelse(Anno==2022, RFTE, 0),
+         fteTD = 150.1*(FTp/100),
+         fteTC = 142.2*(FTp/100),
+         RFTEc= RTc/(FTET*(FTp/100)),
+         lowc= RFTEc- 0.10*RFTEc,
+         highc = RFTEc + 0.10*RFTEc
+  ) %>%
+  left_join(ftp, by=c("Dipartimento"))    
+
+
 
 dtmensiliR <-  tabIZSLER %>%
   rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI,
