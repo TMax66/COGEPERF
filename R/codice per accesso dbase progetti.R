@@ -15,33 +15,23 @@ prj <- con %>% tbl(sql(queryPA)) %>% as_tibble()
 saveRDS(prj, here("data", "processed", "prjxx.RDS"))
 
 prjuo <- con %>% tbl(sql(queryUO)) %>% as_tibble() 
-saveRDS(prj, here("data", "processed", "prjuo.RDS"))
-
-prjRicercatori <- con %>% tbl(sql(queryRic)) %>% as_tibble() 
-
-saveRDS(prjRicercatori,  here("data", "processed", "prjRicercatori.RDS"))
-
-matricole <- read_excel(here("data", "raw", "MatricoleSigmaGRU.xlsx")) 
-
-matricole <- prjRicercatori %>% 
-  left_join(matricole %>% 
-              select(MatricolaSigma, Matricola, Nome, Cognome) , by = c("Matricola" = "MatricolaSigma"))
-saveRDS(matricole, here("data", "processed", "matricole.RDS"))
-
+saveRDS(prjuo, here("data", "processed", "prjuo.RDS"))
 prj <- readRDS(here("data", "processed", "prjxx.RDS"))
 prjuo <- readRDS(here("data", "processed", "prjuo.RDS"))
-matricole <- readRDS(here("data", "processed", "matricole.RDS"))
-prjRicercatori <- readRDS( here("data", "processed", "prjRicercatori.RDS"))
 
-
-
-
-prjx <-  prj %>% 
-  left_join( prjRicercatori, by=c("MatrRespScientifico" = "Matricola")) %>% View()
-  select(Codice, CodIDIzsler, DataInizio, DataFine, Descrizione, Tipologia, MatrRespScientifico, 
-         Cognome, Nome, FinCompApprovato) %>% 
+prj22 <- prj %>% 
+ select(Codice, CodIDIzsler, DataInizio, DataFine,  Descrizione, Tipologia, MatrRespScientifico, 
+        RespScientifico, FinCompApprovato) %>%   
   left_join(
-    prjuo,  by = c("Codice" = "CodProgetto")) %>% 
-  left_join(prjRicercatori, by=c("MatrRespScientifico" = "Matricola", "MatricolaRespScientUO" = "Matricola")) %>%  View()
-  select(Codice, CodIDIzsler,  DataInizio,  DataFine, Descrizione,Tipologia,MatrRespScientifico,   RespScientifico,  DescrUO, MatricolaRespScientUO, QuotaPersContratto )  
-  
+    prjuo %>% 
+      mutate(budgetUO = QuotaSpeseGenerali+QuotaSpeseCoordinamento+
+               QuotaApparecchiature+QuotaReagenti+
+               QuotaMissioniConv+QuotaPersContratto+QuotaPersStrutturato) %>% 
+      select(CodProgetto, NumUOProgetto, RespScientUO, MatricolaRespScientUO, budgetUO,DescrUO ),   by = c("Codice" = "CodProgetto")) %>% 
+  rename(MatrRSUO = MatricolaRespScientUO, 
+         BudgetUO = budgetUO) 
+
+
+saveRDS(prj22, here("data", "processed", "prj22.RDS"))
+
+

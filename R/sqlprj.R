@@ -53,26 +53,26 @@ queryUO <- myfun(con=con, qpuo=qpuo, tabella = "UOCoinvolte")
 
 
 ### unità operative
-qpric<-Query(tabella = "'RespScientificiAbbinati'")
+#qpric<-Query(tabella = "'RespScientificiAbbinati'")
 # 
-myfun <- function(con, qpric, tabella)
-{
-  
-  column.types <- dbGetQuery(con, qpric)
-  
-  ct <- column.types %>%
-    mutate(cml = case_when(
-      is.na(CHARACTER_MAXIMUM_LENGTH) ~ 10,
-      CHARACTER_MAXIMUM_LENGTH == -1 ~ 100000,
-      TRUE ~ as.double(CHARACTER_MAXIMUM_LENGTH)
-    )
-    ) %>%
-    arrange(cml) %>%
-    pull(COLUMN_NAME)
-  fields <- paste(ct, collapse=", ")
-  query <- paste("SELECT", fields, paste("FROM", tabella))
-  return(query)
-}
-# 
-queryRic <- myfun(con=con, qpric=qpric, tabella = "RespScientificiAbbinati")
+# myfun <- function(con, qpric, tabella)
+# {
+#   
+#   column.types <- dbGetQuery(con, qpric)
+#   
+#   ct <- column.types %>%
+#     mutate(cml = case_when(
+#       is.na(CHARACTER_MAXIMUM_LENGTH) ~ 10,
+#       CHARACTER_MAXIMUM_LENGTH == -1 ~ 100000,
+#       TRUE ~ as.double(CHARACTER_MAXIMUM_LENGTH)
+#     )
+#     ) %>%
+#     arrange(cml) %>%
+#     pull(COLUMN_NAME)
+#   fields <- paste(ct, collapse=", ")
+#   query <- paste("SELECT", fields, paste("FROM", tabella))
+#   return(query)
+# }
+# # 
+# queryRic <- myfun(con=con, qpric=qpric, tabella = "RespScientificiAbbinati")
 

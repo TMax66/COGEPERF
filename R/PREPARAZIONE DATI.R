@@ -187,23 +187,25 @@ saveRDS(here("data", "processed", "GCR.rds"))
 
 ##DATI DA PROGETTI DI RICERCA----
 
-prj <- read_excel(here("data", "raw", "progetti.xlsx"))
 
-
+prj <- readRDS(here("data", "processed", "prj22.RDS"))##<- deriva dal codice del file codice per accesso dbase progetti.R
+#ore <- readRDS(here("data", "processed", "ore.RDS"))
 
 
 anag <- ore %>% 
   mutate(annoraplav = year(FineRapporto)) %>% 
   filter(annoraplav > 2018)%>%
-  mutate(Nome = gsub("\\s.*$", "", Nome) )
-  #distinct(Matricola, .keep_all = TRUE)
+  mutate(Nome = gsub("\\s.*$", "", Nome) ) %>% 
+  distinct(ANNO,Matricola, .keep_all = TRUE)
+
+#anag <- readRDS(here("data", "processed", "anal.RDS"))
+
 
 prj %>%
   left_join(anag, by = c("MatrRSUO" = "Matricola")) %>% 
   mutate(annoinizio = year(DataInizio), 
          annofine = year(DataFine),
-         Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%   
-  
+         Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%  
   saveRDS(., here("data", "processed", "prj.rds"))
 
 
