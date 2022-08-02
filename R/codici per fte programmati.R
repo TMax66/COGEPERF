@@ -1,8 +1,9 @@
 # i dati originali provengono dal file obiettiviXSB.xlsx che si trova nella cartella
 # \data\raw. Questi dati sono rielaborati dal codice FTEPROGRAMMATI.R che si trova 
-# nella cartella \R\rcodevari e che restituisce l'output datiFSB.rds che è inviato alla cartella \data\processed
+# nella cartella \R\rcodevari e che restituisce l'output datiSB.rds che è inviato alla cartella \data\processed
 
-dtProg <- readRDS(here("data", "processed", "datiSB.rds"))
+dtProg <- readRDS(here("data", "processed", "datiSB.rds"))## questo vale per il 2021
+
 ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione scheda budget  in quanto prende i dati dei fte programmati nelle schede budget
   mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
          Valorizzato = ifelse(Valorizzato != "no", "si", "no"),

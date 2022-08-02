@@ -1,3 +1,7 @@
+# codice per la definizione della 5 di fte programmati nel 2021
+# viene eseguito una sola volta per la costruzione degli ftp del 2021....
+# non deve essere rilanciato ad ogni aggiornamento dei dati del controllo di gestione
+
 obfted <- read_excel(here( "data", "raw", "obiettiviXSB.xlsx"), sheet = "FTEDdipsan")
 obftec <- read_excel(here( "data", "raw", "obiettiviXSB.xlsx"), sheet = "FTECdipsan")
 
@@ -257,5 +261,5 @@ dtD %>%
                                                         "Dipartimento Tutela Salute Animale", 
                                                         "Area Territoriale Lombardia", 
                                                         "Area Territoriale Emilia Romagna"))) %>%  
-  saveRDS(., file = here("data",  "processed",  "datiFSB.rds"))
+  saveRDS(., file = here("data",  "processed",  "datiSB.rds"))
 

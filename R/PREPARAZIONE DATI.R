@@ -24,9 +24,6 @@ conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02
 
 
 
-
-
-
 ### dati da dbase performance berenice per il 2021 -----
 conPerf <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
                       Database = "ObiettiviStrategiciV2018", Port = 1433)
@@ -246,7 +243,7 @@ pubblicazioni %>% filter(OA >= 2019) %>%
 saveRDS(., file = here("data", "processed",   "pub.rds"))
 
 ##DATI DA DBASE PERFORMANCE (OBIETTIVI, INDICATORI, TARGET, RISULTATO, FTEQ PROGRAMMATI)-----
-source(here("R","codici performance 2021.R"))## dati delle performance 2021
+#source(here("R","codici performance 2021.R"))## dati delle performance 2021
 
 ### dati performance 2022----
 
