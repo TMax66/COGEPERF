@@ -9,7 +9,7 @@ library(knitr)
 library(kableExtra)
 library(formattable)
 library(fmsb)
-#
+library(gt)
 
 
 conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
@@ -46,144 +46,205 @@ myfun <- function(con, q, tabella)
 query <- myfun(con=conSB, q=q, tabella = "vSchedaBudget")
 
 
-perf <- tbl(conSB, sql(query)) %>% as_tibble()
+dati <- tbl(conSB, sql(query)) %>% as_tibble()
+perf <- dati %>% 
+  filter(!str_detect(ObiettivoOperativo,"2.1.9.")) 
+perf <-  perf %>% 
+  filter(Periodo == 1 ) %>% 
+  mutate( AS = substr(AreaStrategica, start = 1, stop = 3), 
+                      AreaStrategica = recode( AS, 
+                                           AS1 = "AS1-ATTIVITA' ISTITUZIONALE", 
+                                           AS2 = "AS2-POTENZIAMENTO DELLA RICERCA", 
+                                           AS3 = "AS3-SISTEMA GESTIONALE", 
+                                           AS4 = "AS4-FORMAZIONE E COMUNICAZIONE", 
+                                           AS5 = "AS5-ETICA E LEGALITA’"),
+            Dipartimento = factor(Dipartimento, levels = c("DIREZIONE GENERALE", 
+                                                         "DIREZIONE SANITARIA", 
+                                                         "DIPARTIMENTO AMMINISTRATIVO",
+                                                         "DIPARTIMENTO TUTELA SALUTE ANIMALE", 
+                                                         "DIPARTIMENTO SICUREZZA ALIMENTARE", 
+                                                         "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA",
+                                                         "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA"))) 
+
+        
 
 
-
-
-
-
-
-
-
-
-
-# #perf <- readRDS(here("data", "processed", "performance.RDS"))
-# 
-# con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
-#                       Database = "ObiettiviStrategiciV2018", Port = 1433)
-# 
-# queryPERF <- "SELECT
-# Avanzamento,
-# Valore,
-# Anno,
-# TipoObiettivo,
-# Periodo,
-# MacroArea,Obiettivo,
-# Azione,
-# Indicatore,
-# StrutturaAssegnataria
-# 
-# FROM ObiettiviStrategiciV2018.dbo.v_EstrazioneObiettivi
-# WHERE Anno > 2020"
-# 
-# perf <- con %>% tbl(sql(queryPERF)) %>% as_tibble()
-# 
-# strutture <- read_excel(here("data", "raw", "strutture.xlsx"))
-# 
-# 
-# dip <- c("DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA", "DIPARTIMENTO SICUREZZA ALIMENTARE",
-#          "DIPARTIMENTO TUTELA SALUTE ANIMALE", "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA",
-#          "DIPARTIMENTO AMMINISTRATIVO", "CONTROLLO DI GESTIONE")
-# 
-# 
-# ##ricordificare le strutture
-# 
-# dt <- perf %>%
-#   filter(!StrutturaAssegnataria %in% dip & TipoObiettivo == "Operativo" ) %>% 
-#   mutate(Struttura = recode(StrutturaAssegnataria,
-#                             "S.T. PIACENZA E PARMA" = "SEDE TERRITORIALE DI PIACENZA - PARMA",
-#                             "REP. CHIM. DEGLI ALIMENTI E MANGIMI" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI",
-#                             "REP. CHIMICO ALIMENTI BOLOGNA" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)",
-#                             "REP. PRODUZIONE PRIMARIA" = "REPARTO PRODUZIONE PRIMARIA",
-#                             "S.T. BOLOGNA, FERRARA E MODENA" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
-#                             "S.T. REGGIO EMILIA" = "SEDE TERRITORIALE DI REGGIO EMILIA",
-#                             "REP. VIROLOGIA" = "REPARTO VIROLOGIA",
-#                             "REP. VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE",
-#                             "S.T. BERGAMO, SONDRIO E BINAGO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
-#                             "S.T. BRESCIA" = "SEDE TERRITORIALE DI BRESCIA",
-#                             "S.T. CREMONA, MANTOVA" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",
-#                             "S.T. FORLI' E RAVENNA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA",
-#                             "S.T. LODI E MILANO" = "SEDE TERRITORIALE DI LODI - MILANO",
-#                             "S.T. PAVIA" = "SEDE TERRITORIALE DI PAVIA",
-#                             "U.O. PROVV. ECONOMATO E VENDITE" = "UO PROVVEDITORATO ECONOMATO E VENDITE",
-#                             "SERVIZIO ASSICURAZIONE QUALITA" = "SERVIZIO ASSICURAZIONE QUALITA'",
-#                             "U.O. AFFARI GENERALI E LEGALI" = "U.O. AFFARI GENERALI E LEGALI",
-#                             "U.O. TECNICO PATRIMONIALE" = "UO TECNICO PATRIMONIALE",
-#                             "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE" = "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE",
-#                             "U.O. GESTIONE SERVIZI CONTABILI" = "U.O. GESTIONE SERVIZI CONTABILI",
-#                             "PROGRAMMAZIONE DEI SERVIZI TECNICI E CONTROLLO DI GESTIONE" = "Programmazione dei servizi tecnici e controllo di gestione",
-#                             "FORMAZIONE" =  "FORMAZIONE E BIBLIOTECA",
-#                             "SISTEMI INFORMATIVI" = "Programmazione dei servizi tecnici e controllo di gestione",
-#                             "SEGRETERIA DIREZIONALE" = "DIREZIONE GENERALE",
-#                             "GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE")
-#          
-#   )
-# 
-# dt <- dt %>% rename( Reparto = Struttura ) %>%
-#   left_join(
-#     
-#     (strutture %>% select(Dipartimento, Reparto) %>%
-#        unique())
-#     
-#     
-#     ,  by = c("Reparto"))  
-
-
-pPerf <-  perf %>%
-                    filter(Periodo == 4 & Avanzamento != 0 ) %>%
-                    mutate(MacroArea = factor(MacroArea)) %>%
-                    group_by(MacroArea) %>%
-                    summarise(media = 100*round(mean(Avanzamento, na.rm = T),2),
-                              n = n()) %>%
-                    mutate(target = 100) %>%
-                    mutate(MacroArea = as.character(MacroArea)) %>%
-                    mutate(MacroArea = gsub("\\d+", "", MacroArea),
-                           MacroArea = gsub("\"", "", MacroArea))
-)
-
-
-
-
-
-dt <- perf
-library(gt)
- 
-AV2 %>% 
-  filter(Periodo == 4 ) %>% 
-  group_by(MacroArea) %>% 
-  summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2), 
-            min = 100*min(Avanzamento))  %>% 
+# Avanzamento per AS
+perf %>% 
+  group_by(AreaStrategica) %>% 
+  summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))  %>% 
   ungroup %>% 
-  add_row(MacroArea = 'Livello Sintetico di Ente', !!! colMeans(.[-1])) %>% 
-  gt() %>%  
-gtsave("LSE.pdf")
-  
-  
-  
-  library(tibble)
-df2 %>% 
-  ungroup %>% 
-  add_row(year = 'mean', !!! colMeans(.[-1]))
-
-
-
-AV2 <- dt %>% 
-  filter(Periodo == 4) %>% 
-  mutate(Avanzamento = ifelse(Avanzamento == 0, 1, Avanzamento) )
-
-
-
-
+  add_row(AreaStrategica = 'Livello Sintetico di Ente', !!! colMeans(.[-1])) 
 
 
 library(flexdashboard)
+gauge(62.6, min= 0, max = 100, symbol = '%',
+           gaugeSectors(success = c(0,100),   colors = "steelblue"))
 
-x <- gauge(74, min= 0, max = 100, symbol = '%',
-      gaugeSectors(success = c(0,100),   colors = "steelblue"))
 
-x %>%
-  knit_print()
+plot_dt <- perf %>%  
+  mutate(AreaStrategica = factor(AreaStrategica)) %>% 
+  group_by(AreaStrategica) %>% 
+  summarise(mediana =  100*round(median(Avanzamento, na.rm = T),2),
+            media = 100*round(mean(Avanzamento, na.rm = T),2), 
+            n = n()) %>% 
+  mutate(target = 100) 
+ 
+  
+  
+##Plot----
+plt <- ggplot(plot_dt)+
+  geom_hline(
+    aes(yintercept = y),
+    data.frame(y = c(0, 25, 50, 75, 90, 100)), 
+    color = "lightgrey"
+  )+
+  geom_col(
+    aes(x = reorder(str_wrap(AreaStrategica, 1), media), 
+        y = media, 
+        fill = media
+    ), 
+    position = "dodge2", 
+    show.legend = TRUE, 
+    alpha = .9
+  )+
+  
+  geom_point(
+    aes(
+      x = reorder(str_wrap(AreaStrategica, 1), media),
+      y = media
+    ), 
+    size = 3, color = "gray12"
+  )+
+  
+  geom_segment(
+    aes(
+      x =  reorder(str_wrap(AreaStrategica, 1), media), 
+      y = 0, 
+      xend = reorder(str_wrap(AreaStrategica, 1), media), 
+      yend = 100
+    ), 
+    linetype = "dashed",
+    color = "gray12"
+  )+
+  coord_polar()+
+  
+  scale_y_continuous(
+    limits = c(-20,110),
+    expand = c(0, 0)
+    
+  ) +
+  geom_text(
+    aes(
+      x = reorder(str_wrap(AreaStrategica, 1), media),
+      y = media-10, 
+      label = paste0(media, "%")), 
+    color = "black", 
+    size=5)+
+  
+  annotate(
+    x = 0.5, 
+    y = 30, 
+    label = "25%", 
+    geom = "text", 
+    color = "red", 
+    family = "Bell MT"
+  )  +
+  annotate(
+    x = 0.5, 
+    y = 55, 
+    label = "50%", 
+    geom = "text", 
+    color = "red", 
+    family = "Bell MT"
+  )  +
+  
+  annotate(
+    x = 0.5, 
+    y = 80, 
+    label = "75%", 
+    geom = "text", 
+    color = "red", 
+    family = "Bell MT"
+  )  +
+  
+  annotate(
+    x = 0.5, 
+    y = 110, 
+    label = "100%", 
+    geom = "text", 
+    color = "red", 
+    family = "Bell MT"
+  )  +
+  
+  # scale_fill_gradientn(colours = gray.colors(7))+
+  
+  theme(
+    # Remove axis ticks and text
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.y = element_blank(),
+    # Use gray text for the region names
+    axis.text.x = element_text(color = "gray12", size = 8),
+    # Move the legend to the bottom
+    legend.position = "blank",
+  )+
+  
+  labs(title = "% del grado di avanzamento medio degli obiettivi nelle differenti aree strategiche")+
+  
+  # Customize general theme
+  theme(
+    
+    # Set default color and font family for the text
+    text = element_text(color = "gray12", family = "Bell MT"),
+    
+    # Customize the text in the title, subtitle, and caption
+    plot.title = element_text(face = "bold", size = 18),
+    plot.subtitle = element_text(size = 14, hjust = 0.05),
+    plot.caption = element_text(size = 10, hjust = .5),
+    
+    # Make the background white and remove extra grid lines
+    panel.background = element_rect(fill = "white", color = "white"),
+    panel.grid = element_blank(),
+    panel.grid.major.x = element_blank()
+  )
+  
+  
+
+# Avanzamento AsxDipartimento
+perf %>%  
+  group_by(Dipartimento,  AreaStrategica) %>% 
+  summarise(media =  round(mean(Avanzamento, na.rm = T),2)) %>%   
+  mutate(media = percent(media), 
+    media = as.character(media)) %>%  
+  pivot_wider(names_from = "Dipartimento", values_from = "media", values_fill = " ") %>%  t() %>% as.data.frame() %>% 
+  select("V4", "V1", "V2", "V5", "V3" ) %>% 
+  rownames_to_column() %>% 
+  row_to_names(row_number = 1) %>%
+  rename("DIPARTIMENTI" = "AreaStrategica") %>% 
+  kbl() %>% 
+  kable_styling() %>% 
+  kable_paper(bootstrap_options = "striped", full_width = F)
+ # save_kable(file = "tab1.png")
+# 
+# 
+
+
+
+
+ 
+
+ 
+  
+  
+  
+ 
+
+
+
+
+
+ 
 
 
 
