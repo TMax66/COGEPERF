@@ -24,8 +24,8 @@ ui <- dashboardPage(
             menuItem("Report Costi-Ricavi per Centri di Costo",href = "http://rshiny.izsler.it/costiricavi",
                      newtab = FALSE, icon = icon("euro")
                      
-                     ), 
-            menuItem("Obiettivi di Performance", tabName = "Performance", icon = icon("table"))
+                     )#, 
+            # menuItem("Obiettivi di Performance", tabName = "Performance", icon = icon("table"))
             )),
       
       dashboardBody(
@@ -192,49 +192,49 @@ ui <- dashboardPage(
           ), 
 tabItem(
   tabName = "Report Costi-Ricavi per Centri di Costo"
-),
+)
 # Performance----
-tabItem(
-  tabName = "Performance",
-  fluidPage(
-    
-    fluidRow( 
-             h1("lavori in corso"), 
-             img(src='umarell.jpg', align = "center")
-             )
-    
-    
-    
-#     fluidRow( align = "center", 
+# tabItem(
+#   tabName = "Performance",
+#   fluidPage(
 #     
-#     h1("Grado di raggiungimento degli obiettivi di performance organizzativa 
-#        ( aggiornamento al 30/06/2021)")),
-#     # fluidRow(
-#     #   valueBoxOutput("perfdg")
-#     # ), 
-#     br(), br(),
-#     fluidRow(   
-#     column(6,  
-#            plotOutput("pltArea",  width = "1500px",
-#                       height = "1500px")
-#           ), 
-#     column(6,
-#            box(width =12,
-#             tableOutput("AreaDip")
-#            )
-#            )
-#   
-#   
+#     fluidRow( 
+#              h1("lavori in corso"), 
+#              img(src='umarell.jpg', align = "center")
+#              )
+#     
+#     
+#     
+# #     fluidRow( align = "center", 
+# #     
+# #     h1("Grado di raggiungimento degli obiettivi di performance organizzativa 
+# #        ( aggiornamento al 30/06/2021)")),
+# #     # fluidRow(
+# #     #   valueBoxOutput("perfdg")
+# #     # ), 
+# #     br(), br(),
+# #     fluidRow(   
+# #     column(6,  
+# #            plotOutput("pltArea",  width = "1500px",
+# #                       height = "1500px")
+# #           ), 
+# #     column(6,
+# #            box(width =12,
+# #             tableOutput("AreaDip")
+# #            )
+# #            )
+# #   
+# #   
+# # )
+# 
+# 
 # )
-
-
-)
-)
-
-
-        )
+# )
+# 
+# 
+#         )
       )
-)
+))
 
 
 
