@@ -59,20 +59,6 @@ dbo.Personale_V2020.Anno  >=  2019"
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #### query  Controllo di Gestione per Dashboard Performance e APP Centri di Costo----
 queryCoge <- "SELECT IZS_ANNI.ANNO, IZS_TRIMESTRI.TRIMESTRE, IZS_MESI.MESE, IZS_MESI.Descrizione, 
                   IZS_Livello0.Livello0 AS Dipartimento, 
@@ -170,16 +156,6 @@ WHERE
                                                         'MP-SIVARS7-N', 'PC-49702')
   )
 ")
-
-
-
-
-
-
-
-
-
-
 
 
 

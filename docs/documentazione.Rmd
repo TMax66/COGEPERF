@@ -106,6 +106,26 @@ Vengono costruite tre tabelle :
 
 **T1** tabella con prestazioni (n. di esami eseguiti- denominato Determinazioni nel dbase COGEWD e in cc) , tariffato, fatturato,  e costi raggruppato per ANNO, Dipartimento, Reparto, Laboratorio. 
 
+```{r eval=FALSE, echo=T}
+T1 <- cc %>% #tabella con prestazioni (tariffato, fatturato) e costi
+  group_by(ANNO, MESE,Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% ## (Categoria,Classe, Area, Classificazione rappresentano la natura dei movimenti contabili)
+  summarise(Prestazioni = sum(Determinazioni, na.rm = TRUE), 
+            Tariffato = sum(Tariffario, na.rm=TRUE), 
+            Fatturato = sum (Fatturato, na.rm = TRUE), 
+            costi = sum(Costo, na.rm = TRUE)) %>% ## ...segue  dopo il commento
+```
+
+ con la parte di codice che segue, si ottiene il totale del numero di prestazioni (esami) svolte , il totale dei costi e il totale del valorizzato delle prestazioni  intese come dato presente in tariffa , indipendentemente se è una prestazione a pagamento a gratuita ( infatti nel secondo blocco del codice non viene utilizzata la variabile Fatturato ma solo Tariffato ) e indipendentemente dalla natura del movimento, quindi qui sono presenti anche la vendita prodotti e i ricavi da produzione interna)... 
+
+
+```{r eval=FALSE, echo=T}
+group_by(ANNO, MESE,  Dipartimento, Reparto, Laboratorio) %>% 
+summarise(TotPrestazioni = sum(Prestazioni), 
+            TotCost = sum(costi), 
+            TotTariff = sum(Tariffato)) 
+```
+
+
 **T2** tabella costruita filtrando solo la voce "Vendita Prodotti" del campo Classe.  
 Alla vendita di un prodotto può essere associato sia un valore di fatturato oppure un valore da tariffario in modo mutualmente esclusivo. Quindi nell'istruzione T2 viene costruita la variabile fatturato con la seguente istruzione 
 :
@@ -162,6 +182,10 @@ ftedf <- data.frame(mesi, fteC, fteD) # queste istruzioni creano un dataframe in
   rename(MESE = Mese)  # infine questa istruzione calcola i FTE Comparto e Dirigenza cumulati mensilmente 
 ```
 
+**ATTENZIONE QUESTA TABELLA VA MODIFICATA PER TENER CONTO DELLE DIVERSE % DI ALLOCAZIONE DEL PERSONALE A DIVERSE STRUTTURE/CDC..AD ESEMPIO IL DR. MAROCCHI
+E' ASSEGNATO ALLA STRUTTURA CREMONA-MANTOVA PER IL 75% MENTRE PER IL 25% ALLA DIREZIONE GENERALE COME ASSICURATORE DI QUALITA'**
+
+
 Il calcolo dei FTE segue la seguente logica: 
 
 Il personale di comparto ha un contratto di 36 ore settimanali che vengono moltiplicati per **47.4** ovvero il numero di settimane lavorative in un anno solare ( al netto di ferie, permessi, missioni ecc.) quindi il prodotto **36x47.4 = 1706.4**  rappresenta le ore annuali previste da un contratto full time del personale di comparto, mentre per il personale dirigente è pari a **38x47.4= 1801.2** .  Per calcolare i FTE effettivamente erogati ogni mese nell'arco dell'anno si dividono le ore annuali per 12, quindi per il comparto le ore  mensili previste sono **142.2** e **150.1** per la dirigenza. Per calcolare i FTE erogati a gennaio si divide semplicemente il numero di ore erogate per **142.2** o **150.1** rispettivamente per il comparto e per la dirigenza. Per i mesi successivi  necessario procedere utilizzando la somma cumulata sia delle ore erogate che dei fte previsti. Ad esempio i FTE per la dirigenza erogati fino a giugno si calcolano sommando le ore effettivamente lavorate diviso la **150.1x6= 900.6**.  I denominatori  per il calcolo degli FTE cumulati sono predefiniti in un dataframe costruito come indicato dall'istruzione 3 sopra riportata. Mentre per il cumulo delle ore erogate si utilizza la funzione cumsum(). 
@@ -177,7 +201,7 @@ T1 %>%
   saveRDS(., file = here("data", "processed",  "TabellaGenerale.rds")) 
 ```
 
-che viene salvata in formato .rds nella cartella processed (COGEPERF/data/processed)
+che viene salvata in formato .rds nella cartella processed (COGEPERF/data/processed). Questa tabella alimenta l'app cogep
 
 
 #### TABELLA GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA
@@ -335,10 +359,12 @@ ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione 
 
 #### PREPARAZIONE DATI PER APPLICATIVO COSTI-RICAVI
 
-A partire dal dataframe visto in prcedenza viene strutturato un dataset utile per la presentazione dei dati per centro di costo dell'applicativo costiricavi, utilizzando il seguente codice:
+A partire dal dataframe  cc visto in prcedenza viene strutturato un dataset utile per la presentazione dei dati per centro di costo dell'applicativo costiricavi, utilizzando il seguente codice:
 
 ```{r eval=FALSE, echo=T}
 cc %>% 
+    #nella prima parte vengono ricodificate alcune classi delle analisi per raggruparli a seconda se si tratta
+    #esami ufficiali, non ufficiali a pagamento o gratuito e combinazioni di questi criteri
   mutate(ClassAnalisi = recode(idClassificazione, 
                                `-1` = "Ufficiale a Pagamento", 
                                `-3` = "Ufficiale a Pagamento", 
@@ -378,24 +404,48 @@ cc %>%
                        `-10` = "Non Ufficiale", 
                         `-13` = "Non Ufficiale", 
                       .default = NA_character_), 
-         Quarter = factor(paste("Q",TRIMESTRE)),
+         Quarter = factor(paste("Q",TRIMESTRE)), #<-inizializza una variabile chiamata quarter - si tratta dei trimestri
          TUff = ifelse(ClassAnalisi == "Ufficiale a Pagamento", Fatturato,
-                       ifelse(ClassAnalisi == "Ufficiale Gratuito",  Tariffario, 0)),
-         TNonUff = ifelse(ClassAnalisi == "Non Ufficiale a Pagamento", Fatturato,
-                          ifelse(ClassAnalisi == "Non Ufficiale Gratuito", Tariffario, 0)),
-         TGratuito = ifelse(Pagamento == "Gratuito", Tariffario,0), 
-         TPagamento = ifelse(Pagamento == "Pagamento", Fatturato,0), 
-         TVP = ifelse(Classe == "Vendite prodotti", Fatturato, 0), 
-         TAI = ifelse(Classe == "Ricavi da produzione interna", Tariffario, 0), 
+                       ifelse(ClassAnalisi == "Ufficiale Gratuito",  Tariffario, 0)), # <- crea una variabile TUff dove sono riversati i valori da tariffario per gli esami
+                                                                                      #uff gratuiti, e dal fatturato per gli esami  uff a pagamento
+        
+         
+          TNonUff = ifelse(ClassAnalisi == "Non Ufficiale a Pagamento", Fatturato,  
+                          ifelse(ClassAnalisi == "Non Ufficiale Gratuito", Tariffario, 0)),# <- crea una variabile TNonUff dove sono riversati i valori da tariffario per gli esami
+                                                                                                # nonuff gratuiti, e dal fatturato per gli esami non uff a pagamento
+         
+        
+         
+         TGratuito = ifelse(Pagamento == "Gratuito", Tariffario,0), # <- crea una variabile TGratuito dove sono riversati i valori dal tariffario se gratuiti, altrimenti mette zero per altre cause
+         
+         TPagamento = ifelse(Pagamento == "Pagamento", Fatturato,0), # <- crea una variabile TPagamento dove sono riversati i valori dal fatturato se a pagamento , altrimenti mette zero per altre cause
+         
+         TVP = ifelse(Classe == "Vendite prodotti", Fatturato, 0), # <- valorizza una colonna dedicata ai ricavi da vendita prodotti riversando il valore dal fatturato
+         
+         TAI = ifelse(Classe == "Ricavi da produzione interna", Tariffario, 0), # <- valorizza una colonna dedicata ai ricavi da produzioni interne riversando il valore dal tarifario
+        
+         
+        ## le seguinti righe definiscono il numero di esami per le diverse tipologie di esami (uff/non-uff e gratuito/pagamento)
          AttUff = ifelse(Uff== "Ufficiale", Determinazioni, 0 ), 
+         
          AttNUff = ifelse(Uff== "Non Ufficiale", Determinazioni, 0 ), 
+         
          AttGrat = ifelse(Pagamento== "Gratuito", Determinazioni, 0 ), 
+         
          AttPag = ifelse(Pagamento == "Pagamento", Determinazioni, 0), 
+         
+         
+         ##queste due righe sono da cancellare la colonna Numero non ha significato... quindi non va utilizzata... (toglierla anche dalla sql)
          VP = ifelse(Classe == "Vendite prodotti", Numero, 0), 
+         
          AI = ifelse(Classe == "Ricavi da produzione interna", Numero, 0)) %>% 
-  mutate(CDC = ifelse(CodiceCDC == 5502, "LABORATORIO CONTAMINANTI AMBIENTALI-(Bologna)", CDC)) %>%  
-  saveRDS(here("data", "processed", "CC.rds"))
-
+ 
+    
+    
+    
+     mutate(CDC = ifelse(CodiceCDC == 5502, "LABORATORIO CONTAMINANTI AMBIENTALI-(Bologna)", CDC)) %>%  # <- assegna correttamente il nome al CDC 5502
+  
+    saveRDS( here("data", "processed", "CC.rds"))# <- questo file sarà utilizzato dall'app costi-ricavi
 ```
 
 

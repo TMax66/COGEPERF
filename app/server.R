@@ -962,8 +962,8 @@ output$tr <- renderUI({
       geom_point()+
       geom_line(group = 1, alpha =0.5)+
       geom_ribbon(aes(ymin = lowc, ymax = RFTEc), fill = "grey70", alpha = 0.3) +
-      geom_point(data = rfte22point(), aes(x=MESE, y=RFTEc), color="red") +
-      geom_line(data = rfte22point(), aes(x=MESE, y=RFTEc), color="red", lty=3)+
+      geom_point(data = rfte22pointR(), aes(x=MESE, y=RFTEc), color="red") +
+      geom_line(data = rfte22pointR(), aes(x=MESE, y=RFTEc), color="red", lty=3)+
       scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
       facet_wrap(Reparto~., scales = "free")+
       theme_bw()+

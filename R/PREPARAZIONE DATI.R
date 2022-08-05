@@ -62,19 +62,18 @@ T1 <- cc %>% #tabella con prestazioni (tariffato, fatturato) e costi
 T2 <- cc %>% filter(Classe == "Vendite prodotti") %>% ###vendita prodotti
   group_by(ANNO,MESE,  Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
   mutate(Fatturato = ifelse(Fatturato == 0, Tariffario, Fatturato )) %>% 
-  summarise(NVP = sum(Numero, na.rm = TRUE), 
+  summarise(
             FattVP = sum(Fatturato, na.rm = TRUE)) %>% 
   group_by(ANNO, MESE, Dipartimento, Reparto, Laboratorio) %>% 
-  summarise(TotNVP = sum(NVP), 
-            TotFattVP = sum(FattVP))
+  summarise( TotFattVP = sum(FattVP))
 
 
 T3 <- cc %>% filter(Classe== "Ricavi da produzione") %>% ###attività interna
   group_by(ANNO, MESE,Dipartimento, Reparto, Laboratorio,  Categoria, Classe, Area, Classificazione) %>% 
-  summarise(NumAI = sum(Numero, na.rm = TRUE), 
+  summarise( 
             TarAI = sum(Tariffario, na.rm = TRUE)) %>% 
   group_by(ANNO, MESE, Dipartimento, Reparto, Laboratorio) %>% 
-  summarise(TotNAI = sum(NumAI), 
+  summarise(
             TAI = sum(TarAI)) 
 
 
@@ -134,8 +133,13 @@ T1 %>% ##attività costi e fte
   left_join(T2, by=c("ANNO", "MESE", "Dipartimento", "Reparto", "Laboratorio")) %>%  
   left_join(T3, by=c("ANNO","MESE", "Dipartimento", "Reparto", "Laboratorio")) %>% 
   left_join(fte,by=c("ANNO", "MESE",  "Dipartimento", "Reparto", "Laboratorio")) %>% 
-  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%  
-  saveRDS(.,here("data", "processed", "TabellaGenerale.rds"))
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE),
+         TotFattVP = ifelse(is.na(TotFattVP), 0, TotFattVP), 
+         TAI = ifelse(is.na(TAI), 0, TAI), 
+         TotTariff = TotTariff - (TotFattVP + TAI)) %>% 
+  
+
+saveRDS(.,here("data", "processed", "TabellaGenerale.rds"))
 
 
 
@@ -309,21 +313,21 @@ cc %>%
                         `-13` = "Non Ufficiale", 
                       .default = NA_character_), 
          Quarter = factor(paste("Q",TRIMESTRE)),
-         TUff = ifelse(ClassAnalisi == "Ufficiale a Pagamento", Fatturato,
+         TUff = ifelse(ClassAnalisi == "Ufficiale a Pagamento", Tariffario,
                        ifelse(ClassAnalisi == "Ufficiale Gratuito",  Tariffario, 0)),
-         TNonUff = ifelse(ClassAnalisi == "Non Ufficiale a Pagamento", Fatturato,
+         TNonUff = ifelse(ClassAnalisi == "Non Ufficiale a Pagamento", Tariffario,
                           ifelse(ClassAnalisi == "Non Ufficiale Gratuito", Tariffario, 0)),
-         TGratuito = ifelse(Pagamento == "Gratuito", Tariffario,0), 
-         TPagamento = ifelse(Pagamento == "Pagamento", Fatturato,0), 
-         TVP = ifelse(Classe == "Vendite prodotti", Fatturato, 0), 
-         TAI = ifelse(Classe == "Ricavi da produzione interna", Tariffario, 0), 
+         TGratuito = ifelse(Pagamento == "Gratuito", Tariffario,0),
+         TPagamento = ifelse(Pagamento == "Pagamento", Fatturato,0),
+         TVP = ifelse(Classe == "Vendite prodotti", Tariffario, 0), 
+         TAI = ifelse(Classe == "Ricavi da produzione", Tariffario, 0), 
          AttUff = ifelse(Uff== "Ufficiale", Determinazioni, 0 ), 
          AttNUff = ifelse(Uff== "Non Ufficiale", Determinazioni, 0 ), 
          AttGrat = ifelse(Pagamento== "Gratuito", Determinazioni, 0 ), 
          AttPag = ifelse(Pagamento == "Pagamento", Determinazioni, 0), 
-         VP = ifelse(Classe == "Vendite prodotti", Numero, 0), 
-         AI = ifelse(Classe == "Ricavi da produzione interna", Numero, 0)) %>% 
-  mutate(CDC = ifelse(CodiceCDC == 5502, "LABORATORIO CONTAMINANTI AMBIENTALI-(Bologna)", CDC)) %>%  
+         AltriProv = ifelse(Classe == "Altri proventi", Tariffario, 0)) %>% 
+        
+  mutate(CDC = ifelse(CodiceCDC == 5502, "LABORATORIO CONTAMINANTI AMBIENTALI-(Bologna)", CDC)) %>%
   saveRDS( here("data", "processed", "CC.rds"))
 
 

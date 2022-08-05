@@ -81,16 +81,12 @@ dtAtt <- reactive (dtanalisi %>% filter(CDC == input$CC & Costi=="Ricavo") %>%
                                EUff = sum(AttUff, na.rm = TRUE), 
                                ENUff =sum(AttNUff, na.rm = TRUE), 
                                EPag = sum(AttPag, na.rm = TRUE), 
-                               Egrat = sum(AttGrat, na.rm = TRUE), 
-                               PI = sum(AI , na.rm = TRUE), 
-                               Prodv = sum(VP, na.rm = TRUE)) %>% 
+                               Egrat = sum(AttGrat, na.rm = TRUE)) %>% 
                      mutate(CumEsami = cumsum(N.Esami), 
                             CumEUff = cumsum(EUff), 
                             CumENUff = cumsum(ENUff), 
                             CumEPag = cumsum(EPag), 
-                            CumEgrat = cumsum(Egrat), 
-                            CumPI = cumsum(PI), 
-                            CumProdv = cumsum(Prodv)) %>% 
+                            CumEgrat = cumsum(Egrat)) %>% 
                      ungroup() %>% 
                      arrange(Quarter) %>%  
                      mutate(VarEsami = round((N.Esami/lag(N.Esami)-1)*100, 2), 
@@ -98,15 +94,11 @@ dtAtt <- reactive (dtanalisi %>% filter(CDC == input$CC & Costi=="Ricavo") %>%
                             VarENUff = round((ENUff/lag(ENUff)-1)*100, 2), 
                             VarEPag = round((EPag/lag(EPag)-1)*100, 2),
                             VarEgrat = round((Egrat/lag(Egrat)-1)*100, 2),
-                            VarPI = round((PI/lag(PI)-1)*100, 2), 
-                            VarProdv = round((Prodv/lag(Prodv)-1)*100, 2), 
                             VarCumEs = round((CumEsami/lag(CumEsami)-1)*100,2), 
                             VarCumEUff = round((CumEUff/lag(CumEUff)-1)*100,2), 
                             VarCumENUff = round((CumENUff/lag(CumENUff)-1)*100,2), 
                             VarCumEPag = round((CumEPag/lag(CumEPag)-1)*100,2),
-                            VarCumEgrat = round((CumEgrat/lag(CumEgrat)-1)*100,2),
-                            VarCumPI = round((CumPI/lag(CumPI)-1)*100,2),
-                            VarCumProdv = round((CumProdv/lag(CumProdv)-1)*100,2)
+                            VarCumEgrat = round((CumEgrat/lag(CumEgrat)-1)*100,2)
                      )
            
 )
@@ -119,15 +111,18 @@ dtT <- reactive(dtanalisi %>% filter(CDC == input$CC & Costi=="Ricavo") %>%
                             Gratuiti = sum(TGratuito, na.rm = T),
                             Pagamento = sum(TPagamento, na.rm = T), 
                             Vprod = sum(TVP, na.rm= T), 
-                            AI = sum(TAI, na.rm = T)) %>%
+                            AI = sum(TAI, na.rm = T),
+                            Aprov = sum(AltriProv, na.rm = T)) %>%
                   mutate(CumUff = cumsum(Ufficiali),
                          CumNonUff = cumsum(NonUfficiali), 
                          CumGrat = cumsum(Gratuiti), 
                          CumPag = cumsum(Pagamento), 
                          CumVprod = cumsum(Vprod), 
-                         CumAI = cumsum(AI)) %>% 
+                         CumAI = cumsum(AI), 
+                         CumAprov = cumsum(Aprov)) %>% 
                   rowwise() %>% 
-                  mutate(TotRic = round(sum(Ufficiali, NonUfficiali, na.rm = T),2)) %>%
+                  mutate(TotRic = round(sum(Ufficiali, NonUfficiali,
+                                            Vprod, AI, Aprov, na.rm = T),2)) %>%
                   ungroup %>% 
                   mutate(CumTotRic = cumsum(TotRic)) %>% 
                   ungroup() %>% 
@@ -140,7 +135,6 @@ dtT <- reactive(dtanalisi %>% filter(CDC == input$CC & Costi=="Ricavo") %>%
                          VarVP = round((Vprod/lag(Vprod)-1)*100, 2), 
                          VarAI = round((AI/lag(AI)-1)*100,2), 
                          VarTot = round((TotRic/lag(TotRic)-1)*100, 2),
-                         
                          VarCumUff = round((CumUff/lag(CumUff)-1)*100, 2), 
                          VarCumNonUff = round((CumNonUff/lag(CumNonUff)-1)*100, 2), 
                          VarCumGrat = round((CumGrat/lag(CumGrat)-1)*100, 2), 
