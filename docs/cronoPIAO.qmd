@@ -1,0 +1,121 @@
+---
+title: "Programma delle attività per la realizzazione del PIAO 2023-2025"
+author: "COGEP"
+format: pptx
+editor: visual
+---
+
+```{r, echo=FALSE}
+library(timevis)
+library(janitor)
+library(reshape2)
+library(hrbrthemes)
+library(scales)
+library(readxl)
+library(here)
+library(tidyverse)
+
+
+
+timing <- read_excel(here("data", "raw",  "cronoprogrammapiao.xlsx"), 
+                     col_types = c( "text", "date", 
+                                    "date"))
+
+timing <- timing %>% 
+  mutate(event = factor(event, levels = c("Definizione cronoprogramma attività del PIAO",
+                                          "Individuazione degli indicatori della dimensione interna ed esterna",
+                                          "Redazione dei documenti della parte generale e della parte specifica del PIAO",
+                                          "Individuazione degli obiettivi di performance 2023-2025",
+                                          "Consegna della bozza del PIAO al CERVAP per valutazione",
+                                          "Trasmissione al NVP e al CdA della Bozza del PIAO", 
+                                          "Adozione del PIAO 2023-2025"))) 
+```
+
+
+
+# Macro attività
+
+- Macro attività 1: Redazione del PIAO 2023-2025 _attività periodica annuale_  (referente D.ssa Olivini)
+
+- Macro attività 2: Definizione del Valore Pubblico dell'IZSLER  _progetto di ricerca biennale_ ( referente Dr. Tranquillo)
+
+
+# Cronoprogramma Macro Attività 1
+```{r}
+melt(timing,  measure.vars = c("start", "end")) %>% 
+  mutate(event = fct_rev(event), 
+         value = as.Date(value)) %>% 
+  ggplot(aes(value, event,  color = event))+
+  geom_line(size = 10, alpha = 0.8)+ 
+  labs(title =  "", y="", x="")+
+  theme_ipsum_rc()+
+  theme(legend.position = "blank",
+        axis.text.x = element_text(size = 10))+
+  scale_x_date(labels = date_format("%d-%m-%Y"), breaks = "1 month")+
+  scale_color_manual(values=c(rep("#487DA8", 16)))
+```
+
+
+# Individuazione degli indicatori della dimensione interna ed esterna
+
+- Indicatori di dimensione interna (efficacia, efficienza, economicità....)
+questa attività è svolta dal COGEP in collaborazione con il CERVAP e con i DD a seguito di valutazioni degl indicatori di Mantenimento e di Efficienza/Efficacia adottati nel Piano Performance 2022-2024
+
+- Indicatori di dimensione esterna (definizione degli  Impatti)
+attività svolta dal COGEP in collaborazione con il CERVAP .... in attesa della definizione quantitativa degli impatti (attività della Macro Area 2) si procederà alla definizione qualitativa.
+
+
+# Redazione dei documenti della parte generale e della parte specifica del PIAO
+
+Incontri del COGEP con le strutture  coinvolte  nella redazione dei documenti di programmazione dell'IZSLER (PIANO PERFROMANCE -PTPCT
+PTFP -POLA -PIANO AZIONI POSITIVE -GEP)
+
+La parte generale dovrà essere terminata entro il 15/10/2022, mentre la parte specifica per la definizione delle misure relative al Valore Pubblico dovrà essere terminata non oltre il 30/10/2022
+
+
+# Individuazione degli obiettivi di performance 2023-2025
+
+Partendo dall’analisi di quanto programmato nell’anno 2022, sulla base delle linee strategiche definite dalla direzione e sulla base degli indicatori di impatto per la definizione del Valore Pubblico. Attività in collaborazione con la Direzione Strategica e i Direttori di Dipartimento
+
+# Consegna della bozza del PIAO al CERVAP per valutazione
+La bozza del PIAO sarà valautata in collaborazione col CERVAP prima della sua definitiva stesura
+
+
+
+# Trasmissione al NVP e al CdA della Bozza del PIAO
+
+Entro e non oltre il 15 dicembre per permettere al NVP e al CdA una corretta valutazione e il recepimento da parte del COGEP di eventuali modifiche da apportare al PIAO
+
+
+
+# Adozione del PIAO 2023-2025
+La scadenza naturale di presentazione del PIAO è il 31/01/2023 , sarebbe preferibile avere l'approvazione del CdA entro il 15/01, per poter iniziare in anticipo le attività legate al cascading e budgeting
+
+
+
+# Macro Attività 2
+
+Stato di avanzamento dei lavori con il CERVAP
+
+Definizione per gli impatti economici e sanitari degli ambiti di Sanità Animale e Sicurezza Alimentare
+
+- Indicatore
+- Formula
+- Unità di misura
+- Polarità
+- Baseline
+- Target
+- Risultato atteso
+- Fonte dati
+
+Percorso molto complesso da fare in collaborazione con Direzione Sanitaria e Sorveglianza Epidemiologica
+
+
+
+
+
+
+
+
+
+

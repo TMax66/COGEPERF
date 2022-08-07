@@ -1,52 +1,36 @@
-library(DiagrammeR)
-
-mermaid("gantt
-        Section Initiation
-        Planning : a1, 2016-01-01, 10d
-        Data processing: after a1, 30d")
-
-
-mermaid("gantt
-dateFormat  YYYY-MM-DD
-title Cronoprogramma attività PIAO 2023-2025
-        
-        Definizione indicatori della dimensione esterna(impatti/valore pubblico) e indicatori della dimensione interna (efficacia/efficienza)    :crit, 2022-08-08, 2022-09-30
-        
-         
-        Incontro con dirigenti coinvolti nel PIAO: des1, 2022-09-15, 2022-09-30
-        
-        ")
+library(timevis)
+library(janitor)
+library(reshape2)
+library(hrbrthemes)
+library(scales)
+library(readxl)
 
 
 
-mermaid(
-  "gantt
-    dateFormat  YYYY-MM-DD
-    title       Adding GANTT diagram functionality to mermaid
-    excludes    weekends
+timing <- read_excel(here("data", "raw",  "cronoprogrammapiao.xlsx"), 
+                     col_types = c( "text", "date", 
+                                    "date"))
 
-    section A section
-    Completed task            :done,    des1, 2014-01-06,2014-01-08
-    Active task               :active,  des2, 2014-01-09, 3d
-    Future task               :         des3, after des2, 5d
-    Future task2              :         des4, after des3, 5d
+timing <- timing %>% 
+  mutate(event = factor(event, levels = c("Definizione cronoprogramma attività del PIAO",
+                                          "Individuazione degli indicatori della dimensione interna ed esterna",
+                                          "Redazione dei documenti della parte generale e della parte specifica del PIAO",
+                                          "Individuazione degli obiettivi di performance 2023-2025",
+                                          "Consegna della bozza del PIAO al CERVAP per valutazione",
+                                          "Trasmissione al NVP e al CdA della Bozza del PIAO", 
+                                          "Adozione del PIAO 2023-2025")))  
 
-    section Critical tasks
-    Completed task in the critical line :crit, done, 2014-01-06,24h
-    Implement parser and jison          :crit, done, after des1, 2d
-    Create tests for parser             :crit, active, 3d
-    Future task in critical line        :crit, 5d
-    Create tests for renderer           :2d
-    Add to mermaid                      :1d
-    Functionality added                 :milestone, 2014-01-25, 0d
 
-    section Documentation
-    Describe gantt syntax               :active, a1, after des1, 3d
-    Add gantt diagram to demo page      :after a1  , 20h
-    Add another diagram to demo page    :doc1, after a1  , 48h
 
-    section Last section
-    Describe gantt syntax               :after doc1, 3d
-    Add gantt diagram to demo page      :20h
-    Add another diagram to demo page    :48h"
-)
+
+melt(timing,  measure.vars = c("start", "end")) %>% 
+  mutate(event = fct_rev(event), 
+         value = as.Date(value)) %>% 
+  ggplot(aes(value, event,  color = event))+
+  geom_line(size = 10, alpha = 0.8)+ 
+  labs(title =  "CRONOPROGRAMMA DELLE ATTIVITA' LEGATE ALLA REALIZZAZIONE DEL PIAO 2023-2025", y="", x="")+
+  theme_ipsum_rc()+
+  theme(legend.position = "blank")+
+  scale_x_date(labels = date_format("%d-%m-%Y"), breaks = "1 month")+
+  scale_color_manual(values=c(rep("#487DA8", 16)))
+
