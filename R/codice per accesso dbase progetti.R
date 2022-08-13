@@ -19,7 +19,20 @@ saveRDS(prjuo, here("data", "processed", "prjuo.RDS"))
 prj <- readRDS(here("data", "processed", "prjxx.RDS"))
 prjuo <- readRDS(here("data", "processed", "prjuo.RDS"))
 
-prj22 <- prj %>% 
+
+##verifica duplicati nel codice progetti###
+
+# prj$duplicati <- duplicated(prj$Codice)
+# 
+# 
+# codicidoppi <- prj %>% filter(duplicati == TRUE) %>% 
+#   select(Codice)
+# 
+# prj %>% filter(Codice %in% codicidoppi$Codice) %>%  View()
+  
+
+
+prj22 <- prj %>% filter(Tipo_P_A == "A") %>% 
  select(Codice, CodIDIzsler, DataInizio, DataFine,  Descrizione, Tipologia, MatrRespScientifico, 
         RespScientifico, FinCompApprovato) %>%   
   left_join(
