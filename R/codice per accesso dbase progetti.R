@@ -32,7 +32,7 @@ prjuo <- readRDS(here("data", "processed", "prjuo.RDS"))
   
 
 
-prj22 <- prj %>% filter(Tipo_P_A == "A") %>% 
+prj22 <- prj %>% filter(Tipo_P_A == "P") %>% 
  select(Codice, CodIDIzsler, DataInizio, DataFine,  Descrizione, Tipologia, MatrRespScientifico, 
         RespScientifico, FinCompApprovato) %>%   
   left_join(
