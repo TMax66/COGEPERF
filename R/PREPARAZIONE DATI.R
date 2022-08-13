@@ -199,7 +199,7 @@ anag <- ore %>%
   mutate(Nome = gsub("\\s.*$", "", Nome) ) %>% 
   distinct(ANNO,Matricola, .keep_all = TRUE)
 
-#anag <- readRDS(here("data", "processed", "anal.RDS"))
+anag <- readRDS(here("data", "processed", "anal.RDS"))
 
 
 prj %>%
