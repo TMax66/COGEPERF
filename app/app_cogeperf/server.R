@@ -483,7 +483,7 @@ output$t <- renderUI({
                                    "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA" = "ATER")) %>%
       filter(MESE == max(MESE)) %>% 
       pivot_longer(!c(Anno,MESE, Dipartimento), names_to = "KPI", values_to = "valore") %>% 
-      filter(KPI == "Prestazioni") %>%
+      filter(KPI == input$kpi) %>%
       group_by(Dipartimento) %>%
       arrange(Dipartimento, Anno) %>%
       filter(Anno != Year()) %>% 
@@ -1033,7 +1033,7 @@ output$tr <- renderUI({
           "", 
           "Ricavi totali (RT)",
           "I RT per ogni dipartimento sono calcolati a partire dai dati forniti dal datawerehouse DW_COGEP", 
-          "sommando  l'attivita' valorizzata a tariffario,  quella fatturata, i ricavi dalla Vendita dei prodotti (VP) e dall'attivita' interna (AI).",
+          "sommando  l'attivita' valorizzata a tariffario, i ricavi dalla Vendita dei prodotti (VP) e dall'attivita' interna (AI).",
           "",
           "FTE", 
           "I FTE sono calcolati come il rapporto tra le ore complessivamente erogate dal personale di comparto e dirigenza", 
