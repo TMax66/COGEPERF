@@ -8,6 +8,7 @@ library(zoo)
 
 dt <- readRDS(here("app", "app_attività","datiperapp.RDS"))
 
+source(here("app", "app_attività", "funzioni", "plot.R"))
 
 
 conf <- dt %>% distinct() %>% 

@@ -1,0 +1,68 @@
+---
+title: "report utenze"
+author: "Cogep"
+date: "2022-09-08"
+output: html_document
+---
+
+```{r echo=FALSE}
+library(tidyverse)
+library(here)
+library(formattable)
+library(sparkline)
+library(htmlwidgets)
+
+dt <- readRDS(here("data", "processed", "utenze_energetiche.RDS"))
+
+```
+
+
+# Andamento delle spese per le utenze energetiche dal  2019 al primo semestre del 2022
+
+
+
+Di seguito è riportato l'andamento del costo delle utenze energetiche (gas e elettricità nei vari Dipartimenti nel periodo di riferimento)
+
+```{r}
+dt %>% filter(!str_detect(DIPARTIMENTO, "COSTI")) %>% 
+  filter(!str_detect(DIPARTIMENTO, "CENTRO")) %>% 
+  filter(Livello0 %in% c("Dipartimento area territoriale Emilia Romagna", 
+                         "Dipartimento area territoriale Lombardia", 
+                         "Dipartimento sicurezza alimentare",
+                         "Dipartimento tutela e salute animale", 
+                         "Dipartimento amministrativo")) %>% 
+  group_by(ANNO, Livello0) %>%  #REPARTO, CENTRO_DI_COSTO,  ) %>% 
+  filter(Aree == "gas") %>% 
+  summarise("costo_utenze"= sum(CostiUtenza, na.rm = TRUE)) %>% 
+  pivot_wider(names_from = "ANNO", values_from = "costo_utenze") %>% 
+  
+  left_join(
+    (dt %>% filter(!str_detect(DIPARTIMENTO, "COSTI")) %>% 
+      filter(!str_detect(DIPARTIMENTO, "CENTRO")) %>% 
+      filter(Livello0 %in% c("Dipartimento area territoriale Emilia Romagna", 
+                             "Dipartimento area territoriale Lombardia", 
+                             "Dipartimento sicurezza alimentare",
+                             "Dipartimento tutela e salute animale", 
+                             "Dipartimento amministrativo")) %>% 
+      group_by(ANNO, Livello0) %>%  #REPARTO, CENTRO_DI_COSTO,  ) %>% 
+      filter(Aree == "gas") %>% 
+      summarise("costo_utenze"= sum(CostiUtenza, na.rm = TRUE)) %>% ungroup() %>% 
+      select(-ANNO) %>% 
+      group_by(Livello0) %>% 
+      summarise(trend = spk_chr(costo_utenze, type= "line", options =
+                                  list(paging = FALSE))) 
+     ))%>% 
+      rename("Dipartimento" = Livello0) %>% 
+  formattable()
+      
+      #format_table()  %>%  
+     # htmltools::HTML() %>% 
+    #  div() %>% 
+     # spk_add_deps()
+```
+
+
+
+
+
+#
