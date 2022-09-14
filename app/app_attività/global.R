@@ -1,6 +1,20 @@
+librerie()
 library(tidyverse)
 library(here)
 library(shiny)
+library(zoo)
+
+
+
+dt <- readRDS(here("app", "app_attività","datiperapp.RDS"))
+
+
+
+conf <- dt %>% distinct() %>% 
+  group_by(Data_Accettazione, Dipartimento, repacc, settore, tipoconf, tipoprel) %>% 
+  summarise(conferimenti = n())
+
+ 
 
 
 

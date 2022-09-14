@@ -19,14 +19,43 @@ dt <- readRDS(here( "app", "app_attività", "dt.RDS"))
 strutture <- read_excel(here("data", "raw", "strutture.xlsx"))
 
 
-
-
-
-
-
-
-
-
+conf <- dt %>% distinct() %>%
+  mutate(repacc =  sapply(repacc, iconv, from = "latin1", to = "UTF-8", sub = ""),
+         finalita =  sapply(finalita, iconv, from = "latin1", to = "UTF-8", sub = ""), 
+         repacc = recode(repacc, 
+                         "Bologna (Reparto chimico degli alimenti)" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)",
+                         "Reparto Chimica degli Alimenti e Mangimi" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI",
+                         "Reparto Tecnologie Biologiche Applicate - Batteriologia Specializzata" = "REPARTO VIROLOGIA",
+                         "Reparto Tecnologie Biologiche Applicate - Colture Cellulari"  = "REPARTO VIROLOGIA",
+                         "Reparto Tecnologie Biologiche Applicate" = "REPARTO VIROLOGIA",
+                         "Reparto Virologia - Laboratorio Proteomica" = "REPARTO VIROLOGIA",
+                         "Reparto Virologia (ME)" = "REPARTO VIROLOGIA",
+                         "Sede Territoriale di Milano (IS)" = "SEDE TERRITORIALE DI LODI - MILANO", 
+                         "Sede Territoriale di Bergamo"  =  "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
+                         "Sede Territoriale di Binago" =  "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
+                         "Sede Territoriale di Sondrio" =  "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
+                         "Sede Territoriale di Milano" =  "SEDE TERRITORIALE DI LODI - MILANO",
+                         "Sede Territoriale di Lodi" =  "SEDE TERRITORIALE DI LODI - MILANO",
+                         "Sede Territoriale di Pavia" = "SEDE TERRITORIALE DI PAVIA", 
+                         "Sede Territoriale di Cremona" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",    
+                         "Sede Territoriale di Mantova" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",
+                         "Sede Territoriale di Brescia" = "SEDE TERRITORIALE DI BRESCIA",
+                         "Sede Territoriale di Bologna" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
+                         "Sede Territoriale di Modena" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
+                         "Sede Territoriale di Ferrara" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
+                         "Sede Territoriale di Forlì" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA",
+                         "Sede Territoriale di Ravenna" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA", 
+                         "Sede Territoriale di Reggio Emilia"  = "SEDE TERRITORIALE DI REGGIO EMILIA",
+                         "Sede Territoriale di Parma" = "SEDE TERRITORIALE DI PIACENZA - PARMA", 
+                         "Sede Territoriale di Piacenza" = "SEDE TERRITORIALE DI PIACENZA - PARMA"
+                         ), 
+         repacc = casefold(repacc, upper = TRUE))  %>%   
+  # group_by(settore, repacc) %>% 
+  # summarise(n = n()) %>% 
+  left_join(strutture %>% 
+              select(Dipartimento, Reparto),by = c("repacc" = "Reparto"))%>% 
+  
+  saveRDS( here( "app", "app_attività", "datiperapp.RDS"))
 
 
 
@@ -74,18 +103,11 @@ strutture <- read_excel(here("data", "raw", "strutture.xlsx"))
 # dt2 <- readRDS(here( "app", "app_attività", "dt2.RDS"))
 # 
 # 
-# conf <- dt2 %>% 
-#   select(- gruppo_prove, - Tot_Eseguiti) %>% distinct() %>% 
-#   mutate(stracc =  sapply(stracc, iconv, from = "latin1", to = "UTF-8", sub = ""), 
-#          strpropr =  sapply(strpropr, iconv, from = "latin1", to = "UTF-8", sub = ""),
-#          str_analisi =  sapply(str_analisi, iconv, from = "latin1", to = "UTF-8", sub = ""),
-#          stracc = casefold(stracc, upper = TRUE),
-#          strpropr = casefold(strpropr, upper = TRUE), 
-#          str_analisi = casefold(str_analisi, upper = TRUE))
+
 # 
 # 
 # 
-# conf %>% distinct() %>% 
+# conf %>% d  
 #   group_by(dtconf, stracc, settore, tipoconf, finalita ) %>% 
 #   View()
 # 

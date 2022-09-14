@@ -50,7 +50,21 @@ ui <- navbarPage(
           mainPanel(  
             tabsetPanel(
               tabPanel( 
-                "Sanità Animale"), 
+                "Sanità Animale", 
+                fluidRow(
+                  column(6,
+                         plotOutput("clombY"))
+                ), 
+                fluidRow(
+                  column(6, 
+                         plotOutput("clombM"))
+                ), 
+                fluidRow(
+                  column(6, 
+                         plotOutput("clombW"))
+                )
+                
+                ), 
               tabPanel(
                 "Alimenti Uomo"), 
               tabPanel(
