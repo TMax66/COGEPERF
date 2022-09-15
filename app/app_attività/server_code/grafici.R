@@ -45,12 +45,12 @@ output$aulombY <-  renderPlot(
 )
 
 output$aulombM <-  renderPlot(
-  tsmonth(conf, set = "Sanità Animale", dip = "Dipartimento area territoriale Lombardia")
+  tsmonth(conf, set = "Alimenti Uomo", dip = "Dipartimento area territoriale Lombardia")
 )
 
 
 output$aulombW <-  renderPlot(
-  tsweek(conf, set = "Sanità Animale", dip = "Dipartimento area territoriale Lombardia")
+  tsweek(conf, set = "Alimenti Uomo", dip = "Dipartimento area territoriale Lombardia")
 )
 
 

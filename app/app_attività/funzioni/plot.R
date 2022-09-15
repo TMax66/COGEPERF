@@ -44,25 +44,20 @@ tsmonth <-  function(dt,  dip, set = NULL){
   if(is.null(set)){  
   
   
-  dt %>% 
-    mutate(
-      anno = year(Data_Accettazione)) %>%
-    filter(
-           Dipartimento == dip) %>%   
-    group_by(tempo = floor_date(as.Date(Data_Accettazione), unit = "week")) %>%  
-    filter(anno == year(lubridate::floor_date(Sys.Date(), unit = "years"))) %>% 
-    summarise(conferimenti = sum(conferimenti)) %>%   
-    mutate(sett = rollmean(conferimenti, k = 4, fill = NA)) %>% 
-    ggplot()+
-    aes(x = tempo,
-        y = conferimenti)+
-    geom_line(
-      aes(x = tempo, 
-          y = sett), col = "blue", size = 1.5)+
-    geom_point()+
-    geom_line()+
-    scale_x_date(NULL, date_labels = "%b %d", breaks = "week")+
-    theme(axis.text.x = element_text(angle =45, hjust = 1))
+    conf %>% 
+      mutate(
+        anno = year(Data_Accettazione)) %>%
+      filter(
+        Dipartimento == dip) %>%   
+      group_by(tempo = floor_date(as.Date(Data_Accettazione), unit = "month")) %>%  
+      filter(anno == year(lubridate::floor_date(Sys.Date(), unit = "years"))) %>%  
+      summarise(conferimenti = sum(conferimenti)) %>% 
+      ggplot()+
+      aes(x = tempo,
+          y = conferimenti)+
+      geom_point()+
+      geom_line()+
+      scale_x_date(NULL, date_labels ="%B", breaks = "month")
   
   
 } else { 
@@ -72,21 +67,16 @@ tsmonth <-  function(dt,  dip, set = NULL){
       anno = year(Data_Accettazione)) %>%
     filter( settore == set,
       Dipartimento == dip) %>%   
-    group_by(tempo = floor_date(as.Date(Data_Accettazione), unit = "week")) %>%  
+    group_by(tempo = floor_date(as.Date(Data_Accettazione), unit = "month")) %>%  
     filter(anno == year(lubridate::floor_date(Sys.Date(), unit = "years"))) %>% 
     summarise(conferimenti = sum(conferimenti)) %>%   
-    mutate(sett = rollmean(conferimenti, k = 4, fill = NA)) %>% 
+    #mutate(sett = rollmean(conferimenti, k = 4, fill = NA)) %>% 
     ggplot()+
     aes(x = tempo,
         y = conferimenti)+
-    geom_line(
-      aes(x = tempo, 
-          y = sett), col = "blue", size = 1.5)+
     geom_point()+
     geom_line()+
-    scale_x_date(NULL, date_labels = "%b %d", breaks = "week")+
-    theme(axis.text.x = element_text(angle =45, hjust = 1))
-  
+    scale_x_date(NULL, date_labels ="%B", breaks = "month")
   
   
 }
@@ -97,39 +87,46 @@ tsweek <- function(dt, dip, set = NULL){
   
   if(is.null(set)){ 
   
-  dt %>% 
-    mutate( anno = year(Data_Accettazione), 
-            sett= week(Data_Accettazione)) %>%   
-    filter( Dipartimento == dip,  
-           anno == year(lubridate::floor_date(Sys.Date(), unit = "years")), 
-           sett == week(lubridate::floor_date(Sys.Date(), unit = "weeks"))-1) %>%
-    group_by(Data_Accettazione) %>%  
-    summarise(conferimenti = sum(conferimenti)) %>%   
+    dt %>% 
+      mutate(
+        anno = year(Data_Accettazione), 
+        mese = month(Data_Accettazione)) %>%
+      filter(
+        Dipartimento == dip) %>%   
+      group_by(tempo = floor_date(as.Date(Data_Accettazione), unit = "weeks")) %>%  
+      filter(anno == year(lubridate::floor_date(Sys.Date(), unit = "years")), 
+             mese == month(lubridate::floor_date(Sys.Date(), unit = "months"))) %>%   
+      summarise(conferimenti = sum(conferimenti)) %>%    
+    
     ggplot()+
-    aes(x = Data_Accettazione,
-        y = conferimenti)+
-    geom_point()+
-    geom_line()+
-    theme(axis.text.x = element_text(angle =45, hjust = 1))+
-    labs(x = "data di accettazione", y= "n.conferimenti giornalieri" )
+      aes(x = tempo,
+          y = conferimenti)+
+      
+      geom_point()+
+      geom_line()+
+      scale_x_date(NULL, date_labels =c("%d") , breaks = "week")+
+    labs(x = "data di accettazione", y= "n.conferimenti settimanali" )
   
   } else { 
 
-dt %>% 
-  mutate( anno = year(Data_Accettazione), 
-          sett= week(Data_Accettazione)) %>%   
-  filter( settore == set,
-    Dipartimento == dip,  
-    anno == year(lubridate::floor_date(Sys.Date(), unit = "years")), 
-    sett == week(lubridate::floor_date(Sys.Date(), unit = "weeks"))-1) %>%
-  group_by(Data_Accettazione) %>%  
-  summarise(conferimenti = sum(conferimenti)) %>%   
-  ggplot()+
-  aes(x = Data_Accettazione,
-      y = conferimenti)+
-  geom_point()+
-  geom_line()+
-  theme(axis.text.x = element_text(angle =45, hjust = 1))+
-  labs(x = "data di accettazione", y= "n.conferimenti giornalieri" )
+    dt %>% 
+      mutate(
+        anno = year(Data_Accettazione), 
+        mese = month(Data_Accettazione)) %>%
+      filter( settore == set,
+        Dipartimento == dip) %>%   
+      group_by(tempo = floor_date(as.Date(Data_Accettazione), unit = "weeks")) %>%  
+      filter(anno == year(lubridate::floor_date(Sys.Date(), unit = "years")), 
+             mese == month(lubridate::floor_date(Sys.Date(), unit = "months"))) %>%   
+      summarise(conferimenti = sum(conferimenti)) %>%    
+    
+    ggplot()+
+      aes(x = tempo,
+          y = conferimenti)+
+      
+      geom_point()+
+      geom_line()+
+      scale_x_date(NULL, date_labels =c("%d") , breaks = "week")+
+      labs(x = "data di accettazione", y= "n.conferimenti settimanali" )
 }
 }
