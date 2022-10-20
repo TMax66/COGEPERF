@@ -60,7 +60,10 @@ conf <- dt %>% distinct() %>%
 
 
 
-
+# datiperapp %>% 
+#   mutate(anno = year(Data_Accettazione)) %>% 
+#   filter(anno >=2021) %>%  
+#   saveRDS( here( "app", "app_attività", "datiattività.RDS"))
 
 
 

@@ -4,7 +4,7 @@ library("lubridate")
 
 
 tabIZSLER <- readRDS(file = here("data", "processed",   "TabellaGenerale.rds"))
-ricaviCovid21 <- readRDS(here("data","processed", "ricavoCovid.RDS"))
+ricaviCovid21 <- readRDS(here("data","processed", "ricavoCovid.RDS"))# i codici per ricavare questo file sono nel progetto COVID19 
 
 dtmensili <- tabIZSLER %>%
   
