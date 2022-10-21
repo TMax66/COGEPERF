@@ -24,13 +24,13 @@ conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02
 
 
 
-### dati da dbase performance berenice per il 2021 -----
-conPerf <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
-                      Database = "ObiettiviStrategiciV2018", Port = 1433)
-
-### dati da dbase performance berenice per il 2022 ----
-conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
-                        Database = "ObiettiviStrategici2022", Port = 1433)
+# ### dati da dbase performance berenice per il 2021 -----
+# conPerf <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
+#                       Database = "ObiettiviStrategiciV2018", Port = 1433)
+# 
+# ### dati da dbase performance berenice per il 2022 ----
+# conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
+#                         Database = "ObiettiviStrategici2022", Port = 1433)
 
 
 
