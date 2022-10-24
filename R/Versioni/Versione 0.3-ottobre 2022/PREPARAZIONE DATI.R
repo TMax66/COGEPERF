@@ -24,8 +24,8 @@ conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02
 #                       Database = "ObiettiviStrategiciV2018", Port = 1433)
 # 
 # ### dati da dbase performance berenice per il 2022 ----
-conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
-                        Database = "ObiettiviStrategici2022", Port = 1433)
+# conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
+#                         Database = "ObiettiviStrategici2022", Port = 1433)
 
 
 
@@ -194,7 +194,7 @@ anag <- ore %>%
   mutate(Nome = gsub("\\s.*$", "", Nome) ) %>% 
   distinct(ANNO,Matricola, .keep_all = TRUE)
 
-anag <- readRDS(here("data", "processed", "anag.RDS"))
+anag <- readRDS(here("data", "processed", "anal.RDS"))
 
 
 prj %>%
@@ -208,6 +208,23 @@ prj %>%
 
 ##DATI DA PUBBLICAZIONI####
 
+# pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
+# pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
+# pubblicazioni$AU <- gsub(",.*$", "", pubblicazioni$AU)
+# pubblicazioni %>% filter(OA >= 2019) %>%
+#   mutate(Cognome = recode(AU,
+#                           "COSCIANI_CUNICO" = "COSCIANI CUNICO",
+#   )) %>%
+#   left_join(anag, by = c("Cognome" = "Cognome")) %>%
+#   filter(Dirigente == "S") %>%  
+#   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
+
+
+# anag <- ore %>% 
+#   mutate(annoraplav = year(FineRapporto)) %>% 
+#   filter(annoraplav > 2018)%>%
+#   mutate(Nome = gsub("\\s.*$", "", Nome) ) %>%  
+#     saveRDS(file = here("data", "processed", "anagforpub.RDS"))
 
 pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
 pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)
@@ -220,8 +237,14 @@ pubblicazioni$Cognome <- gsub(",.*$", "", pubblicazioni$AU)
 
 pubblicazioni %>% filter(OA >= 2019) %>%
   left_join(anag, by = c("Cognome" = "Cognome", "Nome" = "Nome", "OA" = "ANNO")) %>%  
+  # filter(Dirigente == "S") %>%  
   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>% 
 saveRDS(., file = here("data", "processed",   "pub.rds"))
+
+##DATI DA DBASE PERFORMANCE (OBIETTIVI, INDICATORI, TARGET, RISULTATO, FTEQ PROGRAMMATI)-----
+#source(here("R","codici performance 2021.R"))## dati delle performance 2021
+
+### dati performance 2022----
 
 
 
