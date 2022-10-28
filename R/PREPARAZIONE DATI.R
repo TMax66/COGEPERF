@@ -83,7 +83,7 @@ ore <- ore %>%
   filter(Ruolo != "RICERCA SANITARIA E SUPPORTO RIC. SAN.")
   
 
-
+#saveRDS(ore, "oreDipa.RDS")
 
 
 
@@ -299,7 +299,9 @@ cc %>%
          AttPag = ifelse(Pagamento == "Pagamento", Determinazioni, 0), 
          AltriProv = ifelse(Classe == "Altri proventi", Tariffario, 0)) %>% 
         
-  mutate(CDC = ifelse(CodiceCDC == 5502, "LABORATORIO CONTAMINANTI AMBIENTALI-(Bologna)", CDC)) %>%
+  mutate(CDC = ifelse(CodiceCDC == 5502, "LABORATORIO CONTAMINANTI AMBIENTALI-(Bologna)", 
+                      ifelse(CodiceCDC == 5311, "PIACENZA-LABORATORIO LATTE", 
+                      ifelse(CodiceCDC == 5312, "SEDE TERRITORIALE DI PIACENZA", CDC)))) %>%  
   saveRDS( here("data", "processed", "CC.rds"))
 
 
