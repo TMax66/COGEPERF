@@ -50,10 +50,11 @@ saveRDS(prj22, here("data", "processed", "prj22.RDS"))
 
 
 
-#estrazione per quiantificazione finanziamenti alla ricerca per tipologia di progetto
+#estrazione per quantificazione finanziamenti alla ricerca per tipologia di progetto
 prj22 <- prj %>% filter(Tipo_P_A == "P") %>% 
-  select(Codice, CodIDIzsler, DataInizio, DataFine, Anno,  Descrizione, Tipologia, MatrRespScientifico, 
+  select(Codice, CodIDIzsler, DataInizio, DataFine,   Descrizione, Tipologia, MatrRespScientifico, 
          RespScientifico, FinCompApprovato) %>% 
+  mutate(anno = year(DataInizio)) %>% 
   left_join(
     prjuo %>% 
       mutate(budgetUO = QuotaSpeseGenerali+QuotaSpeseCoordinamento+
@@ -62,7 +63,8 @@ prj22 <- prj %>% filter(Tipo_P_A == "P") %>%
       select(CodProgetto, NumUOProgetto, RespScientUO, MatricolaRespScientUO, budgetUO,DescrUO ),   by = c("Codice" = "CodProgetto")) %>% 
   rename(MatrRSUO = MatricolaRespScientUO, 
          BudgetUO = budgetUO) %>% 
-  filter(Anno >=2019) %>% 
+ 
+  filter(anno >=2018) %>% 
  
   mutate(Tipologia = case_when(Tipologia == 0 ~ "Autofinanziato",
                                Tipologia == 1 ~ "Finalizzato",
@@ -71,11 +73,12 @@ prj22 <- prj %>% filter(Tipo_P_A == "P") %>%
                                Tipologia == 4 ~ "Regionali",
                                Tipologia == 5 ~ "Europeo",
                                Tipologia == 6 ~ "CCM",
-                               Tipologia == 7 ~ "Istituzionale")) %>%
-  group_by(Anno) %>% 
-  summarise(finanziamento = sum(BudgetUO, na.rm = TRUE)) %>% 
-  pivot_wider(names_from = "Anno", values_from = "finanziamento" ) %>%  View()
-
+                               Tipologia == 7 ~ "Istituzionale")) %>%  
+  #filter(Tipologia == "Europeo") %>% write.xlsx(file = "prj2.xlsx")
+  group_by(anno, Tipologia) %>% 
+  summarise(finanziamento = sum(BudgetUO, na.rm = TRUE)) %>%  
+  pivot_wider(names_from = "anno", values_from = "finanziamento" ) %>% 
+  write.xlsx(file = "prj.xlsx")
 
 
 
