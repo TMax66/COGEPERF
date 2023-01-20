@@ -108,38 +108,38 @@ rar22 <- con %>% tbl(sql(query)) %>% as_tibble()
 #names(rar22) <- c("nconf","stran", "strpropr", "nrdp", "dtreg", "dtref","")
 
 
+rar22 <- readRDS(file = "rar22.RDS")
 
 
-
-rar22 <- rar22 %>%
-  mutate(Struttura = recode(Str,
-                            "S.T. PIACENZA E PARMA" = "SEDE TERRITORIALE DI PIACENZA - PARMA",
-                            "REP. CHIM. DEGLI ALIMENTI E MANGIMI" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI",
-                            "REP. CHIMICO ALIMENTI BOLOGNA" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)",
-                            "REP. PRODUZIONE PRIMARIA" = "REPARTO PRODUZIONE PRIMARIA",
-                            "S.T. BOLOGNA, FERRARA E MODENA" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
-                            "S.T. REGGIO EMILIA" = "SEDE TERRITORIALE DI REGGIO EMILIA",
-                            "REP. VIROLOGIA" = "REPARTO VIROLOGIA",
-                            "REP. VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE",
-                            "S.T. BERGAMO, SONDRIO E BINAGO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
-                            "S.T. BRESCIA" = "SEDE TERRITORIALE DI BRESCIA",
-                            "S.T. CREMONA, MANTOVA" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",
-                            "S.T. FORLI' E RAVENNA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA",
-                            "S.T. LODI E MILANO" = "SEDE TERRITORIALE DI LODI - MILANO",
-                            "S.T. PAVIA" = "SEDE TERRITORIALE DI PAVIA",
-                            "U.O. PROVV. ECONOMATO E VENDITE" = "UO PROVVEDITORATO ECONOMATO E VENDITE",
-                            "SERVIZIO ASSICURAZIONE QUALITA" = "SERVIZIO ASSICURAZIONE QUALITA'",
-                            "U.O. AFFARI GENERALI E LEGALI" = "U.O. AFFARI GENERALI E LEGALI",
-                            "U.O. TECNICO PATRIMONIALE" = "UO TECNICO PATRIMONIALE",
-                            "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE" = "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE",
-                            "U.O. GESTIONE SERVIZI CONTABILI" = "U.O. GESTIONE SERVIZI CONTABILI",
-                            "PROGRAMMAZIONE DEI SERVIZI TECNICI E CONTROLLO DI GESTIONE" = "Programmazione dei servizi tecnici e controllo di gestione",
-                            "FORMAZIONE" =  "FORMAZIONE E BIBLIOTECA",
-                            "SISTEMI INFORMATIVI" = "Programmazione dei servizi tecnici e controllo di gestione",
-                            "SEGRETERIA DIREZIONALE" = "DIREZIONE GENERALE",
-                            "GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE")
-
-  )
+# rar22 <- rar22 %>%
+#   mutate(Struttura = recode(Struttura,
+#                             "S.T. PIACENZA E PARMA" = "SEDE TERRITORIALE DI PIACENZA - PARMA",
+#                             "REP. CHIM. DEGLI ALIMENTI E MANGIMI" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI",
+#                             "REP. CHIMICO ALIMENTI BOLOGNA" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)",
+#                             "REP. PRODUZIONE PRIMARIA" = "REPARTO PRODUZIONE PRIMARIA",
+#                             "S.T. BOLOGNA, FERRARA E MODENA" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
+#                             "S.T. REGGIO EMILIA" = "SEDE TERRITORIALE DI REGGIO EMILIA",
+#                             "REP. VIROLOGIA" = "REPARTO VIROLOGIA",
+#                             "REP. VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE",
+#                             "S.T. BERGAMO, SONDRIO E BINAGO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
+#                             "S.T. BRESCIA" = "SEDE TERRITORIALE DI BRESCIA",
+#                             "S.T. CREMONA, MANTOVA" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",
+#                             "S.T. FORLI' E RAVENNA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA",
+#                             "S.T. LODI E MILANO" = "SEDE TERRITORIALE DI LODI - MILANO",
+#                             "S.T. PAVIA" = "SEDE TERRITORIALE DI PAVIA",
+#                             "U.O. PROVV. ECONOMATO E VENDITE" = "UO PROVVEDITORATO ECONOMATO E VENDITE",
+#                             "SERVIZIO ASSICURAZIONE QUALITA" = "SERVIZIO ASSICURAZIONE QUALITA'",
+#                             "U.O. AFFARI GENERALI E LEGALI" = "U.O. AFFARI GENERALI E LEGALI",
+#                             "U.O. TECNICO PATRIMONIALE" = "UO TECNICO PATRIMONIALE",
+#                             "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE" = "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE",
+#                             "U.O. GESTIONE SERVIZI CONTABILI" = "U.O. GESTIONE SERVIZI CONTABILI",
+#                             "PROGRAMMAZIONE DEI SERVIZI TECNICI E CONTROLLO DI GESTIONE" = "Programmazione dei servizi tecnici e controllo di gestione",
+#                             "FORMAZIONE" =  "FORMAZIONE E BIBLIOTECA",
+#                             "SISTEMI INFORMATIVI" = "Programmazione dei servizi tecnici e controllo di gestione",
+#                             "SEGRETERIA DIREZIONALE" = "DIREZIONE GENERALE",
+#                             "GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE")
+# 
+#   )
 
 
 
@@ -147,13 +147,15 @@ rar22 <- rar22 %>%
 library(openxlsx)
  
 tabella <- rar22 %>% distinct(Numero, .keep_all = TRUE) %>% 
-  filter(Data  <= "2022-08-31") %>% 
+  filter(Data  <= "2022-12-31", 
+         Data >= "2022-09-01") %>% 
   group_by(finalita,  StrAcc) %>% 
   summarise(n = n()) %>%  
   left_join(
     (rar22 %>% distinct(Numero, .keep_all = TRUE) %>% 
        filter(!is.na(Istanza_RDP) ,
-              Data  <= "2022-08-31") %>% 
+              Data  <= "2022-12-31", 
+              Data >= "2022-09-01") %>% 
     group_by(finalita, StrAcc) %>% 
       summarise(n = n())     
     ), by = c("finalita", "StrAcc")) %>% 
@@ -165,17 +167,18 @@ tabella <- rar22 %>% distinct(Numero, .keep_all = TRUE) %>%
   #                        "TSE - ricerca farine animali monitoraggio", 
   #                        "TSE - ricerca farine animali sorveglianza")) %>% 
   mutate(
+    StrAcc = sapply(StrAcc, iconv, from = "latin1", to = "UTF-8", sub = ""),
     "incorso" = n.x-n.y, 
     "%refertati" = round(100*(n.y/n.x),2)) %>%  as_tibble() %>% 
   rename( "Struttura" = StrAcc, "N.conferimenti" =   n.x,  "N.conferimenti refertati" = n.y ,
-          "N.conferimenti con analisi in corso" = incorso , "% conferimenti refertati" = `%refertati`  ) %>%
+          "N.conferimenti con analisi in corso" = incorso , "% conferimenti refertati" = `%refertati`  ) %>% 
   
   group_by(Struttura) %>% 
   summarise(N.conferimenti = sum(N.conferimenti), 
             `N.conferimenti refertati`  = sum(`N.conferimenti refertati`, na.rm = TRUE),
             `N.conferimenti con analisi in corso` = sum(`N.conferimenti con analisi in corso`, na.rm = TRUE), 
             `% conferimenti refertati` = round(100*(`N.conferimenti refertati`/N.conferimenti))
-            ) %>%  View()
+            ) %>% 
   
  write.xlsx(file = "controllo attività.xlsx")
   
@@ -184,7 +187,7 @@ tabella <- rar22 %>% distinct(Numero, .keep_all = TRUE) %>%
 
 
  rar22 %>% distinct(Numero, finalita, .keep_all = TRUE) %>%  
-   filter(Data  <= "2022-08-31") %>% 
+   filter(Data  <= "2022-12-31") %>% 
    group_by(finalita,  StrAnalisi) %>% 
    summarise(ncamp = sum(NrCampioni, na.rm=TRUE), 
              nesami = sum(Tot_Eseguiti, na.rm = TRUE)) %>%  View()
@@ -192,13 +195,15 @@ tabella <- rar22 %>% distinct(Numero, .keep_all = TRUE) %>%
  
 
  tabella <- rar22 %>% distinct(Numero, .keep_all = TRUE) %>% 
-   filter(Data  <= "2022-08-15") %>% 
+   filter(Data  <= "2022-12-31", 
+          Data >= "2022-09-01") %>% 
    group_by(finalita,  StrAcc) %>% 
    summarise(n = n()) %>%  
    left_join(
      (rar22 %>% distinct(Numero, .keep_all = TRUE) %>% 
         filter(!is.na(Istanza_RDP) ,
-               Data  <= "2022-08-15") %>% 
+               Data  <= "2022-12-31", 
+               Data >= "2022-09-01") %>% 
         group_by(finalita, StrAcc) %>% 
         summarise(n = n())     
      ), by = c("finalita", "StrAcc")) %>% 
@@ -210,6 +215,7 @@ tabella <- rar22 %>% distinct(Numero, .keep_all = TRUE) %>%
    #                        "TSE - ricerca farine animali monitoraggio", 
    #                        "TSE - ricerca farine animali sorveglianza")) %>% 
    mutate(
+     StrAcc = sapply(StrAcc, iconv, from = "latin1", to = "UTF-8", sub = ""),
      "incorso" = n.x-n.y, 
      "%refertati" = round(100*(n.y/n.x),2)) %>%  as_tibble() %>% 
    rename( "Struttura" = StrAcc, "N.conferimenti" =   n.x,  "N.conferimenti refertati" = n.y ,
@@ -222,7 +228,7 @@ tabella <- rar22 %>% distinct(Numero, .keep_all = TRUE) %>%
              `% conferimenti refertati` = round(100*(`N.conferimenti refertati`/N.conferimenti))
    ) %>%    
  
- write.xlsx(file = "controllo attività.xlsx")
+ write.xlsx(file = "controllo attivitàx.xlsx")
  
  
 
