@@ -73,5 +73,24 @@ WHERE     (Conferimenti.Anno >= 2021) AND (Conferimenti.Conferimento_Chiuso = 1)
 
 
 
+queryAtt <- ("SELECT DISTINCT 
+                         Gest_Altre_Attivita.Anno, Gest_Altre_Attivita.Codice, CONVERT(VARCHAR(10), Gest_Altre_Attivita.data, 111) AS Data_Attività, Gest_Altre_Attivita.Struttura AS CodiceRepartoAiitivtà, 
+                         Anag_Reparti.Descrizione AS Reparto_Attività, Anag_Settori_Attività_Form.Descrizione AS SettoreIntervento, Anag_TipoConf.Descrizione AS TipoAttività, 
+                         Anag_Altre_Attività.Descrizione AS TipoPrestazione, Anag_Referenti.Ragione_Sociale AS Proprietario, Anag_Comuni.Descrizione AS Comune, Gest_Altre_Attivita.quantita, 
+                         dbo.Gest_Altre_Attivita.Note
+FROM         Anag_TipoConf LEFT OUTER JOIN
+                         Anag_Reparti RIGHT OUTER JOIN
+                         Gest_Altre_Attivita_Matricole RIGHT OUTER JOIN
+                         Gest_Altre_Attivita ON Gest_Altre_Attivita_Matricole.Anno = Gest_Altre_Attivita.Anno AND Gest_Altre_Attivita_Matricole.codice = Gest_Altre_Attivita.Codice LEFT OUTER JOIN
+                         Laboratori_Reparto ON Gest_Altre_Attivita.Struttura = Laboratori_Reparto.Chiave LEFT OUTER JOIN
+                         Anag_Laboratori ON Laboratori_Reparto.Laboratorio = Anag_Laboratori.Codice ON Anag_Reparti.Codice = Laboratori_Reparto.Reparto ON 
+                         Anag_TipoConf.Codice = Gest_Altre_Attivita.Tipo_Pagamento LEFT OUTER JOIN
+                         Anag_Referenti ON Gest_Altre_Attivita.Contatto_Visitato = Anag_Referenti.Codice LEFT OUTER JOIN
+                         Anag_Comuni ON Gest_Altre_Attivita.Localita = Anag_Comuni.Codice LEFT OUTER JOIN
+                         Anag_Settori_Attività_Form ON Gest_Altre_Attivita.Settore = Anag_Settori_Attività_Form.Codice LEFT OUTER JOIN
+                         Anag_Altre_Attività ON Gest_Altre_Attivita.nomenclatore = Anag_Altre_Attività.codice LEFT OUTER JOIN
+                         Operatori_di_sistema ON Gest_Altre_Attivita_Matricole.matricola = Operatori_di_sistema.Ident_Operatore
+WHERE     (Gest_Altre_Attivita.Anno = 2022) AND (Gest_Altre_Attivita.Struttura = 285)")
+
 
 

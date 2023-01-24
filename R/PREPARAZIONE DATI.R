@@ -80,7 +80,7 @@ names(ore)[1:6] <- c("Dipartimento", "Reparto", "Laboratorio", "CDC", "CodiceCC"
 
 
 ore <- ore %>% 
-  filter(Ruolo != "RICERCA SANITARIA E SUPPORTO RIC. SAN.")
+  filter(Ruolo != "RICERCA SANITARIA E SUPPORTO RIC. SAN.")#escludo i piramidati
   
 
 #saveRDS(ore, "oreDipa.RDS")
@@ -152,7 +152,7 @@ acc[,"comune"] <- sapply(acc[, "comune"], iconv, from = "latin1", to = "UTF-8", 
 
 
 
-acc %>%
+acc <- acc %>%
   
   
   mutate(tipoprove = ifelse(gProva=="Prova Chimica", "Prova Chimica",
@@ -174,12 +174,31 @@ acc %>%
   summarise(n.conf = n(), 
             Valore = sum(Valore, na.rm = TRUE)) %>% 
   tibble(Dipartimento = "Direzione sanitaria", Reparto = "GESTIONE CENTRALIZZATA DELLE RICHIESTE",
-         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE") %>%   
-saveRDS(here("data", "processed", "GCR.rds"))
+         Laboratorio = "	GESTIONE CENTRALIZZATA DELLE RICHIESTE")   
+
      
+accatt <- conAcc%>% tbl(sql(queryAtt)) %>% as_tibble()
+
+accatt<-accatt %>% 
+  mutate(valore = ifelse(TipoPrestazione == "Gestione materiale sanitario conferito da corrieri esterni", 3.23, 
+                         ifelse(TipoPrestazione == "Gestione smistamento campioni in Sede" , 129.60, 0)),
+         Anno = year(Data_Attività), 
+         year = as.numeric(as.character(Anno)),
+         MESE = month(Data_Attività), 
+         month = as.numeric(as.character(MESE)))  %>% 
+  group_by(Anno, MESE) %>% 
+  summarise(TotAtt = sum(quantita), 
+            Valorizzazione = sum(valore*quantita)) 
     
-    
-    
+
+acc %>% 
+  left_join(accatt, by= c("Anno","MESE")) %>% 
+  mutate(TotAtt = ifelse(is.na(TotAtt), 0, TotAtt), 
+         Valorizzazione = ifelse(is.na(Valorizzazione), 0, Valorizzazione), 
+         n.conf = n.conf+TotAtt,
+         Valore = Valore+Valorizzazione) %>%
+  select(-TotAtt, -Valorizzazione) %>% 
+  saveRDS(here("data", "processed", "GCR.rds"))
 
 ##DATI DA PROGETTI DI RICERCA----
 
@@ -194,7 +213,7 @@ anag <- ore %>%
   mutate(Nome = gsub("\\s.*$", "", Nome) ) %>% 
   distinct(ANNO,Matricola, .keep_all = TRUE)
 
-anag <- readRDS(here("data", "processed", "anag.RDS"))
+#anag <- readRDS(here("data", "processed", "anag.RDS"))
 
 
 prj %>%
