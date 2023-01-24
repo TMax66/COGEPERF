@@ -12,12 +12,12 @@ con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod03.iz
                       Database = "ProgettiAccordi")
 source(here("R", "sqlprj.R"))
 prj <- con %>% tbl(sql(queryPA)) %>% as_tibble() 
-saveRDS(prj, here("data", "processed", "prjxx.RDS"))
+#saveRDS(prj, here("data", "processed", "prjxx.RDS"))
 
 prjuo <- con %>% tbl(sql(queryUO)) %>% as_tibble() 
-saveRDS(prjuo, here("data", "processed", "prjuo.RDS"))
-prj <- readRDS(here("data", "processed", "prjxx.RDS"))
-prjuo <- readRDS(here("data", "processed", "prjuo.RDS"))
+#saveRDS(prjuo, here("data", "processed", "prjuo.RDS"))
+#prj <- readRDS(here("data", "processed", "prjxx.RDS"))
+#prjuo <- readRDS(here("data", "processed", "prjuo.RDS"))
 
 
 ##verifica duplicati nel codice progetti###
@@ -51,34 +51,34 @@ saveRDS(prj22, here("data", "processed", "prj22.RDS"))
 
 
 #estrazione per quantificazione finanziamenti alla ricerca per tipologia di progetto
-prj22 <- prj %>% filter(Tipo_P_A == "P") %>% 
-  select(Codice, CodIDIzsler, DataInizio, DataFine,   Descrizione, Tipologia, MatrRespScientifico, 
-         RespScientifico, FinCompApprovato) %>% 
-  mutate(anno = year(DataInizio)) %>% 
-  left_join(
-    prjuo %>% 
-      mutate(budgetUO = QuotaSpeseGenerali+QuotaSpeseCoordinamento+
-               QuotaApparecchiature+QuotaReagenti+
-               QuotaMissioniConv+QuotaPersContratto+QuotaPersStrutturato) %>% 
-      select(CodProgetto, NumUOProgetto, RespScientUO, MatricolaRespScientUO, budgetUO,DescrUO ),   by = c("Codice" = "CodProgetto")) %>% 
-  rename(MatrRSUO = MatricolaRespScientUO, 
-         BudgetUO = budgetUO) %>% 
- 
-  filter(anno >=2018) %>% 
- 
-  mutate(Tipologia = case_when(Tipologia == 0 ~ "Autofinanziato",
-                               Tipologia == 1 ~ "Finalizzato",
-                               Tipologia == 2 ~ "Corrente",
-                               Tipologia == 3 ~ "Altro tipo",
-                               Tipologia == 4 ~ "Regionali",
-                               Tipologia == 5 ~ "Europeo",
-                               Tipologia == 6 ~ "CCM",
-                               Tipologia == 7 ~ "Istituzionale")) %>%  
-  #filter(Tipologia == "Europeo") %>% write.xlsx(file = "prj2.xlsx")
-  group_by(anno, Tipologia) %>% 
-  summarise(finanziamento = sum(BudgetUO, na.rm = TRUE)) %>%  
-  pivot_wider(names_from = "anno", values_from = "finanziamento" ) %>% 
-  write.xlsx(file = "prj.xlsx")
+# prj22 <- prj %>% filter(Tipo_P_A == "P") %>% 
+#   select(Codice, CodIDIzsler, DataInizio, DataFine,   Descrizione, Tipologia, MatrRespScientifico, 
+#          RespScientifico, FinCompApprovato) %>% 
+#   mutate(anno = year(DataInizio)) %>% 
+#   left_join(
+#     prjuo %>% 
+#       mutate(budgetUO = QuotaSpeseGenerali+QuotaSpeseCoordinamento+
+#                QuotaApparecchiature+QuotaReagenti+
+#                QuotaMissioniConv+QuotaPersContratto+QuotaPersStrutturato) %>% 
+#       select(CodProgetto, NumUOProgetto, RespScientUO, MatricolaRespScientUO, budgetUO,DescrUO ),   by = c("Codice" = "CodProgetto")) %>% 
+#   rename(MatrRSUO = MatricolaRespScientUO, 
+#          BudgetUO = budgetUO) %>% 
+#  
+#   filter(anno >=2018) %>% 
+#  
+#   mutate(Tipologia = case_when(Tipologia == 0 ~ "Autofinanziato",
+#                                Tipologia == 1 ~ "Finalizzato",
+#                                Tipologia == 2 ~ "Corrente",
+#                                Tipologia == 3 ~ "Altro tipo",
+#                                Tipologia == 4 ~ "Regionali",
+#                                Tipologia == 5 ~ "Europeo",
+#                                Tipologia == 6 ~ "CCM",
+#                                Tipologia == 7 ~ "Istituzionale")) %>%  
+#   #filter(Tipologia == "Europeo") %>% write.xlsx(file = "prj2.xlsx")
+#   group_by(anno, Tipologia) %>% 
+#   summarise(finanziamento = sum(BudgetUO, na.rm = TRUE)) %>%  
+#   pivot_wider(names_from = "anno", values_from = "finanziamento" ) %>% 
+#   write.xlsx(file = "prj.xlsx")
 
 
 
