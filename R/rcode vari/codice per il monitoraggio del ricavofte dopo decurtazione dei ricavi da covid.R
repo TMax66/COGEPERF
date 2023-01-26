@@ -1,17 +1,59 @@
 library("tidyverse")
 library("readxl")
 library("lubridate")
+library(here)
+library(openxlsx)
 
 
 tabIZSLER <- readRDS(file = here("data", "processed",   "TabellaGenerale.rds"))
+FTEPD <- readRDS(file = here("data", "processed",   "FTEPD.RDS"))
+FTEPREP <- readRDS(file = here("data", "processed",   "FTEPREP.RDS"))
 ricaviCovid21 <- readRDS(here("data","processed", "ricavoCovid.RDS"))# i codici per ricavare questo file sono nel progetto COVID19 
+
+dtProg <- readRDS(here("data","processed", "datiSB.rds"))#
+
+ftp <- dtProg %>%
+  filter(Dipartimento != "Dipartimento Amministrativo" & Valorizzazione == "si") %>%
+  mutate(Dipartimento = recode(Dipartimento,
+                               "Area Territoriale Emilia Romagna" = "Dipartimento Area Territoriale Emilia Romagna" ,
+                               "Area Territoriale Lombardia" = "Dipartimento Area Territoriale Lombardia",
+                               "Dipartimento Tutela Salute Animale" = "Dipartimento tutela e salute animale",
+  )
+  ) %>%
+  mutate(Dipartimento = casefold(Dipartimento, upper = TRUE)) %>%
+  group_by( Dipartimento) %>%
+  summarise(FTED = sum(FTED, na.rm = T),
+            FTEC = sum(FTEC, na.rm = T)) %>%
+  rowwise() %>%
+  mutate(FT21 = sum(FTED, FTEC)) %>%
+  select(Dipartimento, FT21) %>%
+  ungroup()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 dtmensili <- tabIZSLER %>%
   
   rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI,
           "COSTI" = TotCost,   Anno = ANNO) %>%
   group_by(Dipartimento,Anno, MESE ) %>%
-  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%   
+  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%  
   
   left_join(
     (ricaviCovid21 %>% 
@@ -41,8 +83,15 @@ dtmensili <- tabIZSLER %>%
          RFTEc= RTc/(FTET*(FTp/100)),
          lowc= RFTEc- 0.10*RFTEc,
          highc = RFTEc + 0.10*RFTEc
-  ) %>%
-  left_join(ftp, by=c("Dipartimento"))    
+  ) %>%  
+    filter(MESE == 12) %>% 
+  left_join(ftp, by=c("Dipartimento")) %>% 
+    select(Dipartimento, Anno, RFTEc) %>%  
+    pivot_wider(names_from = "Anno", values_from = "RFTEc") %>% 
+    
+    mutate(gradoav = 100*(`2022`/(`2021`-(0.10*`2021`))) ) %>% 
+    write.xlsx("rftedip.xlsx")
+  
 
 
 
@@ -88,7 +137,7 @@ dtmensiliR <-  tabIZSLER %>%
          RFTEc= RTc/(FTET*(FTp/100)),
          lowc= RFTEc- 0.10*RFTEc,
          highc = RFTEc + 0.10*RFTEc) %>% 
-  filter(MESE == 6) %>% 
+  filter(MESE == 12) %>% 
 select(Reparto, Anno, RFTEc) %>%  
   pivot_wider(names_from = "Anno", values_from = "RFTEc") %>% 
  
