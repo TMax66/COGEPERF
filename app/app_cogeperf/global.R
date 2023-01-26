@@ -120,7 +120,7 @@ pub <- pub %>%
 
 # #Dati per monitoraggio RFTE homepage----
 
-ricaviCovid21 <- readRDS(here("data","processed", "ricavoCovid.RDS"))
+ricaviCovid21 <- readRDS(here("data","processed", "ricavoCovid.RDS"))# questo dataset è generato dal codice
 
 
 

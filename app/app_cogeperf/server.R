@@ -506,6 +506,8 @@ output$t <- renderUI({
                 x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=8)+
       geom_text(data = dplyr::filter(trend(), Anno == 2021), aes(label = sprintf('%+0.1f%%', .data[["Var"]])),
                 x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=8)+
+      geom_text(data = dplyr::filter(trend(), Anno == 2022), aes(label = sprintf('%+0.1f%%', .data[["Var"]])),
+                x = 2021.5, y = 0, vjust = -1, fontface = 'bold', size=8)+
       geom_text(aes(label = sprintf('%0.1f',.data[["valore"]]), y = .data[["valore"]]), vjust = -1,
                 size=6, color="blue", fontface = "bold")+
       labs(y = "", x = " ",
@@ -767,6 +769,8 @@ output$tr <- renderUI({
                 x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=8)+
       geom_text(data = dplyr::filter(trendRep(), Anno == 2021), aes(label = sprintf('%+0.1f%%', .data[["Var"]])),
                 x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=8)+
+      geom_text(data = dplyr::filter(trendRep(), Anno == 2022), aes(label = sprintf('%+0.1f%%', .data[["Var"]])),
+                x = 2021.5, y = 0, vjust = -1, fontface = 'bold', size=8)+
       geom_text(aes(label = sprintf('%0.1f',.data[["valore"]]), y = .data[["valore"]]), vjust = -1,
                 size=6, color="blue", fontface = "bold")+
       labs(y = "", x = " ",

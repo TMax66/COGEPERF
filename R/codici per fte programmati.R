@@ -11,7 +11,7 @@ ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione 
                                "DIPARTIMENTO TUTELA SALUTE ANIMALE" = "DIPARTIMENTO TUTELA E SALUTE ANIMALE")) %>% 
   mutate(Valorizzato = ifelse(Struttura == "GESTIONE CENTRALIZZATA DELLE RICHIESTE" &
                                 Indicatore == "Volume attività erogata per FTE  (Ricavo per FTE)", "si", Valorizzato))
-#saveRDS(ftep22, file = "ftep22.rds")
+saveRDS(ftep22, file = here("data", "processed", "ftep22.rds"))
 
 
 
