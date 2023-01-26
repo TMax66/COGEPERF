@@ -38,9 +38,10 @@ tabIZSLER %>% ungroup() %>%
   
   filter(!is.na(Pubblicazioni)) %>%  
   pivot_wider(names_from = "ANNO", values_from = "Pubblicazioni") %>%  ungroup() %>% 
-  mutate(media = rowMeans(.[2:4], na.rm = T), 
-         atteso = round(0.10*media,0), 
-         target = round(atteso+media, 0)) %>% 
+  mutate(media = round(rowMeans(.[2:4], na.rm = T), 1), 
+         atteso = round(0.10*media,1), 
+         target = round(atteso+media, 1), 
+         grado = round(100*(`2022`/target))) %>% 
          # ab= rowSums(.[3:4], na.rm = T), 
          # Target = target*3-ab) %>%   
   gt() %>% 
