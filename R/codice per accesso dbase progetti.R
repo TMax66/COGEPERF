@@ -40,12 +40,28 @@ prj22 <- prj %>% filter(Tipo_P_A == "P") %>%
       mutate(budgetUO = QuotaSpeseGenerali+QuotaSpeseCoordinamento+
                QuotaApparecchiature+QuotaReagenti+
                QuotaMissioniConv+QuotaPersContratto+QuotaPersStrutturato) %>% 
-      select(CodProgetto, NumUOProgetto, RespScientUO, MatricolaRespScientUO, budgetUO,DescrUO ),   by = c("Codice" = "CodProgetto")) %>% 
+      select(CodProgetto, NumUOProgetto, RespScientUO, MatricolaRespScientUO, budgetUO,DescrUO, CodUO),   by = c("Codice" = "CodProgetto")) %>% 
   rename(MatrRSUO = MatricolaRespScientUO, 
          BudgetUO = budgetUO) 
 
 
 saveRDS(prj22, here("data", "processed", "prj22.RDS"))
+
+
+
+
+##codici per verifica % di budget utilizzato a fine progetto-----
+
+movimenti <- read.xlsx(here("data", "raw", "PRWEB.xls"))
+
+
+
+prj22 %>% 
+  filter(DataFine <= "2022-12-31" , 
+         DataFine >="2022-01-01") %>%  View()
+
+
+
 
 
 

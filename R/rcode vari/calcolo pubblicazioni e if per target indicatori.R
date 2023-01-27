@@ -41,8 +41,8 @@ tabIZSLER %>% ungroup() %>%
   mutate(media = round(rowMeans(.[2:4], na.rm = T), 1), 
          atteso = round(0.10*media,1), 
          target = round(atteso+media, 1), 
-         grado = round(100*(`2022`/target))) %>% 
-  write.xlsx(file = "pubb.xlsx")
+         '%' = round((`2022`/media*100)-100,1)) %>%  
+  write.xlsx(file = "pubbdip.xlsx")
          # ab= rowSums(.[3:4], na.rm = T), 
          # Target = target*3-ab) %>%   
   # gt() %>% 
@@ -74,7 +74,7 @@ tabIZSLER %>%
     mutate(media = round(rowMeans(.[3:5], na.rm = T), 1), 
            atteso = round(0.10*media,1), 
            target = round(atteso+media, 1),
-           grado = round(100*(`2022`/target))) %>% 
+           '%' = round((`2022`/media*100)-100,1)) %>%  
       write.xlsx(file = "pubbrep.xlsx")
   # gt() %>% 
   # gtsave("pubbreparto.rtf")
@@ -160,8 +160,8 @@ tabIZSLER %>% ungroup() %>%
   mutate(media = round(rowMeans(.[2:4], na.rm = T),1), 
          atteso = round(0.10*media,1), 
          target = round(atteso+media, 1), 
-         grado = round(100*(`2022`/target))
-         ) %>%   
+         '%' = round((`2022`/media*100)-100,1)) %>%  
+           
   write.xlsx(file = "ifftedip.xlsx")
   # gt() %>% 
   # gtsave("ifftedip.rtf")
@@ -207,8 +207,8 @@ tabIZSLER %>% ungroup() %>%
     mutate(media = round(rowMeans(.[3:5], na.rm = T),1), 
            atteso = round(0.10*media,1), 
            target = round(atteso+media, 1), 
-           grado = round(100*(`2022`/target))  
-    ) %>%  
+           '%' = round((`2022`/media*100)-100,1)) %>%   
+ 
   
   write.xlsx(file = "ifftrep.xlsx")
   

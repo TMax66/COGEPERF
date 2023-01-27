@@ -31,23 +31,6 @@ ftp <- dtProg %>%
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 dtmensili <- tabIZSLER %>%
   
   rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI,
@@ -89,7 +72,7 @@ dtmensili <- tabIZSLER %>%
     select(Dipartimento, Anno, RFTEc) %>%  
     pivot_wider(names_from = "Anno", values_from = "RFTEc") %>% 
     
-    mutate(gradoav = 100*(`2022`/(`2021`-(0.10*`2021`))) ) %>% 
+    mutate(gradoav = 100*(`2022`/`2021`)) %>%  
     write.xlsx("rftedip.xlsx")
   
 
@@ -141,8 +124,8 @@ dtmensiliR <-  tabIZSLER %>%
 select(Reparto, Anno, RFTEc) %>%  
   pivot_wider(names_from = "Anno", values_from = "RFTEc") %>% 
  
- mutate(gradoav = 100*(`2022`/(`2021`-(0.10*`2021`))) ) %>% 
-  write.xlsx("rfte.xlsx")
+  mutate(gradoav = 100*(`2022`/`2021`)) %>% 
+  write.xlsx("rfterep.xlsx")
   
   
   
