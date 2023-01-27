@@ -2,7 +2,7 @@
 library(tidyverse)
 library(here)
 library(readxl)
-
+library(openxlsx)
 library(gt)
 
 tabIZSLER <- readRDS(file = here( "data", "processed", "TabellaGenerale.rds"))
@@ -42,10 +42,11 @@ tabIZSLER %>% ungroup() %>%
          atteso = round(0.10*media,1), 
          target = round(atteso+media, 1), 
          grado = round(100*(`2022`/target))) %>% 
+  write.xlsx(file = "pubb.xlsx")
          # ab= rowSums(.[3:4], na.rm = T), 
          # Target = target*3-ab) %>%   
-  gt() %>% 
-  gtsave("pubbdip.rtf")
+  # gt() %>% 
+  # gtsave("pubbdip.rtf")
 
 
 
@@ -66,29 +67,33 @@ tabIZSLER %>%
           count(NR) %>% 
           summarise("Pubblicazioni" = sum(n))) , by = c("Reparto", "ANNO" ="OA")) %>% 
   
-          filter(!is.na(Pubblicazioni)) %>%  
-    pivot_wider(names_from = "ANNO", values_from = "Pubblicazioni") %>%  ungroup() %>% View()
-    mutate(media = rowMeans(.[3:5], na.rm = T), 
-           atteso = round(0.10*media,0), 
-           target = round(atteso+media, 0)) %>% 
-  gt() %>% 
-  gtsave("pubbreparto.rtf")
-    
+          filter(!is.na(Pubblicazioni), 
+                 MESE == 12) %>%   
+  pivot_wider(names_from = "ANNO", values_from = "Pubblicazioni") %>%  ungroup() %>%  
+  select(-MESE) %>% 
+    mutate(media = round(rowMeans(.[3:5], na.rm = T), 1), 
+           atteso = round(0.10*media,1), 
+           target = round(atteso+media, 1),
+           grado = round(100*(`2022`/target))) %>% 
+      write.xlsx(file = "pubbrep.xlsx")
+  # gt() %>% 
+  # gtsave("pubbreparto.rtf")
+  #   
+
+
+
 
 
 ##FTE xpubb per dipartimento-----
 
-# fte <- tabIZSLER %>% 
-#   rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
-#           "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
-#   #filter(Anno == input$anno2 & Dipartimento == input$dip) %>% 
-#   
-#   group_by(Anno, Dipartimento ) %>%
-#   summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
-#   mutate(RT = (Valorizzazione+VP+AI),
-#          FTET = round((FTED+FTEC),2)) %>%
-#   arrange(desc(Prestazioni)) %>% 
-#   select(Anno, Dipartimento, FTED) 
+fte <- tabIZSLER %>%
+#   rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI,
+#           "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%  
+filter(MESE == 12) %>% 
+  select(Anno, Dipartimento, FTED) %>% 
+  group_by(Anno, Dipartimento ) %>%
+  summarise_at(c("FTED"), sum, na.rm = T)
+
 
 
 
@@ -96,29 +101,17 @@ tabIZSLER %>%
 ### FTED impiegato per attività di ricerca----
 
 ftedip <- tabIZSLER %>% 
-    rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
-            "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
-    #filter(Anno == input$anno2 & Dipartimento == input$dip) %>% 
-    
-    group_by(Anno, Dipartimento) %>%
-    summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%  
-    mutate(RT = (Valorizzazione+VP+AI),
-           FTET = round((FTED+FTEC),2)) %>%
-    arrange(desc(Prestazioni)) %>% 
-    select(Anno, Dipartimento,  FTED)   
+  filter(MESE == 12) %>% 
+  select(ANNO, Dipartimento, FTED) %>% 
+  group_by(ANNO, Dipartimento ) %>%
+  summarise_at(c("FTED"), sum, na.rm = T)
 
 
 fterep <- tabIZSLER %>% 
-  rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, 
-          "COSTI" = TotCost, "FTED" = FTE_Dirigenza, "FTEC"= FTE_Comparto, Anno = ANNO) %>%
-  #filter(Anno == input$anno2 & Dipartimento == input$dip) %>% 
-  
-  group_by(Anno, Dipartimento, Reparto) %>%
-  summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%
-  mutate(RT = (Valorizzazione+VP+AI),
-         FTET = round((FTED+FTEC),2)) %>%
-  arrange(desc(Prestazioni)) %>% 
-  select(Anno, Dipartimento, Reparto, FTED)  
+  filter(MESE == 12) %>% 
+  select(ANNO, Dipartimento, FTED) %>% 
+  group_by(ANNO, Dipartimento, Reparto ) %>%
+  summarise_at(c("FTED"), sum, na.rm = T) 
     # left_join(
     #   ( ftepREP %>% 
     #       mutate(Reparto = recode(
@@ -153,22 +146,25 @@ tabIZSLER %>% ungroup() %>%
     
   ) %>% 
   group_by(ANNO, Dipartimento ) %>% 
-  summarise(sIF = sum(IF)) %>%
-  ungroup() %>%  
+  summarise(sIF = sum(IF)) %>%  
+ ungroup() %>%  
   left_join(
-    ftedip, by=c("ANNO"="Anno", "Dipartimento" )
-  ) %>%   
+    ftedip, by=c("ANNO"="ANNO", "Dipartimento" )
+  ) %>%  
   #select( -valorizz, -FTp) %>%
   filter(!Dipartimento %in% c("DIREZIONE GENERALE", "COSTI COMUNI E CENTRI CONTABILI") ) %>% 
           #) %>%  
   mutate(iffte= sIF/FTED) %>%  
   select(-sIF, -FTED) %>% 
   pivot_wider(names_from = "ANNO", values_from = "iffte") %>%  ungroup() %>%   
-  mutate(media = rowMeans(.[2:4], na.rm = T), 
-         atteso = round(0.10*media,0), 
-         target = round(atteso+media, 0)) %>%    
-  gt() %>% 
-  gtsave("ifftedip.rtf")
+  mutate(media = round(rowMeans(.[2:4], na.rm = T),1), 
+         atteso = round(0.10*media,1), 
+         target = round(atteso+media, 1), 
+         grado = round(100*(`2022`/target))
+         ) %>%   
+  write.xlsx(file = "ifftedip.xlsx")
+  # gt() %>% 
+  # gtsave("ifftedip.rtf")
 
 
 
@@ -200,7 +196,7 @@ tabIZSLER %>% ungroup() %>%
     summarise(sIF = sum(IF)) %>%
     ungroup() %>%  
     left_join(
-      fterep, by=c("ANNO"="Anno", "Dipartimento", "Reparto")
+      fterep, by=c("ANNO", "Dipartimento", "Reparto")
     ) %>%
   #select( -valorizz, -FTp) %>%
     filter(!Dipartimento %in% c("DIREZIONE GENERALE","COSTI COMUNI E CENTRI CONTABILI" ) &
@@ -208,11 +204,17 @@ tabIZSLER %>% ungroup() %>%
     mutate(iffte= sIF/FTED) %>%  
     select(-sIF, -FTED) %>% 
     pivot_wider(names_from = "ANNO", values_from = "iffte") %>%  ungroup() %>% 
-    mutate(media = rowMeans(.[3:5], na.rm = T), 
-           atteso = round(0.10*media,0), 
-           target = round(atteso+media, 0)) %>%  
-  gt() %>% 
-  gtsave("iffterep.rtf")
+    mutate(media = round(rowMeans(.[3:5], na.rm = T),1), 
+           atteso = round(0.10*media,1), 
+           target = round(atteso+media, 1), 
+           grado = round(100*(`2022`/target))  
+    ) %>%  
+  
+  write.xlsx(file = "ifftrep.xlsx")
+  
+  
+  # gt() %>% 
+  # gtsave("iffterep.rtf")
   
      
       
