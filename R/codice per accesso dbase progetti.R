@@ -52,13 +52,22 @@ saveRDS(prj22, here("data", "processed", "prj22.RDS"))
 
 ##codici per verifica % di budget utilizzato a fine progetto-----
 
-movimenti <- read.xlsx(here("data", "raw", "PRWEB.xls"))
+movimenti <- read.xlsx(here("data", "raw", "PRWEB.xlsx"))
+
+prj22 <- readRDS(here("data", "processed","prj22.RDS"))
+#prj <- readRDS(here("data", "processed","prj.rds"))
 
 
 
 prj22 %>% 
   filter(DataFine <= "2022-12-31" , 
-         DataFine >="2022-01-01") %>%  View()
+         DataFine >="2022-01-01") %>%  
+  
+  
+  
+  movimenti %>% distinct() %>% 
+  group_by(Progetto) %>% 
+    summarise(speso = sum(Importo, na.rm = TRUE))
 
 
 
