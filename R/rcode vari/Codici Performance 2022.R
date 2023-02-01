@@ -10,6 +10,7 @@ library(kableExtra)
 library(formattable)
 library(fmsb)
 library(gt)
+library(openxlsx)
 
 
 conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
@@ -48,9 +49,15 @@ query <- myfun(con=conSB, q=q, tabella = "vSchedaBudget")
 
 dati <- tbl(conSB, sql(query)) %>% as_tibble()
 perf <- dati %>% 
-  filter(!str_detect(ObiettivoOperativo,"2.1.9.")) 
+  filter(!str_detect(ObiettivoOperativo,"2.1.9."), 
+         Anno == "2022", 
+         !Indicatore %in% c("% di attività realizzata nell'anno 2022 per l'incarico di Direttore di Dipartimento",
+                            "% incremento indicatori griglia di valutazione PRC", 
+                            "% utilizzo budget PRF ")) %>% 
+
+
 perf <-  perf %>% 
-  filter(Periodo == 1 ) %>% 
+  filter(Periodo == 2) %>% 
   mutate( AS = substr(AreaStrategica, start = 1, stop = 3), 
                       AreaStrategica = recode( AS, 
                                            AS1 = "AS1-ATTIVITA' ISTITUZIONALE", 
@@ -69,8 +76,13 @@ perf <-  perf %>%
         
 
 
+
+
+
 # Avanzamento per AS
 perf %>% 
+  select(AreaStrategica,Dipartimento, Reparto, Struttura, Indicatore,  Periodo, Target, ValoreInRendiconto, Avanzamento) %>%  
+  write.xlsx(file= "obiettivi2022.xlsx")
   group_by(AreaStrategica) %>% 
   summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))  %>% 
   ungroup %>% 

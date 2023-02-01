@@ -72,7 +72,7 @@ dtmensili <- tabIZSLER %>%
     select(Dipartimento, Anno, RFTEc) %>%  
     pivot_wider(names_from = "Anno", values_from = "RFTEc") %>% 
     
-    mutate(gradoav = 100*(`2022`/`2021`)) %>%  
+    mutate(gradoav = 100*(`2022`/`2021`)) %>%  View()
     write.xlsx("rftedip.xlsx")
   
 

@@ -54,20 +54,44 @@ saveRDS(prj22, here("data", "processed", "prj22.RDS"))
 
 movimenti <- read.xlsx(here("data", "raw", "PRWEB.xlsx"))
 
-prj22 <- readRDS(here("data", "processed","prj22.RDS"))
-#prj <- readRDS(here("data", "processed","prj.rds"))
+prj <- readRDS(here("data", "processed","prjxx.RDS"))
+anag <- readRDS(here("data", "processed", "anag.RDS"))
 
 
 
-prj22 %>% 
-  filter(DataFine <= "2022-12-31" , 
-         DataFine >="2022-01-01") %>%  
+
+
+
+
+
+
+prj22 %>%
+  filter(DataFine >= "2022-01-01",
+         DataFine <= "2022-12-31", Tipologia %in% c(1, 2)) %>%  
+  select(CodIDIzsler, MatrRespScientifico, BudgetUO) %>%  
+  group_by(CodIDIzsler, MatrRespScientifico) %>% 
+  summarise(budget = sum(BudgetUO, na.rm = TRUE)) %>% 
+left_join(
+  anag %>%  filter(ANNO == "2022") %>% distinct()  %>%  
+    select(Dipartimento, Matricola, Cognome), 
+            by = c("MatrRespScientifico" = "Matricola")) %>%  
+  drop_na() %>% 
+
   
+  left_join(
   
-  
-  movimenti %>% distinct() %>% 
+  (movimenti %>% distinct() %>% 
   group_by(Progetto) %>% 
-    summarise(speso = sum(Importo, na.rm = TRUE))
+    summarise(speso = sum(Importo, na.rm = TRUE))), 
+by=c("CodIDIzsler" = "Progetto")) %>%  
+ # write.xlsx(file = "budgetprogettidett.xlsx")
+  
+  group_by(Dipartimento) %>% 
+  summarise(budget = sum(budget), 
+            speso = sum(speso)) %>% 
+  mutate('%' = round(100*(speso/budget), 1)) %>%  
+  
+  write.xlsx(file = "budgetprogetti.xlsx")
 
 
 

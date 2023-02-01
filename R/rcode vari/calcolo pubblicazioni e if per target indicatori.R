@@ -41,7 +41,7 @@ tabIZSLER %>% ungroup() %>%
   mutate(media = round(rowMeans(.[2:4], na.rm = T), 1), 
          atteso = round(0.10*media,1), 
          target = round(atteso+media, 1), 
-         '%' = round((`2022`/media*100)-100,1)) %>%  
+         '% raggiungimento obiettivo' = round(100*(`2022`/target),1)) %>%   
   write.xlsx(file = "pubbdip.xlsx")
          # ab= rowSums(.[3:4], na.rm = T), 
          # Target = target*3-ab) %>%   
@@ -74,7 +74,7 @@ tabIZSLER %>%
     mutate(media = round(rowMeans(.[3:5], na.rm = T), 1), 
            atteso = round(0.10*media,1), 
            target = round(atteso+media, 1),
-           '%' = round((`2022`/media*100)-100,1)) %>%  
+           '% raggiungimento obiettivo' = round(100*(`2022`/target),1)) %>%   
       write.xlsx(file = "pubbrep.xlsx")
   # gt() %>% 
   # gtsave("pubbreparto.rtf")
@@ -104,14 +104,14 @@ ftedip <- tabIZSLER %>%
   filter(MESE == 12) %>% 
   select(ANNO, Dipartimento, FTED) %>% 
   group_by(ANNO, Dipartimento ) %>%
-  summarise_at(c("FTED"), sum, na.rm = T)
+  summarise_at(c("FTED"), sum, na.rm = T) 
 
 
 fterep <- tabIZSLER %>% 
   filter(MESE == 12) %>% 
   select(ANNO, Dipartimento, FTED) %>% 
   group_by(ANNO, Dipartimento, Reparto ) %>%
-  summarise_at(c("FTED"), sum, na.rm = T) 
+  summarise_at(c("FTED"), sum, na.rm = T)  
     # left_join(
     #   ( ftepREP %>% 
     #       mutate(Reparto = recode(
@@ -124,9 +124,9 @@ fterep <- tabIZSLER %>%
 
 
 ## IF /FTED dip ------  
-tabIZSLER %>% ungroup() %>% 
-  select(ANNO, Dipartimento ) %>% 
-  unique() %>% 
+tabIZSLER %>% filter(MESE == 1) %>% 
+  select(ANNO, Dipartimento, -MESE) %>% 
+  unique() %>% ungroup() %>%  
   
   left_join(
     
@@ -136,7 +136,7 @@ tabIZSLER %>% ungroup() %>%
         group_by(OA, Dipartimento) %>% 
         count(NR)   
     ) , by = c("Dipartimento", "ANNO" ="OA")) %>% select(-n) %>%  
-  filter(!is.na(NR)) %>%  
+  filter(!is.na(NR)) %>% unique() %>%   
   
   left_join(
     (pub %>%  
@@ -144,25 +144,26 @@ tabIZSLER %>% ungroup() %>%
        unique() %>%  
        arrange(desc(IF))), by=c("ANNO"= "OA", "NR")
     
-  ) %>% 
-  group_by(ANNO, Dipartimento ) %>% 
+  ) %>% #unique() %>%   
+  group_by(ANNO, Dipartimento) %>% 
   summarise(sIF = sum(IF)) %>%  
- ungroup() %>%  
+  #ungroup() %>%  
   left_join(
-    ftedip, by=c("ANNO"="ANNO", "Dipartimento" )
-  ) %>%  
-  #select( -valorizz, -FTp) %>%
-  filter(!Dipartimento %in% c("DIREZIONE GENERALE", "COSTI COMUNI E CENTRI CONTABILI") ) %>% 
-          #) %>%  
+    ftedip, by=c("ANNO", "Dipartimento")
+  ) %>% 
+  
+  filter(!Dipartimento %in% c("DIREZIONE GENERALE","COSTI COMUNI E CENTRI CONTABILI" )) %>% 
   mutate(iffte= sIF/FTED) %>%  
   select(-sIF, -FTED) %>% 
-  pivot_wider(names_from = "ANNO", values_from = "iffte") %>%  ungroup() %>%   
-  mutate(media = round(rowMeans(.[2:4], na.rm = T),1), 
+  pivot_wider(names_from = "ANNO", values_from = "iffte") %>%  ungroup() %>% 
+  mutate(media = round(rowMeans(.[3:5], na.rm = T),1), 
          atteso = round(0.10*media,1), 
          target = round(atteso+media, 1), 
-         '%' = round((`2022`/media*100)-100,1)) %>%  
-           
-  write.xlsx(file = "ifftedip.xlsx")
+         x = round(100*(`2022`/target),1)) %>%  
+  mutate('% di raggiungimento obiettivo' = ifelse(x>100, 100,x)) %>%  
+  select(-x) %>%  
+  write.xlsx(file = "iffdip.xlsx")
+  
   # gt() %>% 
   # gtsave("ifftedip.rtf")
 
@@ -171,9 +172,9 @@ tabIZSLER %>% ungroup() %>%
 
   
 ## IF /FTED reparto------  
-  tabIZSLER %>%
-    select(ANNO, Dipartimento, Reparto) %>% 
-    unique() %>%  
+  tabIZSLER %>% filter(MESE == 1) %>% 
+    select(ANNO, Dipartimento, Reparto, -MESE) %>% 
+    unique() %>% ungroup() %>%  
     
     left_join(
       
@@ -183,7 +184,7 @@ tabIZSLER %>% ungroup() %>%
           group_by(OA, Reparto) %>% 
           count(NR)   
       ) , by = c("Reparto", "ANNO" ="OA")) %>% select(-n) %>%  
-    filter(!is.na(NR)) %>% 
+    filter(!is.na(NR)) %>% unique() %>%   
     
     left_join(
       (pub %>%  
@@ -191,14 +192,14 @@ tabIZSLER %>% ungroup() %>%
          unique() %>%  
          arrange(desc(IF))), by=c("ANNO"= "OA", "NR")
       
-    ) %>%  
+    ) %>% #unique() %>%   
     group_by(ANNO, Dipartimento, Reparto) %>% 
-    summarise(sIF = sum(IF)) %>%
-    ungroup() %>%  
+    summarise(sIF = sum(IF)) %>%  
+    #ungroup() %>%  
     left_join(
       fterep, by=c("ANNO", "Dipartimento", "Reparto")
-    ) %>%
-  #select( -valorizz, -FTp) %>%
+    ) %>% 
+ 
     filter(!Dipartimento %in% c("DIREZIONE GENERALE","COSTI COMUNI E CENTRI CONTABILI" ) &
              !Reparto %in% c("COSTI COMUNI LOMBARDIA", "DIREZIONE SANITARIA"))     %>% 
     mutate(iffte= sIF/FTED) %>%  
@@ -207,7 +208,9 @@ tabIZSLER %>% ungroup() %>%
     mutate(media = round(rowMeans(.[3:5], na.rm = T),1), 
            atteso = round(0.10*media,1), 
            target = round(atteso+media, 1), 
-           '%' = round((`2022`/media*100)-100,1)) %>%   
+           x = round(100*(`2022`/target),1)) %>%  
+   mutate('% di raggiungimento obiettivo' = ifelse(x>100, 100,x)) %>%  
+   select(-x) %>% 
  
   
   write.xlsx(file = "ifftrep.xlsx")
