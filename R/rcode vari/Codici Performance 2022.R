@@ -53,7 +53,8 @@ perf <- dati %>%
          Anno == "2022", 
          !Indicatore %in% c("% di attività realizzata nell'anno 2022 per l'incarico di Direttore di Dipartimento",
                             "% incremento indicatori griglia di valutazione PRC", 
-                            "% utilizzo budget PRF ")) %>% 
+                            "% utilizzo budget PRF "), 
+         ValoreInRendiconto != -1)
 
 
 perf <-  perf %>% 
@@ -82,15 +83,15 @@ perf <-  perf %>%
 # Avanzamento per AS
 perf %>% 
   select(AreaStrategica,Dipartimento, Reparto, Struttura, Indicatore,  Periodo, Target, ValoreInRendiconto, Avanzamento) %>%  
-  write.xlsx(file= "obiettivi2022.xlsx")
   group_by(AreaStrategica) %>% 
   summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))  %>% 
   ungroup %>% 
-  add_row(AreaStrategica = 'Livello Sintetico di Ente', !!! colMeans(.[-1])) 
+  add_row(AreaStrategica = 'Livello Sintetico di Ente', !!! colMeans(.[-1])) %>% 
+  write.xlsx(file= "LSE.xlsx")
 
 
 library(flexdashboard)
-gauge(62.6, min= 0, max = 100, symbol = '%',
+gauge(97.2, min= 0, max = 100, symbol = '%',
            gaugeSectors(success = c(0,100),   colors = "steelblue"))
 
 
