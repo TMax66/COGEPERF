@@ -204,7 +204,7 @@ acc %>%
 
 
 prj <- readRDS(here("data", "processed", "prj22.RDS"))##<- deriva dal codice del file codice per accesso dbase progetti.R
-#ore <- readRDS(here("data", "processed", "ore.RDS"))
+ore <- readRDS(here("data", "processed", "ore.RDS"))
 
 
 anag <- ore %>% 

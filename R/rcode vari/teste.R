@@ -3,7 +3,7 @@ library(here)
 library(readxl)
 library(gt)
 
-dati22 <- read_excel(here("data", "raw", "presenze2022.xlsx"))
+dati22 <- read_excel(here("data", "raw", "presenze2023.xlsx"))
 CC <- readRDS(here("data", "processed", "CC.RDS"))
 
 dati22 %>% 

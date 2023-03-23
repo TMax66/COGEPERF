@@ -1,3 +1,9 @@
+library(tidyverse)
+library(here)
+library(openxlsx)
+
+
+
 # i dati originali provengono dal file obiettiviXSB.xlsx che si trova nella cartella
 # \data\raw. Questi dati sono rielaborati dal codice FTEPROGRAMMATI.R che si trova 
 # nella cartella \R\rcodevari e che restituisce l'output datiSB.rds che è inviato alla cartella \data\processed
@@ -17,13 +23,13 @@ saveRDS(ftep22, file = here("data", "processed", "ftep22.rds"))
 
 # FTE PROGRAMMATI PER IZSLER----
 
-prod<-ftep22 %>% 
+prod<-ftep22 %>% # questo codice calcola gli fte allocati alle attività di produzione/vendita prodotti...(nle 2023 non ci saranno più)
   select(Dipartimento, Reparto, Struttura, FTED = AttivitaValorizzataPerproduzioni_FTED, FTEC =AttivitaValorizzataPerproduzioni_FTEC) %>% 
   distinct() %>% 
   summarise(FTED_si = sum(FTED), 
             FTEC_si = sum(FTEC), 
             FTED_tot = sum(FTED), 
-            FTEC_tot = sum(FTEC)) 
+            FTEC_tot = sum(FTEC))   
 
 
 dtProg %>%
