@@ -43,7 +43,7 @@ myfun <- function(con, q, tabella)
 
 query <- myfun(con=conSB, q=q, tabella = "vSchedaBudget")
 
-fte <- tbl(conSB, sql(query)) %>% 
+fte23 <- tbl(conSB, sql(query)) %>% 
   as_tibble()
 
 # DATI----
@@ -250,6 +250,11 @@ tab %>%
     centriref_tot = centriref_dirigenza + centriref_comparto,
     obiettivi_tot = obiettivi_dirigenza + obiettivi_comparto
   ) %>% 
+  select(Dipartimento,
+         valorizzata_tot,
+         routinaria_tot,
+         centriref_tot,
+         obiettivi_tot) %>%  write.xlsx(file = "dipfte.xlsx")
   gt(
     rowname_col = "Dipartimento"
     # groupname_col = "Dipartimento"
@@ -835,7 +840,7 @@ cols_label(
 
 
 
-### Distribuzione dei FTE
+### grafico con distribuzione dei FTEtot per dip-----
 
   obiett <- df %>% 
     # select(Dipartimento, Struttura, OG,
@@ -925,20 +930,13 @@ library(tidytext)
     coord_flip()+
     facet_wrap(~tipo, scales = "free")+
     scale_x_discrete(labels = function(x) gsub("__.+$", "", x))+
-    labs(title = "FTE allocati alle diverse attività per Dipartimento", x= "", y = "FTE")+
+    labs(title = "FTE totali  allocati alle diverse attività per Dipartimento", x= "", y = "FTE totali")+
     theme_classic()+
     theme(axis.text.y = element_text(size = 8), 
           axis.ticks = element_blank(), 
           axis.line = element_blank(), 
           axis.text.x = element_text(size=8),
           title = element_text(size = 15))
-    
-    
-  
-  
-  
-  
-  
   
   
     # gt(

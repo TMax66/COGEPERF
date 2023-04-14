@@ -4,20 +4,65 @@ library(openxlsx)
 
 
 
+# Codici per FTEp 2021----
+ 
 # i dati originali provengono dal file obiettiviXSB.xlsx che si trova nella cartella
 # \data\raw. Questi dati sono rielaborati dal codice FTEPROGRAMMATI.R che si trova 
 # nella cartella \R\rcodevari e che restituisce l'output datiSB.rds che è inviato alla cartella \data\processed
 
+
 dtProg <- readRDS(here("data", "processed", "datiSB.rds"))## questo vale per il 2021
 
-ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione scheda budget  in quanto prende i dati dei fte programmati nelle schede budget
-  mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
-         Valorizzato = ifelse(Valorizzato != "no", "si", "no"),
-         Dipartimento = recode(Dipartimento,
-                               "DIPARTIMENTO TUTELA SALUTE ANIMALE" = "DIPARTIMENTO TUTELA E SALUTE ANIMALE")) %>% 
-  mutate(Valorizzato = ifelse(Struttura == "GESTIONE CENTRALIZZATA DELLE RICHIESTE" &
-                                Indicatore == "Volume attività erogata per FTE  (Ricavo per FTE)", "si", Valorizzato))
-saveRDS(ftep22, file = here("data", "processed", "ftep22.rds"))
+
+
+# Codici per FTEp 2022----
+# ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% #conSB sta per connessione scheda budget ( vedi PREPARAZIONE DATI.R)  in quanto prende i dati dei fte programmati nelle schede budget
+#   mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
+#          Valorizzato = ifelse(Valorizzato != "no", "si", "no"),
+#          Dipartimento = recode(Dipartimento,
+#                                "DIPARTIMENTO TUTELA SALUTE ANIMALE" = "DIPARTIMENTO TUTELA E SALUTE ANIMALE")) %>% 
+#   mutate(Valorizzato = ifelse(Struttura == "GESTIONE CENTRALIZZATA DELLE RICHIESTE" &
+#                                 Indicatore == "Volume attività erogata per FTE  (Ricavo per FTE)", "si", Valorizzato))
+# saveRDS(ftep22, file = here("data", "processed", "ftep22.rds"))
+
+ftp22 <- readRDS(here("data", "processed", "ftep22.rds"))
+
+# Codice per FTp del 2023----
+
+#fte23 <- tbl(conSB, sql(query)) %>% as_tibble()
+
+ftep23 <- fte23 %>% 
+  mutate(Periodo = replace_na(Periodo, 1)) %>% 
+  filter(Anno == 2023, Periodo == 1) %>% 
+  mutate(
+    Pesatura = ifelse(Pesatura != "no", "SI", "NO"), 
+    Valorizzato = ifelse(Valorizzato != "no", "SI", "NO"))
+
+
+obiett <- df %>% 
+  summarise(
+    FTED_obiett = sum(FTED, na.rm = TRUE), 
+    FTEC_obiett = sum(FTEC, na.rm = TRUE)
+  ) %>% 
+  mutate(FTEob = FTED_obiett+FTEC_obiett) %>% 
+  select(FTEob)
+
+attiv <- df %>% 
+  distinct(Struttura, .keep_all = T) %>% 
+  summarise(
+    FTEroutine = sum(AttivitaRoutinaria_FTED, na.rm = TRUE)+sum(AttivitaRoutinaria_FTEC, na.rm = TRUE),
+    FTEval = sum(AttivitaValorizzataPerproduzioni_FTED, na.rm = TRUE)+ sum(AttivitaValorizzataPerproduzioni_FTEC, na.rm = TRUE),
+    FTEcdr = sum(CentroReferenza_FTED, na.rm = TRUE) + sum(CentroReferenza_FTEC, na.rm = TRUE)
+  )
+
+ftep23 <- obiett %>% 
+  bind_cols( attiv) %>%  
+  mutate(FTEtot = FTEob + FTEroutine + FTEval + FTEcdr,
+         FTp = FTEval/FTEtot*100, 
+         anno = "2023") %>%
+  select(anno, FTp)
+
+
 
 
 
@@ -48,7 +93,7 @@ dtProg %>%
 rbind(
 
 ftep22 %>% 
-  filter(!str_detect(ObiettivoOperativo,"2.1.9.")) %>%
+  filter(!str_detect(ObiettivoOperativo,"2.1.9.")) %>% 
   summarise(FTED_si = sum(FTED[Valorizzato == "si"], na.rm = TRUE)+ prod$FTED_si,
             FTEC_si = sum(FTEC[Valorizzato == "si"], na.rm = TRUE)+ prod$FTEC_si,
             FTED_tot = sum(FTED, na.rm = TRUE)+ prod$FTED_tot, 
@@ -59,7 +104,13 @@ ftep22 %>%
          anno = 2022) %>% 
   select(anno, FTp = FTE_perc) %>% 
   
-  ungroup()    
+  ungroup()
+) %>% 
+  
+  rbind(
+    
+    ftep23
+    
 ) %>%  
 
 saveRDS(here("data", "processed", "FTp.rds"))
