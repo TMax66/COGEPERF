@@ -25,46 +25,45 @@ dtProg <- readRDS(here("data", "processed", "datiSB.rds"))## questo vale per il 
 #                                 Indicatore == "Volume attività erogata per FTE  (Ricavo per FTE)", "si", Valorizzato))
 # saveRDS(ftep22, file = here("data", "processed", "ftep22.rds"))
 
-ftp22 <- readRDS(here("data", "processed", "ftep22.rds"))
+ftep22 <- readRDS(here("data", "processed", "ftep22.rds"))
 
 # Codice per FTp del 2023----
 
-#fte23 <- tbl(conSB, sql(query)) %>% as_tibble()
+# fte23 <- tbl(conSB, sql(query)) %>% as_tibble() #<- vai in Preparazione dati per richiare la connessione conSB e la query
+# ftep23 <- fte23 %>% 
+#   mutate(Periodo = replace_na(Periodo, 1)) %>% 
+#   filter(Anno == 2023, Periodo == 1) %>% 
+#   mutate(
+#     Pesatura = ifelse(Pesatura != "no", "SI", "NO"), 
+#     Valorizzato = ifelse(Valorizzato != "no", "SI", "NO"))
+# 
+# 
+# obiett <- ftep23 %>% 
+#   summarise(
+#     FTED_obiett = sum(FTED, na.rm = TRUE), 
+#     FTEC_obiett = sum(FTEC, na.rm = TRUE)
+#   ) %>% 
+#   mutate(FTEob = FTED_obiett+FTEC_obiett) %>% 
+#   select(FTEob)
+# 
+# attiv <- ftep23 %>% 
+#   distinct(Struttura, .keep_all = T) %>% 
+#   summarise(
+#     FTEroutine = sum(AttivitaRoutinaria_FTED, na.rm = TRUE)+sum(AttivitaRoutinaria_FTEC, na.rm = TRUE),
+#     FTEval = sum(AttivitaValorizzataPerproduzioni_FTED, na.rm = TRUE)+ sum(AttivitaValorizzataPerproduzioni_FTEC, na.rm = TRUE),
+#     FTEcdr = sum(CentroReferenza_FTED, na.rm = TRUE) + sum(CentroReferenza_FTEC, na.rm = TRUE)
+#   )
+# 
+# ftep23 <- obiett %>% 
+#   bind_cols( attiv) %>%  
+#   mutate(FTEtot = FTEob + FTEroutine + FTEval + FTEcdr,
+#          FTp = FTEval/FTEtot*100, 
+#          anno = "2023") %>%
+#   select(anno, FTp) %>% 
+# 
+# saveRDS(here("data", "processed", "ftep23.rds"))
 
-ftep23 <- fte23 %>% 
-  mutate(Periodo = replace_na(Periodo, 1)) %>% 
-  filter(Anno == 2023, Periodo == 1) %>% 
-  mutate(
-    Pesatura = ifelse(Pesatura != "no", "SI", "NO"), 
-    Valorizzato = ifelse(Valorizzato != "no", "SI", "NO"))
-
-
-obiett <- df %>% 
-  summarise(
-    FTED_obiett = sum(FTED, na.rm = TRUE), 
-    FTEC_obiett = sum(FTEC, na.rm = TRUE)
-  ) %>% 
-  mutate(FTEob = FTED_obiett+FTEC_obiett) %>% 
-  select(FTEob)
-
-attiv <- df %>% 
-  distinct(Struttura, .keep_all = T) %>% 
-  summarise(
-    FTEroutine = sum(AttivitaRoutinaria_FTED, na.rm = TRUE)+sum(AttivitaRoutinaria_FTEC, na.rm = TRUE),
-    FTEval = sum(AttivitaValorizzataPerproduzioni_FTED, na.rm = TRUE)+ sum(AttivitaValorizzataPerproduzioni_FTEC, na.rm = TRUE),
-    FTEcdr = sum(CentroReferenza_FTED, na.rm = TRUE) + sum(CentroReferenza_FTEC, na.rm = TRUE)
-  )
-
-ftep23 <- obiett %>% 
-  bind_cols( attiv) %>%  
-  mutate(FTEtot = FTEob + FTEroutine + FTEval + FTEcdr,
-         FTp = FTEval/FTEtot*100, 
-         anno = "2023") %>%
-  select(anno, FTp)
-
-
-
-
+ftep23 <- readRDS(here("data", "processed", "ftep23.rds"))
 
 # FTE PROGRAMMATI PER IZSLER----
 
