@@ -108,13 +108,49 @@ ftep22 %>%
   
   rbind(
     
-    ftep23
+    ftep23dip
     
 ) %>%  
 
 saveRDS(here("data", "processed", "FTp.rds"))
 
 # FTE PROGRAMMATI PER DIPARTIMENTO----
+# ftep23 <- fte23 %>%
+#   mutate(Periodo = replace_na(Periodo, 1)) %>%
+#   filter(Anno == 2023, Periodo == 1) %>%
+#   mutate(
+#     Pesatura = ifelse(Pesatura != "no", "SI", "NO"),
+#     Valorizzato = ifelse(Valorizzato != "no", "SI", "NO"))
+# 
+# 
+# obiett <- ftep23 %>%
+#   group_by(Dipartimento) %>% 
+#   summarise(
+#     FTED_obiett = sum(FTED, na.rm = TRUE),
+#     FTEC_obiett = sum(FTEC, na.rm = TRUE)
+#   ) %>%
+#   mutate(FTEob = FTED_obiett+FTEC_obiett) %>%
+#   select(Dipartimento,FTEob)
+# 
+# attiv <- ftep23 %>%
+#   distinct(Struttura, .keep_all = T) %>%
+#   group_by(Dipartimento) %>% 
+#   summarise(
+#     FTEroutine = sum(AttivitaRoutinaria_FTED, na.rm = TRUE)+sum(AttivitaRoutinaria_FTEC, na.rm = TRUE),
+#     FTEval = sum(AttivitaValorizzataPerproduzioni_FTED, na.rm = TRUE)+ sum(AttivitaValorizzataPerproduzioni_FTEC, na.rm = TRUE),
+#     FTEcdr = sum(CentroReferenza_FTED, na.rm = TRUE) + sum(CentroReferenza_FTEC, na.rm = TRUE)
+#   )
+# 
+# ftep23dip <- obiett %>% 
+#   bind_cols( attiv %>%  select(-Dipartimento)) %>%  
+#   mutate(FTEtot = FTEob + FTEroutine + FTEval + FTEcdr,
+#          FTp = FTEval/FTEtot*100,
+#          anno = "2023") %>%
+#   select(anno, Dipartimento, FTp)
+
+
+
+
 prodDip <- ftep22 %>% 
   select(Dipartimento, Reparto, Struttura, FTED = AttivitaValorizzataPerproduzioni_FTED, FTEC =AttivitaValorizzataPerproduzioni_FTEC) %>% 
   distinct() %>% 
@@ -179,9 +215,13 @@ dtProg %>%
   filter(FTp > 0 ) %>% 
   ungroup()    
   
-  ) %>%  
-
-
+  ) %>% 
+  
+  rbind(
+    ftep23dip
+    
+    
+  ) %>% 
   saveRDS( here("data", "processed", "FTEPD.rds"))
 
 
@@ -190,6 +230,37 @@ dtProg %>%
 
 
 # FTE PROGRAMMATI X REPARTO----
+
+#fterep23 codici
+# obiett <- ftep23 %>%
+#   group_by(Dipartimento, Struttura) %>% 
+#   summarise(
+#     FTED_obiett = sum(FTED, na.rm = TRUE),
+#     FTEC_obiett = sum(FTEC, na.rm = TRUE)
+#   ) %>%
+#   mutate(FTEob = FTED_obiett+FTEC_obiett) %>% ungroup() %>% 
+#   select(FTEob)
+# 
+# attiv <- ftep23 %>%
+#   distinct(Struttura, .keep_all = T) %>%
+#   group_by(Dipartimento, Struttura) %>% 
+#   summarise(
+#     FTEroutine = sum(AttivitaRoutinaria_FTED, na.rm = TRUE)+sum(AttivitaRoutinaria_FTEC, na.rm = TRUE),
+#     FTEval = sum(AttivitaValorizzataPerproduzioni_FTED, na.rm = TRUE)+ sum(AttivitaValorizzataPerproduzioni_FTEC, na.rm = TRUE),
+#     FTEcdr = sum(CentroReferenza_FTED, na.rm = TRUE) + sum(CentroReferenza_FTEC, na.rm = TRUE)
+#   )
+# 
+# ftep23str <- attiv %>% 
+#   bind_cols(obiett)  %>% 
+#   mutate(FTEtot = FTEob + FTEroutine + FTEval + FTEcdr,
+#          FTp = FTEval/FTEtot*100,
+#          anno = "2023") %>%
+#   select(anno, Dipartimento, Struttura, FTp) %>% 
+#   filter(!is.na(FTp)) %>% 
+#   mutate(Struttura = recode(Struttura, 
+#                             "SORVEGLIANZA EPIDEMIOLOGICA LOMBARDIA" = "SORVEGLIANZA EPIDEMIOLOGICA"))
+
+
 
 
 prodRep <- ftep22 %>% 
@@ -276,6 +347,9 @@ dtProg %>%
       
   ) %>%  filter(FTp > 0) %>% 
   mutate(Reparto= ifelse(Reparto == "SEDE TERRITORIALE DI FORLÃŒ - RAVENNA" , "SEDE TERRITORIALE DI FORLÌ - RAVENNA", Reparto)) %>%  
+  
+  rbind(ftep23str) %>%  
+  
 saveRDS(here("data", "processed",  "FTEPREP.rds"))
 
 
