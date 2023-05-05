@@ -31,8 +31,8 @@ prjuo <- con %>% tbl(sql(queryUO)) %>% as_tibble()
 # prj %>% filter(Codice %in% codicidoppi$Codice) %>%  View()
   
 
-
-prj22 <- prj %>% filter(Tipo_P_A == "P") %>% 
+# rispetto alla precedente versione di questo codice ho nominato prj2x il dataset dei progetti... dove x sta per 1,2,3,ecc... cioè gli anni....
+prj2x <- prj %>% filter(Tipo_P_A == "P") %>% 
  select(Codice, CodIDIzsler, DataInizio, DataFine,  Descrizione, Tipologia, MatrRespScientifico, 
         RespScientifico, FinCompApprovato) %>%   
   left_join(
@@ -45,7 +45,7 @@ prj22 <- prj %>% filter(Tipo_P_A == "P") %>%
          BudgetUO = budgetUO) 
 
 
-saveRDS(prj22, here("data", "processed", "prj22.RDS"))
+saveRDS(prj2x, here("data", "processed", "prj2x.RDS"))
 
 
 

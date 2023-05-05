@@ -24,9 +24,9 @@ conAcc <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02
 #                       Database = "ObiettiviStrategiciV2018", Port = 1433)
 # 
 # ### dati da dbase performance berenice per il 2022 ----
-conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
-                        Database = "ObiettiviStrategici2022", Port = 1433)
-
+# conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
+#                         Database = "ObiettiviStrategici2022", Port = 1433)
+# 
 
 
 source(here("R","sql.R"))
@@ -88,14 +88,21 @@ ore <- ore %>%
 
 
 mesi <- seq(1:12)
-ftec <- 142.2 ## 142.2 DERIVA DA (36*47.4)/12  
-fted <- 150.1 ## 150.1 DERIVA DA (38*47.4)/12
+ftec <- 142.2 ## 142.2 DERIVA DA (36*47.4)/12  (138 se 36*46)
+fted <- 150.1 ## 150.1 DERIVA DA (38*47.4)/12  (145 se 38*46)
+
+ftec23 <- 138
+fted23 <- 145
+
+
 
 # FTE mensili cumulati (progressivi)
 fteC <- mesi*ftec 
 fteD <- mesi*fted
+fteC23 <- mesi*ftec23
+fteD23 <- mesi*fted23
 
-ftedf <- data.frame(mesi, fteC, fteD)
+ftedf <- data.frame(mesi, fteC, fteD, fteC23, fteD23)
 
 fte <-  ore %>% 
   filter( !Dipartimento %in% c("Non applicabile", "Costi Comuni e Centri contabili", 
@@ -117,22 +124,23 @@ fte <-  ore %>%
   ) %>% 
   mutate(hwcomp = cumsum(Comparto), 
          hwdir = cumsum(Dirigenza),
-         FTEC = hwcomp/fteC, 
-         FTED = hwdir/fteD, 
+         FTEC = ifelse(ANNO < 2023, hwcomp/fteC, hwcomp/fteC23), #rispetto al precedente codice nel 2023 tengo conto del corretto calcolo delle settimane lavorative che è 46 e non 47.4
+         FTED = ifelse(ANNO <2023, hwdir/fteD, hwdir/fteD23), 
+         #FTEC =  hwcomp/fteC,
+         #FTED = hwdir/fteD, 
          FTET = FTEC+FTED
          ) %>% ungroup() %>% 
   rename(MESE = Mese)
 
 ##TABELLA GENERALE----
-T1 %>% ##attività costi e fte
-  left_join(T2, by=c("ANNO", "MESE", "Dipartimento", "Reparto", "Laboratorio")) %>%  
-  left_join(T3, by=c("ANNO","MESE", "Dipartimento", "Reparto", "Laboratorio")) %>% 
-  left_join(fte,by=c("ANNO", "MESE",  "Dipartimento", "Reparto", "Laboratorio")) %>% 
+T1 %>%  ##attività costi e fte 
+  left_join(T2, by=c("ANNO", "MESE", "Dipartimento", "Reparto", "Laboratorio")) %>% 
+  left_join(T3, by=c("ANNO","MESE", "Dipartimento", "Reparto", "Laboratorio")) %>%   
+  left_join(fte,by=c("ANNO", "MESE",  "Dipartimento", "Reparto", "Laboratorio")) %>%  
   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE),
          TotFattVP = ifelse(is.na(TotFattVP), 0, TotFattVP), 
          TAI = ifelse(is.na(TAI), 0, TAI), 
          TotTariff = TotTariff - (TotFattVP + TAI)) %>% 
-  
 
 saveRDS(.,here("data", "processed", "TabellaGenerale.rds"))
 
@@ -203,8 +211,8 @@ acc %>%
 ##DATI DA PROGETTI DI RICERCA----
 
 
-prj <- readRDS(here("data", "processed", "prj22.RDS"))##<- deriva dal codice del file codice per accesso dbase progetti.R
-ore <- readRDS(here("data", "processed", "ore.RDS"))
+prj <- readRDS(here("data", "processed", "prj2x.RDS"))##<- deriva dal codice del file codice per accesso dbase progetti.R
+#ore <- readRDS(here("data", "processed", "ore.RDS"))
 
 
 anag <- ore %>% 
