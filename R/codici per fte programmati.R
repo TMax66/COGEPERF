@@ -183,7 +183,7 @@ dtProg %>%
   # filter(Valorizzazione == "si") %>%  
   mutate(FTp = round(100*prop.table(FT), 1)) %>%   
   select(-FTED, -FTEC) %>%  
-  group_by(  Dipartimento, Valorizzazione) %>%  
+  group_by(Dipartimento, Valorizzazione) %>%  
   filter(Valorizzazione== "si") %>%  
   ungroup() %>%
   mutate(anno = rep(2021, nrow(.))) %>% 
