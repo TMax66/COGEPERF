@@ -56,9 +56,11 @@ tabIZSLER <- tabIZSLER %>%
 
 
 FTp <- readRDS(here("data", "processed",   "FTp.RDS"))
+FTp <- FTp %>% mutate(anno = as.numeric(anno))  
 FTEPD <- readRDS( here("data", "processed",  "FTEPD.RDS"))
+FTEPD <- FTEPD %>% mutate(anno = as.numeric(anno)) 
 FTEPREP <- readRDS(here("data", "processed",  "FTEPREP.RDS"))
-
+FTEPREP <- FTEPREP %>% mutate(anno = as.numeric(anno)) 
 FTEPREP <- FTEPREP %>% 
  mutate(Reparto= ifelse(Reparto == "SEDE TERRITORIALE DI FORLÃŒ - RAVENNA" , "SEDE TERRITORIALE DI FORLÌ - RAVENNA", Reparto))
 

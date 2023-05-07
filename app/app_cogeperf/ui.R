@@ -8,7 +8,7 @@ ui <- dashboardPage(
             menuItem("Quadro Generale Dipartimenti", tabName = "izsler", icon = icon("globe")), 
             conditionalPanel(
               condition = "input.menu == 'izsler' ", 
-              sliderInput("anno", h3("Seleziona l'Anno"), min=2019, max = 2022, value = 2022)), 
+              sliderInput("anno", h3("Seleziona l'Anno"), min=2019, max = 2023, value = 2023)), 
            
              menuItem("Dipartimenti", tabName = "dipartimenti", icon = icon("sitemap")), 
              conditionalPanel(
@@ -20,7 +20,7 @@ ui <- dashboardPage(
                                         "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA", 
                                         "DIREZIONE SANITARIA")), 
               br(), 
-              sliderInput("anno2", h3("Seleziona l'Anno"), min=2019, max = 2022, value = 2022)), 
+              sliderInput("anno2", h3("Seleziona l'Anno"), min=2019, max = 2023, value = 2023)), 
             menuItem("Report Costi-Ricavi per Centri di Costo",href = "http://rshiny.izsler.it/costiricavi",
                      newtab = FALSE, icon = icon("euro")
                      
