@@ -29,7 +29,7 @@ ftep22 <- readRDS(here("data", "processed", "ftep22.rds"))
 
 # Codice per FTp del 2023----
 
-# fte23 <- tbl(conSB, sql(query)) %>% as_tibble() #<- vai in Preparazione dati per richiare la connessione conSB e la query
+# fte23 <- tbl(conSB, sql(query)) %>% as_tibble() #<- vai in Preparazione dati per richiamare la connessione conSB e la query
 # ftep23 <- fte23 %>% 
 #   mutate(Periodo = replace_na(Periodo, 1)) %>% 
 #   filter(Anno == 2023, Periodo == 1) %>% 
@@ -232,23 +232,23 @@ dtProg %>%
 # FTE PROGRAMMATI X REPARTO----
 
 #fterep23 codici
-# obiett <- ftep23 %>%
-#   group_by(Dipartimento, Struttura) %>% 
-#   summarise(
-#     FTED_obiett = sum(FTED, na.rm = TRUE),
-#     FTEC_obiett = sum(FTEC, na.rm = TRUE)
-#   ) %>%
-#   mutate(FTEob = FTED_obiett+FTEC_obiett) %>% ungroup() %>% 
-#   select(FTEob)
-# 
-# attiv <- ftep23 %>%
-#   distinct(Struttura, .keep_all = T) %>%
-#   group_by(Dipartimento, Struttura) %>% 
-#   summarise(
-#     FTEroutine = sum(AttivitaRoutinaria_FTED, na.rm = TRUE)+sum(AttivitaRoutinaria_FTEC, na.rm = TRUE),
-#     FTEval = sum(AttivitaValorizzataPerproduzioni_FTED, na.rm = TRUE)+ sum(AttivitaValorizzataPerproduzioni_FTEC, na.rm = TRUE),
-#     FTEcdr = sum(CentroReferenza_FTED, na.rm = TRUE) + sum(CentroReferenza_FTEC, na.rm = TRUE)
-#   )
+obiett <- fte23 %>%
+  group_by(Dipartimento, Struttura) %>%
+  summarise(
+    FTED_obiett = sum(FTED, na.rm = TRUE),
+    FTEC_obiett = sum(FTEC, na.rm = TRUE)
+  ) %>%
+  mutate(FTEob = FTED_obiett+FTEC_obiett) %>% ungroup() %>%
+  select(FTEob)
+
+attiv <- ftep23 %>%
+  distinct(Struttura, .keep_all = T) %>%
+  group_by(Dipartimento, Struttura) %>%
+  summarise(
+    FTEroutine = sum(AttivitaRoutinaria_FTED, na.rm = TRUE)+sum(AttivitaRoutinaria_FTEC, na.rm = TRUE),
+    FTEval = sum(AttivitaValorizzataPerproduzioni_FTED, na.rm = TRUE)+ sum(AttivitaValorizzataPerproduzioni_FTEC, na.rm = TRUE),
+    FTEcdr = sum(CentroReferenza_FTED, na.rm = TRUE) + sum(CentroReferenza_FTEC, na.rm = TRUE)
+  )
 # 
 # ftep23str <- attiv %>% 
 #   bind_cols(obiett)  %>% 
