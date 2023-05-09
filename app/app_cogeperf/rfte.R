@@ -31,14 +31,14 @@ dtmensili <- tabIZSLER %>%
   
   rename("Valorizzazione" = TotTariff, "VP" = TotFattVP, "AI" = TAI, "COSTI" = TotCost,   Anno = ANNO) %>%
   group_by(Dipartimento,Anno, MESE ) %>%
-  summarise_at(c("Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%  
+  summarise_at(c("Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>% 
   
   left_join(
     (ricaviCovid21 %>% 
        select(Dipartimento, anno, mese, ricOVID) %>% 
        group_by(Dipartimento, anno, mese) %>% 
        summarise(ricovid = sum(ricOVID, na.rm = TRUE))), 
-    by = c("Dipartimento" = "Dipartimento", "Anno" = "anno", "MESE" = "mese")) %>%  
+    by = c("Dipartimento" = "Dipartimento", "Anno" = "anno", "MESE" = "mese")) %>%
   
     mutate(
     ricovid = ifelse(is.na(ricovid), 0, ricovid ), 
@@ -52,7 +52,7 @@ dtmensili <- tabIZSLER %>%
     left_join(FTEPD %>% mutate(anno = as.numeric(anno),
                              Dipartimento = recode(Dipartimento,
                                                    "DIPARTIMENTO TUTELA SALUTE ANIMALE" = "DIPARTIMENTO TUTELA E SALUTE ANIMALE" )),
-            by=c("Dipartimento",  "Anno" = "anno")) %>%
+            by=c("Dipartimento",  "Anno" = "anno")) %>% 
    mutate(RFTE = RT/(FTET*(FTp/100)),
          low= RFTE- 0.10*RFTE,
          high = RFTE + 0.10*RFTE,
