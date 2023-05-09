@@ -45,7 +45,7 @@ options(shiny.reactlog=TRUE)
       IZSLER() %>%
         left_join(
           (pubs() %>%
-             filter(articoliif == "IF") %>%
+             filter(articoliif == "IF"|is.na(articoliif)) %>%
              # count(Dipartimento, NR) %>%
              group_by(Dipartimento) %>%  
              # count(NR) %>%
@@ -67,7 +67,7 @@ options(shiny.reactlog=TRUE)
     {   IZSLER() %>%
         left_join(
           (pubs() %>%
-             filter(articoliif == "IF") %>%
+             filter(articoliif == "IF"|is.na(articoliif)) %>%
              # count(Dipartimento, NR) %>%
              group_by(Dipartimento) %>%  
              # count(NR) %>%
@@ -109,7 +109,7 @@ options(shiny.reactlog=TRUE)
       ) %>% 
         left_join(
           (pubsdip() %>%
-             filter(articoliif == "IF") %>%
+             filter(articoliif == "IF"|is.na(articoliif)) %>%
              count(Reparto, NR) %>%
              group_by(Reparto) %>%  
              count(NR) %>%
@@ -144,7 +144,7 @@ options(shiny.reactlog=TRUE)
       ) %>% 
         left_join(
           (pubsdip() %>%
-             filter(articoliif == "IF") %>%
+             filter(articoliif == "IF"|is.na(articoliif)) %>%
              count(Reparto, NR) %>%
              group_by(Reparto) %>%  
              count(NR) %>%
@@ -242,23 +242,23 @@ options(shiny.reactlog=TRUE)
   output$IF <- renderValueBox({
     valueBox(
       (pubs() %>%
-         filter(articoliif == "IF") %>%
+         filter(articoliif == "IF"|is.na(articoliif)) %>%
          group_by(NR) %>%
          count(NR) %>%
          select(NR) %>%
          nrow()),  "Articoli pubblicati su riviste peer-review con IF (scarica elenco)", icon = icon("book"), color = "light-blue")
   })
   
-  output$Int <- renderValueBox({
-    valueBox(
-      (pubs() %>%
-         filter(articoliif == "Int") %>%
-         group_by(NR) %>%
-         count(NR) %>%
-         select(NR) %>%
-         nrow()
-      ), "Lavori presentati a convegni internazionali", icon = icon("book"), color = "light-blue")
-  })
+  # output$Int <- renderValueBox({
+  #   valueBox(
+  #     (pubs() %>%
+  #        filter(articoliif == "Int") %>%
+  #        group_by(NR) %>%
+  #        count(NR) %>%
+  #        select(NR) %>%
+  #        nrow()
+  #     ), "Lavori presentati a convegni internazionali", icon = icon("book"), color = "light-blue")
+  # })
   
   
   # VALUEBOX PAGINE DIPARTIMENTI----
@@ -339,7 +339,7 @@ options(shiny.reactlog=TRUE)
   output$IFdip <- renderValueBox({
     valueBox(
       (pubsdip() %>%
-         filter(articoliif == "IF") %>%
+         filter(articoliif == "IF"|is.na(articoliif)) %>%
          group_by(NR) %>%
          count(NR) %>%
          select(NR) %>%
