@@ -836,59 +836,36 @@ output$tr <- renderUI({
   # 
   
   
-# report rfte dipartimenti e reparti----
-#source(file = "code_server/rfte.R", local = TRUE)
-  # Dipartimento----
+# Report rfte dipartimenti e reparti----
+
+  ### Dipartimento----
   
-  ##dati del 2023----
-  rfte23point <- reactive({
-    dtmensili %>%
-      select(Dipartimento, Anno, MESE, RT, FTET,FTp, RFTE, RFTEc) %>%  
-      filter(Dipartimento == input$dip & Anno == 2023)
-  })
-  
-  ##tabella----
-  tRFTEdipa <- reactive({
-    dtmensili %>% 
-      filter(Dipartimento == input$dip) %>%
-      ungroup() %>% 
-      mutate(FTETp = round(FTET*(FTp/100),1),
-             FTp = round(FTp,1)) %>% 
-      select(Anno, MESE, RT, FTET,FTp,FTETp, RFTE, RFTEc)
-  })
-  
-  
-  dip <- reactive({input$dip})
-  
-  
-  ## grafici cumulati e mensili del RFTE----
+  #### andamento mensile----
   p1 <- reactive({dtmensili%>% 
-    mutate(MESE = as.factor(MESE),
-           Anno = as.factor(Anno)) %>% 
-    filter(Dipartimento == input$dip) %>% 
-    ggplot()+
-    aes(x = MESE, y = RFTE, group = Anno)+
-    geom_point(aes(color = Anno), size = 4)+
-    geom_line( alpha = 0.5) +
-    scale_colour_manual(values=c("2022"="gray", "2023"="red"))+
-    theme_bw()+
-    theme(
-      legend.title = element_text(size = 16),
-      legend.text = element_text(size = 18),
-      axis.title.y = element_text("RFTE", size = 18),
-      axis.title.x = element_text("MESE", size = 18),
-      axis.text.y = element_text(size = 15, color = "blue"),
-      axis.text.x = element_text(size = 15, color = "blue"),
-      axis.line.x = element_line(),
-      axis.line.y = element_line(),
-      # panel.background= element_blank(),
-      # plot.background = element_blank()
-    )
+      mutate(MESE = as.factor(MESE),
+             Anno = as.factor(Anno)) %>% 
+      filter(Dipartimento == input$dip) %>% 
+      ggplot()+
+      aes(x = MESE, y = RFTE, group = Anno)+
+      geom_point(aes(color = Anno), size = 4)+
+      geom_line( alpha = 0.5) +
+      scale_colour_manual(values=c("2022"="gray", "2023"="red"))+
+      theme_bw()+
+      theme(
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 18),
+        axis.title.y = element_text("RFTE", size = 18),
+        axis.title.x = element_text("MESE", size = 18),
+        axis.text.y = element_text(size = 15, color = "blue"),
+        axis.text.x = element_text(size = 15, color = "blue"),
+        axis.line.x = element_line(),
+        axis.line.y = element_line(),
+      )
   })
   
   
- 
   
+  #### andamento cumulato----
   p2<-reactive({dtmensili%>% 
       mutate(MESE = as.factor(MESE),
              Anno = as.factor(Anno)) %>% 
@@ -912,21 +889,79 @@ output$tr <- renderUI({
         # plot.background = element_blank()
       )
   })
-
+  
   
   output$rftedip1 <- renderPlot(
-   p1(), bg="transparent"
+    p1() #, bg="transparent"
   )
-
+  
   output$rftedip2 <- renderPlot(
-    p2(), bg="transparent"
+    p2()#, bg="transparent"
   )
 
- 
+  #Strutture Complesse----
+  #### andamento mensile----
+  P3 <- reactive({dtmensiliR %>%
+      filter(Dipartimento == input$dip) %>%
+      ggplot()+
+      aes(x = MESE, y = RFTE)+
+      geom_point()+
+      geom_line(group = 1, alpha = 0.3)+
+      #geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha = 0.3) +
+      # geom_point(data = rfte23pointR(), aes(x=MESE, y=RFTE), color="red") +
+      # geom_line(data = rfte23pointR(), aes(x=MESE, y=RFTE), color="red", lty=3) +
+      scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+      facet_wrap(Reparto~., scales = "free")+
+      theme_bw()+
+      theme(strip.text = element_text(size = 6.5, color = "blue"))
+  })
+  #### andamento cumulato----
+  P4 <- reactive({dtmensiliR%>% 
+      filter(Dipartimento == input$dip & Anno == 2022) %>% 
+      ggplot()+
+      aes(x = MESE, y = RFTEc)+
+      geom_point()+
+      geom_line(group = 1, alpha =0.5)+
+      #geom_ribbon(aes(ymin = lowc, ymax = RFTEc), fill = "grey70", alpha = 0.3) +
+      geom_point(data = rfte23pointR(), aes(x=MESE, y=RFTEc), color="red") +
+      geom_line(data = rfte23pointR(), aes(x=MESE, y=RFTEc), color="red", lty=3)+
+      scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+      facet_wrap(Reparto~., scales = "free")+
+      theme_bw()+
+      theme(strip.text = element_text(size = 6.5, color = "blue"))
+  })
+  
+  Prep <- reactive(P3()+P4())
+  
+  output$rfterep <- renderPlot(
+    Prep(), bg = "transparent"
+  )
   
   
   
-  ##grafici RT e FTE----
+  ##dati del 2023
+  # rfte23point <- reactive({
+  #   dtmensili %>%
+  #     select(Dipartimento, Anno, MESE, RT, FTET,FTp, RFTE, RFTEc) %>%  
+  #     filter(Dipartimento == input$dip & Anno == 2023)
+  # })
+  
+  ##tabella
+  # tRFTEdipa <- reactive({
+  #   dtmensili %>% 
+  #     filter(Dipartimento == input$dip) %>%
+  #     ungroup() %>% 
+  #     mutate(FTETp = round(FTET*(FTp/100),1),
+  #            FTp = round(FTp,1)) %>% 
+  #     select(Anno, MESE, RT, FTET,FTp,FTETp, RFTE, RFTEc)
+  # })
+  
+  
+  # dip <- reactive({input$dip})
+  
+
+  
+  ##grafici RT e FTE
   
   # p3<-reactive({dtmensili%>% 
   #     filter(Dipartimento == input$dip & Anno == 2022) %>% 
@@ -959,62 +994,6 @@ output$tr <- renderUI({
   
   
   
-  #Reparti----
-  
-  ## dati del 2023----
-  rfte23pointR <-  reactive({
-    dtmensiliR %>%
-      select(Dipartimento,Reparto, Anno, MESE, RT, FTET, FTp, RFTE, RFTEc) %>%  
-      filter(Dipartimento == input$dip & Anno == 2023)
-  })
-  
-  ## tabella----
-  tRFTErep <- reactive({
-    dtmensiliR %>% 
-      filter(Dipartimento == input$dip) %>%
-      ungroup() %>% 
-      mutate(FTETp = round(FTET*(FTp/100), 1),
-             FTp = round(FTp,1)) %>% 
-      select(Reparto,Anno, MESE, RT, FTET,FTp,FTETp, RFTE, RFTEc)
-    
-  })
-  
-  ## grafici cumulati e mensili----
-  P3 <- reactive({dtmensiliR %>%
-      filter(Dipartimento == input$dip & Anno == 2022) %>%
-      ggplot()+
-      aes(x = MESE, y = RFTE)+
-      geom_point()+
-      geom_line(group = 1, alpha = 0.3)+
-      #geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha = 0.3) +
-      geom_point(data = rfte23pointR(), aes(x=MESE, y=RFTE), color="red") +
-      geom_line(data = rfte23pointR(), aes(x=MESE, y=RFTE), color="red", lty=3) +
-      scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
-      facet_wrap(Reparto~., scales = "free")+
-      theme_bw()+
-      theme(strip.text = element_text(size = 6.5, color = "blue"))
-  })
-  
-  P4 <- reactive({dtmensiliR%>% 
-      filter(Dipartimento == input$dip & Anno == 2022) %>% 
-      ggplot()+
-      aes(x = MESE, y = RFTEc)+
-      geom_point()+
-      geom_line(group = 1, alpha =0.5)+
-      #geom_ribbon(aes(ymin = lowc, ymax = RFTEc), fill = "grey70", alpha = 0.3) +
-      geom_point(data = rfte23pointR(), aes(x=MESE, y=RFTEc), color="red") +
-      geom_line(data = rfte23pointR(), aes(x=MESE, y=RFTEc), color="red", lty=3)+
-      scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
-      facet_wrap(Reparto~., scales = "free")+
-      theme_bw()+
-      theme(strip.text = element_text(size = 6.5, color = "blue"))
-  })
-  
-  Prep <- reactive(P3()+P4())
-
-  output$rfterep <- renderPlot(
-    Prep(), bg = "transparent"
-  )
   
   
   
@@ -1039,7 +1018,7 @@ output$tr <- renderUI({
   
   
   
-  ##grafici RT e FTE----
+  ##grafici RT e FTE
   
   # P5<-reactive({dtmensiliR%>% 
   #     filter(Dipartimento == input$dip & Anno == 2022) %>% 
