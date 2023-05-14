@@ -1,5 +1,5 @@
 ui<-navbarPage("CONTROLLO DI GESTIONE - CENTRI DI COSTO  (Versione TEST)",
-    #theme = shinytheme("cerulean"),
+    theme = shinytheme("cerulean"),
 
     tabPanel("Produzione",
              sidebarLayout(

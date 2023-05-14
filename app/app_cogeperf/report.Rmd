@@ -1,0 +1,42 @@
+---
+title: "Dynamic report"
+output: html_document
+params:
+  Dipartimento: NA
+---
+
+```{r}
+# The `params` object is available in the document.
+params$Dipartimento
+```
+
+
+
+```{r}
+
+rfte23point <- 
+    dtmensili %>%
+      select(Dipartimento, Anno, MESE, RT, FTET,FTp, RFTE, RFTEc) %>%  
+      filter(Dipartimento == params$Dipartimento & Anno == 2023)
+
+
+
+
+dtmensili%>% 
+      filter(Dipartimento == params$Dipartimento & Anno == 2022) %>% 
+      ggplot()+
+      aes(x = MESE, y = RFTE)+
+      geom_point()+
+      geom_line(group = 1, alpha = 0.5)+
+      #geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha = 0.3) +
+      geom_point(data = rfte23point, aes(x=MESE, y=RFTE), color="red") +
+      geom_line(data = rfte23point, aes(x=MESE, y=RFTE), color="red", lty=3)+
+      scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+      theme(
+        axis.text.y = element_blank(),
+        axis.text.x = element_text(size = 12, color = "blue"),
+        axis.line.x = element_line(),
+        panel.background= element_blank(),
+        plot.background = element_blank())
+
+```

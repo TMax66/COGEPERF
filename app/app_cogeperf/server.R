@@ -862,33 +862,69 @@ output$tr <- renderUI({
   
   
   ## grafici cumulati e mensili del RFTE----
-  p1<-reactive({dtmensili%>% 
-      filter(Dipartimento == input$dip & Anno == 2022) %>% 
-      ggplot()+
-      aes(x = MESE, y = RFTE)+
-      geom_point()+
-      geom_line(group = 1, alpha = 0.5)+
-      #geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha = 0.3) +
-      geom_point(data = rfte23point(), aes(x=MESE, y=RFTE), color="red") +
-      geom_line(data = rfte23point(), aes(x=MESE, y=RFTE), color="red", lty=3)+
-      scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
-      theme_bw()
+  p1 <- reactive({dtmensili%>% 
+    mutate(MESE = as.factor(MESE),
+           Anno = as.factor(Anno)) %>% 
+    filter(Dipartimento == input$dip) %>% 
+    ggplot()+
+    aes(x = MESE, y = RFTE, group = Anno)+
+    geom_point(aes(color = Anno), size = 4)+
+    geom_line( alpha = 0.5) +
+    scale_colour_manual(values=c("2022"="gray", "2023"="red"))+
+    theme_bw()+
+    theme(
+      legend.title = element_text(size = 16),
+      legend.text = element_text(size = 18),
+      axis.title.y = element_text("RFTE", size = 18),
+      axis.title.x = element_text("MESE", size = 18),
+      axis.text.y = element_text(size = 15, color = "blue"),
+      axis.text.x = element_text(size = 15, color = "blue"),
+      axis.line.x = element_line(),
+      axis.line.y = element_line(),
+      # panel.background= element_blank(),
+      # plot.background = element_blank()
+    )
   })
+  
+  
+ 
   
   p2<-reactive({dtmensili%>% 
-      filter(Dipartimento == input$dip & Anno == 2022) %>% 
+      mutate(MESE = as.factor(MESE),
+             Anno = as.factor(Anno)) %>% 
+      filter(Dipartimento == input$dip) %>% 
       ggplot()+
-      aes(x = MESE, y = RFTEc)+
-      geom_point()+
-      geom_line(group = 1, alpha =0.5)+
-      #geom_ribbon(aes(ymin = lowc, ymax = RFTEc), fill = "grey70", alpha = 0.3) +
-      geom_point(data = rfte23point(), aes(x=MESE, y=RFTEc), color="red") +
-      geom_line(data = rfte23point(), aes(x=MESE, y=RFTEc), color="red", lty=3)+
-      scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
-      theme_bw()
+      aes(x = MESE, y = RFTEc, group = Anno)+
+      geom_point(aes(color = Anno), size = 4)+
+      geom_line( alpha = 0.5) +
+      scale_colour_manual(values=c("2022"="gray", "2023"="red"))+
+      theme_bw()+
+      theme(
+        legend.title = element_text(size = 18),
+        legend.text = element_text(size = 18),
+        axis.title.y = element_text("RFTE", size = 18),
+        axis.title.x = element_text("MESE", size = 18),
+        axis.text.y = element_text(size = 15, color = "blue"),
+        axis.text.x = element_text(size = 15, color = "blue"),
+        axis.line.x = element_line(),
+        axis.line.y = element_line(),
+        # panel.background= element_blank(),
+        # plot.background = element_blank()
+      )
   })
+
   
-  P <-reactive({ p2()/p1()})
+  output$rftedip1 <- renderPlot(
+   p1(), bg="transparent"
+  )
+
+  output$rftedip2 <- renderPlot(
+    p2(), bg="transparent"
+  )
+
+ 
+  
+  
   
   ##grafici RT e FTE----
   
@@ -974,6 +1010,35 @@ output$tr <- renderUI({
       theme(strip.text = element_text(size = 6.5, color = "blue"))
   })
   
+  Prep <- reactive(P3()+P4())
+
+  output$rfterep <- renderPlot(
+    Prep(), bg = "transparent"
+  )
+  
+  
+  
+  # output$report <- downloadHandler(
+  #   filename = "report.html",
+  #   content = function(file) {
+  #     tempReport <- file.path(tempdir(), "report.Rmd")
+  #     file.copy("report.Rmd", tempReport, overwrite = TRUE)
+  #     
+  #     # Set up parameters to pass to Rmd document
+  #     params <- list(Dipartimento = input$dip)
+  #     
+  #     
+  #     rmarkdown::render(tempReport, output_file = file,
+  #                       params = params,
+  #                       envir = new.env(parent = globalenv())
+  #     )
+  #   }
+  # )
+  # 
+  
+  
+  
+  
   ##grafici RT e FTE----
   
   # P5<-reactive({dtmensiliR%>% 
@@ -1008,141 +1073,141 @@ output$tr <- renderUI({
   # 
   
   
-  # Codici per la produzione del report in Excel----
-  output$download_excel <- downloadHandler(
-    filename = function() {
-      "RFTE.xlsx"
-    },
-    content = function(file) {
-      wb <- createWorkbook()
-      
-      addWorksheet(wb, sheetName = "Info")
-      addWorksheet(wb, sheetName = "Dipartimento")
-      addWorksheet(wb, sheetName = "Reparti")
-      
-      #Cover----
-      
-      showGridLines(
-        wb,
-        sheet = 1,
-        showGridLines = FALSE
-      )
-      
-      writeData(
-        wb, sheet = 1,
-        
-        c(dip(), 
-          "", 
-          "Monitoraggio del Ricavo Full Time Equivalente", 
-          "", 
-          "Ricavi totali (RT)",
-          "I RT per ogni dipartimento sono calcolati a partire dai dati forniti dal datawerehouse DW_COGEP", 
-          "sommando  l'attivita' valorizzata a tariffario, i ricavi dalla Vendita dei prodotti (VP) e dall'attivita' interna (AI).",
-          "",
-          "FTE", 
-          "I FTE sono calcolati come il rapporto tra le ore complessivamente erogate dal personale di comparto e dirigenza", 
-          "e le ore previste per un full time equivalente sulla base del contratto (36h settimanli per il comparto e 38 per la dirigenza)", 
-          "nelle tabelle sono riportati  i FTE totali (FTET) dirigenza+comparto effettivamente erogati nel periodo anno/mese corrispondente ( il dato deriva dalle timbrature del personale)",
-          "",
-          "FTE programmato", 
-          "In fase di programmazione viene assegnata una % dei FTE disponibili a inizio anno alle attivita' istituzionali", 
-          "dette anche valorizzate. Questa percentuale rappresenta il FTE programmato che viene utilizzata per il calcolo del RFTE",
-          "in tabella e' riportato come FTp e rappresenta una %", 
-          "", 
-          "FTETp",
-          "questo dato riportato in tabella e' calcolato moltiplicando i FTET per la % di FTp per le attivita' valorizzate", 
-          "Ricavo Full Time Equivalente (RFTE)", 
-          "RFTE e' un indicatore di performance che tiene conto dei volumi di attivita' valorizzata e delle risorse a disposizione per la loro realizzazione", 
-          "misurate come FTE. Il  RFTE viene assegnato a tutti i Dipartimenti che erogano attivita' valorizzate ( attività analitiche, vendita prodotti,ecc) come obiettivo di efficienza", 
-          "Target: mantenimento del RFTE al 31/12/2022",
-          "RFTE e' calcolato come RT/FTETp", 
-          "Il RFTE del 2022 è calcolato detraendo i ricavi dovuti all'attività COVID dal Ricavo Totale.",
-          " Tale detrazione non viene applicata per il 2023",
-          "",
-          "Monitoraggio", 
-          "Per ogni dipartimento e per ogni struttura complessa o reparto", 
-          "viene calcolato il RFTE mensile e cumulato ottenuto nel corso del 2022", 
-          "Graficamente viene rappresentato sia l'andamento  cumulato che quello mensile", 
-        
-          "I dati dell'andamento del RFTE del 2023 sono riportati in rosso e vengono aggiornati ad ogni trimestre in occasione dell'aggiornamento", 
-          "del data warehouse del controllo di gestione da parte dei Sistemi Informativi",
-          "mentre l'andamento cumulato del 2022 che fa da riferimento è riportato in nero", 
-          
-  
-          "", 
-          "Ogni grafico e' accompagnato dalla tabella che riporta i dati utilizzati per la sua realizzazione",
-          "I grafici sono inseriti nei diversi fogli del workbook come immagini e quindi non possono essere modificati"
-        ), 
-        startRow = 1, 
-        startCol = 1
-      )
-      
-      #Dipartimento sheet ----
-      
-      writeData(
-        wb,
-        sheet = 2,
-        tRFTEdipa(),
-        startRow = 1,
-        startCol = 1
-        
-      )
-      
-      
-      png("p11.png")
-      print(P())
-      dev.off()
-      # png("p12.png")
-      # print(P2())
-      # dev.off()
-      
-      insertImage(wb, "Dipartimento", "p11.png",  startCol = "J",  width = 5, height = 5)
-     # insertImage(wb, "Dipartimento", "p12.png",  startCol = "Q",  width = 5, height = 5)
-      
-      #Reparti sheet ----
-      
-      writeData(
-        wb,
-        sheet = 3,
-        tRFTErep(),
-        startRow = 1,
-        startCol = 1
-        
-      )
-      
-      png("p13.png", width = 650)
-      print(P3())
-      dev.off()
-      
-      png("p14.png", width = 650)
-      print(P4())
-      dev.off()
-      
-      # png("p15.png", width = 650)
-      # print(P5())
-      # dev.off()
-      # 
-      # png("p16.png", width = 650)
-      # print(P6())
-      # dev.off()
-      
-      
-      insertImage(wb, "Reparti", "p13.png",  startCol = "K",width = 7, height = 5)
-      insertImage(wb, "Reparti", "p14.png",  startCol = "T",width = 7, height = 5)
-      # insertImage(wb, "Reparti", "p15.png",  startCol = "K",startRow = 27,width = 7, height = 5)
-      # insertImage(wb, "Reparti", "p16.png",  startCol = "T",startRow = 27,width = 7, height = 5)
-      
-      
-      
-      
-      saveWorkbook(wb, file, overwrite = T)
-      
-      unlink(c(P(),  P3(), P4())) #, P5(), P6()))P2(),
-      
-    }
-  )
-  
-  
+  # # Codici per la produzione del report in Excel
+  # output$download_excel <- downloadHandler(
+  #   filename = function() {
+  #     "RFTE.xlsx"
+  #   },
+  #   content = function(file) {
+  #     wb <- createWorkbook()
+  #     
+  #     addWorksheet(wb, sheetName = "Info")
+  #     addWorksheet(wb, sheetName = "Dipartimento")
+  #     addWorksheet(wb, sheetName = "Reparti")
+  #     
+  #     #Cover
+  #     
+  #     showGridLines(
+  #       wb,
+  #       sheet = 1,
+  #       showGridLines = FALSE
+  #     )
+  #     
+  #     writeData(
+  #       wb, sheet = 1,
+  #       
+  #       c(dip(), 
+  #         "", 
+  #         "Monitoraggio del Ricavo Full Time Equivalente", 
+  #         "", 
+  #         "Ricavi totali (RT)",
+  #         "I RT per ogni dipartimento sono calcolati a partire dai dati forniti dal datawerehouse DW_COGEP", 
+  #         "sommando  l'attivita' valorizzata a tariffario, i ricavi dalla Vendita dei prodotti (VP) e dall'attivita' interna (AI).",
+  #         "",
+  #         "FTE", 
+  #         "I FTE sono calcolati come il rapporto tra le ore complessivamente erogate dal personale di comparto e dirigenza", 
+  #         "e le ore previste per un full time equivalente sulla base del contratto (36h settimanli per il comparto e 38 per la dirigenza)", 
+  #         "nelle tabelle sono riportati  i FTE totali (FTET) dirigenza+comparto effettivamente erogati nel periodo anno/mese corrispondente ( il dato deriva dalle timbrature del personale)",
+  #         "",
+  #         "FTE programmato", 
+  #         "In fase di programmazione viene assegnata una % dei FTE disponibili a inizio anno alle attivita' istituzionali", 
+  #         "dette anche valorizzate. Questa percentuale rappresenta il FTE programmato che viene utilizzata per il calcolo del RFTE",
+  #         "in tabella e' riportato come FTp e rappresenta una %", 
+  #         "", 
+  #         "FTETp",
+  #         "questo dato riportato in tabella e' calcolato moltiplicando i FTET per la % di FTp per le attivita' valorizzate", 
+  #         "Ricavo Full Time Equivalente (RFTE)", 
+  #         "RFTE e' un indicatore di performance che tiene conto dei volumi di attivita' valorizzata e delle risorse a disposizione per la loro realizzazione", 
+  #         "misurate come FTE. Il  RFTE viene assegnato a tutti i Dipartimenti che erogano attivita' valorizzate ( attività analitiche, vendita prodotti,ecc) come obiettivo di efficienza", 
+  #         "Target: mantenimento del RFTE al 31/12/2022",
+  #         "RFTE e' calcolato come RT/FTETp", 
+  #         "Il RFTE del 2022 è calcolato detraendo i ricavi dovuti all'attività COVID dal Ricavo Totale.",
+  #         " Tale detrazione non viene applicata per il 2023",
+  #         "",
+  #         "Monitoraggio", 
+  #         "Per ogni dipartimento e per ogni struttura complessa o reparto", 
+  #         "viene calcolato il RFTE mensile e cumulato ottenuto nel corso del 2022", 
+  #         "Graficamente viene rappresentato sia l'andamento  cumulato che quello mensile", 
+  #       
+  #         "I dati dell'andamento del RFTE del 2023 sono riportati in rosso e vengono aggiornati ad ogni trimestre in occasione dell'aggiornamento", 
+  #         "del data warehouse del controllo di gestione da parte dei Sistemi Informativi",
+  #         "mentre l'andamento cumulato del 2022 che fa da riferimento è riportato in nero", 
+  #         
+  # 
+  #         "", 
+  #         "Ogni grafico e' accompagnato dalla tabella che riporta i dati utilizzati per la sua realizzazione",
+  #         "I grafici sono inseriti nei diversi fogli del workbook come immagini e quindi non possono essere modificati"
+  #       ), 
+  #       startRow = 1, 
+  #       startCol = 1
+  #     )
+  #     
+  #     #Dipartimento sheet
+  #     
+  #     writeData(
+  #       wb,
+  #       sheet = 2,
+  #       tRFTEdipa(),
+  #       startRow = 1,
+  #       startCol = 1
+  #       
+  #     )
+  #     
+  #     
+  #     png("p11.png")
+  #     print(P())
+  #     dev.off()
+  #     # png("p12.png")
+  #     # print(P2())
+  #     # dev.off()
+  #     
+  #     insertImage(wb, "Dipartimento", "p11.png",  startCol = "J",  width = 5, height = 5)
+  #    # insertImage(wb, "Dipartimento", "p12.png",  startCol = "Q",  width = 5, height = 5)
+  #     
+  #     #Reparti sheet
+  #     
+  #     writeData(
+  #       wb,
+  #       sheet = 3,
+  #       tRFTErep(),
+  #       startRow = 1,
+  #       startCol = 1
+  #       
+  #     )
+  #     
+  #     png("p13.png", width = 650)
+  #     print(P3())
+  #     dev.off()
+  #     
+  #     png("p14.png", width = 650)
+  #     print(P4())
+  #     dev.off()
+  #     
+  #     # png("p15.png", width = 650)
+  #     # print(P5())
+  #     # dev.off()
+  #     # 
+  #     # png("p16.png", width = 650)
+  #     # print(P6())
+  #     # dev.off()
+  #     
+  #     
+  #     insertImage(wb, "Reparti", "p13.png",  startCol = "K",width = 7, height = 5)
+  #     insertImage(wb, "Reparti", "p14.png",  startCol = "T",width = 7, height = 5)
+  #     # insertImage(wb, "Reparti", "p15.png",  startCol = "K",startRow = 27,width = 7, height = 5)
+  #     # insertImage(wb, "Reparti", "p16.png",  startCol = "T",startRow = 27,width = 7, height = 5)
+  #     
+  #     
+  #     
+  #     
+  #     saveWorkbook(wb, file, overwrite = T)
+  #     
+  #     unlink(c(P(),  P3(), P4())) #, P5(), P6()))P2(),
+  #     
+  #   }
+  # )
+  # 
+  # 
   
   
   

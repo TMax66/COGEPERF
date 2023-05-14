@@ -1,5 +1,7 @@
 ui <- dashboardPage(
   
+
+  
       dashboardHeader(title = "Controllo di gestione e performances- Versione TEST", titleWidth = 520),
 #Sidebar
       dashboardSidebar(
@@ -80,7 +82,7 @@ ui <- dashboardPage(
             column(11, 
                    div(id = 'clickdiv00',
                        plotOutput("tbd"))
-                   # bsModal("TW", "Distribuzione percentuale degli Indicatori di performance  tra i Dipartimenti",  
+                   # bsModal("TW", "Distribuzione percentuale degli Indicatori di performance  tra i Dipartimenti",
                    #         'clickdiv00', tableOutput("tbw"))
                    )
             
@@ -91,9 +93,11 @@ ui <- dashboardPage(
                    div(style = "font-size: 25px",
                    radioButtons("kpi", "",
                                 c("Prestazioni",
-                                "Valorizzazione", 
-                                 "VP","AI","RT", "FTED", 
-                                "FTEC","FTET")
+                                #"Valorizzazione", 
+                                 #"VP","AI",
+                                "RT", #"FTED", 
+                                #"FTEC",
+                                "FTET")
             ))), 
             column(11, 
                    plotOutput("ptrend"))
@@ -141,19 +145,47 @@ ui <- dashboardPage(
                     tableOutput("tr"))
                 )), 
           hr(),
+         
+          hr(),
+          
+        conditionalPanel( condition = "input.anno2 == '2023'", 
+          
+          h1("Andamento del RFTE di Dipartimento", style = "text-align: center"),
           
           fluidRow(
-          div(
-            style = "text-align: center",
-            downloadBttn(
-              outputId = "download_excel",
-              label = "Scarica Report RFTE",
-              style = "fill",
-              color = "primary",
-              size = "lg"
+            
+            column(6,
+                   box(title = h3("RFTE-mensile"),  solidHeader = TRUE, collapsible = TRUE,status = "primary", width = 12,
+                       plotOutput("rftedip1"))),
+            
+            column(6,
+                   box(title = h3("RFTE-cumulato"),  solidHeader = TRUE, collapsible = TRUE,status = "primary", width = 12,
+                       plotOutput("rftedip2")),
+            )
+          ),
+          
+          hr(),
+          
+          fluidRow(
+            div(
+              style = "text-align: center",
+              actionButton("SCs", "Visualizza andamento RFTE delle Strutture Complesse del Dipartimento",
+                class = "btn-primary btn-lg"
+              )
+            ),
+          bsModal(id= "PlotScs", title = "Plot", trigger = "SCs", size="large",
+                  selectInput(inputId = "rep", label = "seleziona la struttura complessa", 
+                              c("", levels(factor(dtmensiliR$Reparto)))),
+                  br(),
+                  withSpinner(plotOutput("rftescs"))
+                  )
           )
-           )),
-         
+          
+        ),
+          
+          
+          
+          
           hr(),
               
             fluidRow(
@@ -170,6 +202,8 @@ ui <- dashboardPage(
           
           
                )), 
+          # 
+         
           
           fluidRow(
             
@@ -177,9 +211,11 @@ ui <- dashboardPage(
                    div(style = "font-size: 25px",
                    radioButtons("kpi2", "",
                                 c("Prestazioni",
-                                  "Valorizzazione", 
-                                  "VP","AI","RT", "FTED", 
-                                  "FTEC","FTET")
+                                  #"Valorizzazione", 
+                                  #"VP","AI",
+                                  "RT", #"FTED", 
+                                  #"FTEC",
+                                  "FTET")
                    ))), 
             column(11, 
                    plotOutput("ptrendRep"))
@@ -235,6 +271,7 @@ tabItem(
 #         )
       )
 ))
+
 
 
 

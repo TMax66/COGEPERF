@@ -10,12 +10,14 @@ Tplot <- function(df, y_par, y_par2)
     geom_line(aes(y = .data[[y_par]]))+
     facet_wrap(facets = ~Quarter, nrow=1, scales = "free")+
     scale_x_continuous(breaks = unique(df$ANNO), expand=c(0.16, 0))+
-    geom_text(data = dplyr::filter(df, ANNO == 2020), aes(label = sprintf('%+0.1f%%',.data[[y_par2]])), 
+    geom_text(data = dplyr::filter(df, ANNO == 2020), aes(label = sprintf('%+0.1f%%',.data[[y_par2]])),
               x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
-    geom_text(data = dplyr::filter(df, ANNO == 2021), aes(label = sprintf('%+0.1f%%', .data[[y_par2]])), 
+    geom_text(data = dplyr::filter(df, ANNO == 2021), aes(label = sprintf('%+0.1f%%', .data[[y_par2]])),
               x = 2020.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
-    geom_text(data = dplyr::filter(df, ANNO == 2022), aes(label = sprintf('%+0.1f%%', .data[[y_par2]])), 
+    geom_text(data = dplyr::filter(df, ANNO == 2022), aes(label = sprintf('%+0.1f%%', .data[[y_par2]])),
               x = 2021.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
+    geom_text(data = dplyr::filter(df, ANNO == 2023), aes(label = sprintf('%+0.1f%%', .data[[y_par2]])),
+              x = 2022.5, y = 0, vjust = -1, fontface = 'bold', size=5)+
     geom_text(aes(label = sprintf('%0.1f',.data[[y_par]]), y = .data[[y_par]]), vjust = -1, size=3.5)+
     labs(y = "", x = " ",
          title = "")+
