@@ -5,6 +5,7 @@ ui <- dashboardPage(
       dashboardHeader(title = "Controllo di gestione e performances- Versione TEST", titleWidth = 520),
 #Sidebar
       dashboardSidebar(
+        useShinyjs(),
         width = 500,
             sidebarMenu(id = "menu", 
             menuItem("Quadro Generale Dipartimenti", tabName = "izsler", icon = icon("globe")), 
@@ -26,8 +27,8 @@ ui <- dashboardPage(
             menuItem("Report Costi-Ricavi per Centri di Costo",href = "http://rshiny.izsler.it/costiricavi",
                      newtab = FALSE, icon = icon("euro")
                      
-                     )#, 
-            # menuItem("Obiettivi di Performance", tabName = "Performance", icon = icon("table"))
+                     ), 
+            hidden(menuItem("rfteSC", tabName = "RFTESC"))
             )),
       
       dashboardBody(
@@ -172,20 +173,12 @@ ui <- dashboardPage(
               actionButton("SCs", "Visualizza andamento RFTE delle Strutture Complesse del Dipartimento",
                 class = "btn-primary btn-lg"
               )
-            ),
-          bsModal(id= "PlotScs", title = "Plot", trigger = "SCs", size="large",
-                  selectInput(inputId = "rep", label = "seleziona la struttura complessa", 
-                              c("", levels(factor(dtmensiliR$Reparto)))),
-                  br(),
-                  withSpinner(plotOutput("rftescs"))
+            )
+         
                   )
-          )
+          ), 
           
-        ),
-          
-          
-          
-          
+
           hr(),
               
             fluidRow(
@@ -228,7 +221,21 @@ ui <- dashboardPage(
           ), 
 tabItem(
   tabName = "Report Costi-Ricavi per Centri di Costo"
-)
+), 
+
+
+tabItem(tabName = "RFTESC", 
+        fluidPage(
+    
+            plotOutput("rfterep", height = 1000, width = "90%" )
+      
+        )
+        
+        
+        
+        
+        
+        )
 # Performance----
 # tabItem(
 #   tabName = "Performance",

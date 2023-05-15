@@ -838,6 +838,8 @@ output$tr <- renderUI({
   
 # Report rfte dipartimenti e reparti----
 
+onclick("SCs", updateTabItems(session, "menu", selected = "RFTESC"))  
+  
   ### Dipartimento----
   
   #### andamento mensile----
@@ -845,11 +847,12 @@ output$tr <- renderUI({
       mutate(MESE = as.factor(MESE),
              Anno = as.factor(Anno)) %>% 
       filter(Dipartimento == input$dip) %>% 
-      ggplot()+
+      ggplot()+ 
       aes(x = MESE, y = RFTE, group = Anno)+
       geom_point(aes(color = Anno), size = 4)+
       geom_line( alpha = 0.5) +
       scale_colour_manual(values=c("2022"="gray", "2023"="red"))+
+      labs(x = "")+
       theme_bw()+
       theme(
         legend.title = element_text(size = 16),
@@ -875,6 +878,7 @@ output$tr <- renderUI({
       geom_point(aes(color = Anno), size = 4)+
       geom_line( alpha = 0.5) +
       scale_colour_manual(values=c("2022"="gray", "2023"="red"))+
+      labs(x = "")+
       theme_bw()+
       theme(
         legend.title = element_text(size = 18),
@@ -902,39 +906,57 @@ output$tr <- renderUI({
   #Strutture Complesse----
   #### andamento mensile----
   P3 <- reactive({dtmensiliR %>%
+      select(Dipartimento, Reparto, Anno, MESE, RFTE, RFTEc) %>%
+      na.omit() %>%  
+      pivot_longer(cols = 5:6, names_to = "Parametro", values_to = "valore") %>%  
+      mutate(MESE = as.factor(MESE),
+             Anno = as.factor(Anno)) %>% 
       filter(Dipartimento == input$dip) %>%
       ggplot()+
-      aes(x = MESE, y = RFTE)+
-      geom_point()+
-      geom_line(group = 1, alpha = 0.3)+
-      #geom_ribbon(aes(ymin = low, ymax = RFTE), fill = "grey70", alpha = 0.3) +
-      # geom_point(data = rfte23pointR(), aes(x=MESE, y=RFTE), color="red") +
-      # geom_line(data = rfte23pointR(), aes(x=MESE, y=RFTE), color="red", lty=3) +
-      scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
-      facet_wrap(Reparto~., scales = "free")+
+      aes(x = MESE, y = valore, group = Anno)+
+      geom_point(aes(color = Anno), size = 4)+
+      geom_line( alpha = 0.5) +
+      labs(y = "", x = "", title = paste0("Andamento mensile e cumulato del Ricavo-FTE delle strutture complesse afferenti al", " ", input$dip), 
+           subtitle = "")+
+      scale_colour_manual(values=c("2022"="gray", "2023"="red"))+
+      facet_wrap(Reparto~Parametro, scales = "free", ncol = 2)+
       theme_bw()+
-      theme(strip.text = element_text(size = 6.5, color = "blue"))
+      theme(plot.title = element_text(size = 20, color = "blue"),
+            strip.text = element_text(size = 14, color = "blue"),
+            legend.title = element_text(size = 14),
+            legend.text = element_text(size = 14),
+            axis.title.y = element_text("RFTE", size = 15),
+            axis.title.x = element_text("MESE", size = 15),
+            axis.text.y = element_text(size = 15, color = "blue"),
+            axis.text.x = element_text(size = 15, color = "blue"),
+            axis.line.x = element_line(),
+            axis.line.y = element_line(),
+            panel.background= element_blank(),
+            plot.background = element_blank()
+      )
+    
   })
-  #### andamento cumulato----
-  P4 <- reactive({dtmensiliR%>% 
-      filter(Dipartimento == input$dip & Anno == 2022) %>% 
-      ggplot()+
-      aes(x = MESE, y = RFTEc)+
-      geom_point()+
-      geom_line(group = 1, alpha =0.5)+
-      #geom_ribbon(aes(ymin = lowc, ymax = RFTEc), fill = "grey70", alpha = 0.3) +
-      geom_point(data = rfte23pointR(), aes(x=MESE, y=RFTEc), color="red") +
-      geom_line(data = rfte23pointR(), aes(x=MESE, y=RFTEc), color="red", lty=3)+
-      scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
-      facet_wrap(Reparto~., scales = "free")+
-      theme_bw()+
-      theme(strip.text = element_text(size = 6.5, color = "blue"))
-  })
+  # #### andamento cumulato----
+  # P4 <- reactive({dtmensiliR%>% 
+  #     filter(Dipartimento == input$dip & Anno == 2022) %>% 
+  #     ggplot()+
+  #     aes(x = MESE, y = RFTEc)+
+  #     geom_point()+
+  #     geom_line(group = 1, alpha =0.5)+
+  #     #geom_ribbon(aes(ymin = lowc, ymax = RFTEc), fill = "grey70", alpha = 0.3) +
+  #     geom_point(data = rfte23pointR(), aes(x=MESE, y=RFTEc), color="red") +
+  #     geom_line(data = rfte23pointR(), aes(x=MESE, y=RFTEc), color="red", lty=3)+
+  #     scale_x_discrete(limit = c(1,2,3,4,5,6,7,8,9,10,11,12))+
+  #     facet_wrap(Reparto~., scales = "free")+
+  #     theme_bw()+
+  #     theme(strip.text = element_text(size = 6.5, color = "blue"))
+  # })
+  # 
+
   
-  Prep <- reactive(P3()+P4())
-  
-  output$rfterep <- renderPlot(
-    Prep(), bg = "transparent"
+  output$rfterep <- renderPlot({
+    P3()
+  }, bg = "transparent"
   )
   
   

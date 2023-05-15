@@ -54,17 +54,32 @@ dtmensili <- tabIZSLER %>%
                                                    "DIPARTIMENTO TUTELA SALUTE ANIMALE" = "DIPARTIMENTO TUTELA E SALUTE ANIMALE" )),
             by=c("Dipartimento",  "Anno" = "anno")) %>% 
    mutate(RFTE = RT/(FTET*(FTp/100)),
-         low= RFTE- 0.10*RFTE,
-         high = RFTE + 0.10*RFTE,
-         delta = high-low,
+         # low= RFTE- 0.10*RFTE,
+         # high = RFTE + 0.10*RFTE,
+         # delta = high-low,
          rfte22 = ifelse(Anno==2022, RFTE, 0),
          # fteTD = 150.1*(FTp/100),
          # fteTC = 142.2*(FTp/100),
          RFTEc= RTc/(FTET*(FTp/100)),
-         lowc= RFTEc- 0.10*RFTEc,
-         highc = RFTEc + 0.10*RFTEc
-  )
-  #left_join(ftp, by=c("Dipartimento"))    
+         # lowc= RFTEc- 0.10*RFTEc,
+         # highc = RFTEc + 0.10*RFTEc, 
+         MESE = factor(MESE), 
+         MESE = recode(MESE, 
+                       '1' = "gen",
+                       '2' = "feb",
+                       '3' = "mar",
+                       '4' = "apr",
+                       '5' = "mag",
+                       '6' = "giu",
+                       '7' = "lug",
+                       '8' = "ago",
+                       '9' = "set",
+                       '10' = "ott",
+                       '11' = "nov",
+                       '12' = "dic"
+                       )) 
+  
+  
 
 
 
@@ -104,13 +119,29 @@ dtmensiliR <-  tabIZSLER %>%
          
        )),  by=c("Dipartimento","Reparto",  "Anno" = "anno")) %>%
   mutate(RFTE = RT/(FTET*(FTp/100)),
-         low= RFTE- 0.10*RFTE,
+         #low= RFTE- 0.10*RFTE,
          # fteTD = 150.1*(FTp/100),
          # fteTC = 142.2*(FTp/100),
          rfte22 = ifelse(Anno==2022, RFTE, 0),
          RFTEc= RTc/(FTET*(FTp/100)),
-         lowc= RFTEc- 0.10*RFTEc,
-         highc = RFTEc + 0.10*RFTEc) 
+         #lowc= RFTEc- 0.10*RFTEc,
+         #highc = RFTEc + 0.10*RFTEc
+         MESE = factor(MESE), 
+         MESE = recode(MESE, 
+                       '1' = "gen",
+                       '2' = "feb",
+                       '3' = "mar",
+                       '4' = "apr",
+                       '5' = "mag",
+                       '6' = "giu",
+                       '7' = "lug",
+                       '8' = "ago",
+                       '9' = "set",
+                       '10' = "ott",
+                       '11' = "nov",
+                       '12' = "dic"
+         )) 
+         
 
 
 #Dati per monitoraggio RFTE pagine dipartimenti----

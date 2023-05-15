@@ -19,6 +19,7 @@ library(openxlsx)
 library(patchwork)
 library(shinyWidgets)
 library(shinycssloaders)
+library(shinyjs)
 
  
 
