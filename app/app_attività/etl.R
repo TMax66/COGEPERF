@@ -11,6 +11,40 @@ con <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "dbprod02.iz
 
 source(here("app", "app_attività", "sql.R"))
 
+# query <- "SELECT
+#   dbo.Conferimenti.Numero,
+#   dbo_Anag_Finalita_Confer.Descrizione As finalitaconf,
+#   dbo.Anag_Finalita.Descrizione As finprova,
+#   dbo.Anag_Prove.Descrizione AS prova,
+#   dbo.Anag_Tecniche.Descrizione As tecnica,
+#   dbo.Anag_Metodi_di_Prova.Descrizione As mp
+# FROM
+# { oj dbo.Anag_Finalita  dbo_Anag_Finalita_Confer INNER JOIN dbo.Conferimenti_Finalita ON ( dbo.Conferimenti_Finalita.Finalita=dbo_Anag_Finalita_Confer.Codice )
+#    INNER JOIN dbo.Conferimenti ON ( dbo.Conferimenti.Anno=dbo.Conferimenti_Finalita.Anno and dbo.Conferimenti.Numero=dbo.Conferimenti_Finalita.Numero )
+#    LEFT OUTER JOIN dbo.Esami_Aggregati ON ( dbo.Conferimenti.Anno=dbo.Esami_Aggregati.Anno_Conferimento and dbo.Conferimenti.Numero=dbo.Esami_Aggregati.Numero_Conferimento )
+#    LEFT OUTER JOIN dbo.Nomenclatore_MP ON ( dbo.Esami_Aggregati.Nomenclatore=dbo.Nomenclatore_MP.Codice )
+#    LEFT OUTER JOIN dbo.Anag_Metodi_di_Prova ON ( dbo.Nomenclatore_MP.MP=dbo.Anag_Metodi_di_Prova.Codice )
+#    LEFT OUTER JOIN dbo.Nomenclatore_Settori ON ( dbo.Nomenclatore_MP.Nomenclatore_Settore=dbo.Nomenclatore_Settori.Codice )
+#    LEFT OUTER JOIN dbo.Nomenclatore ON ( dbo.Nomenclatore_Settori.Codice_Nomenclatore=dbo.Nomenclatore.Chiave )
+#    LEFT OUTER JOIN dbo.Anag_Prove ON ( dbo.Nomenclatore.Codice_Prova=dbo.Anag_Prove.Codice )
+#    LEFT OUTER JOIN dbo.Anag_Tecniche ON ( dbo.Nomenclatore.Codice_Tecnica=dbo.Anag_Tecniche.Codice )
+#    LEFT OUTER JOIN dbo.Programmazione_Finalita ON ( dbo.Esami_Aggregati.Anno_Conferimento=dbo.Programmazione_Finalita.Anno_Conferimento and dbo.Esami_Aggregati.Numero_Conferimento=dbo.Programmazione_Finalita.Numero_Conferimento and dbo.Esami_Aggregati.Codice=dbo.Programmazione_Finalita.Codice )
+#    LEFT OUTER JOIN dbo.Anag_Finalita ON ( dbo.Programmazione_Finalita.Finalita=dbo.Anag_Finalita.Codice )
+#    INNER JOIN dbo.Anag_Registri ON ( dbo.Conferimenti.Registro=dbo.Anag_Registri.Codice )
+#   }
+# WHERE
+#   dbo.Esami_Aggregati.Esame_Altro_Ente = 0
+#   AND  dbo.Esami_Aggregati.Esame_Altro_Ente = 0
+#   AND  (
+#   {fn year(dbo.Conferimenti.Data_Accettazione)}  =  2023
+#   AND  dbo.Anag_Registri.Descrizione  =  'Sanità Animale'
+#   AND  {fn month(dbo.Conferimenti.Data_Accettazione)}  =  5
+#   )
+# "
+# 
+# View(dt)
+# 
+
 
 dt  <- dbGetQuery(con, query)
 
