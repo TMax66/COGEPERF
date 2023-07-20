@@ -83,7 +83,7 @@ ore <- ore %>%
   filter(Ruolo != "RICERCA SANITARIA E SUPPORTO RIC. SAN.")#escludo i piramidati
   
 
-#saveRDS(ore, "oreDipa.RDS")
+saveRDS(ore, here("data", "processed",  "ore.RDS"))
 
 
 
