@@ -118,26 +118,44 @@ cc %>%
                                           "Trasporti",
                                           "Altri servizi",
                                           "Vari",
-                                          "Ammortamenti"))) -> cc
+                                          "Ammortamenti"))) %>% 
+  
+  mutate(CEnatl1 = ifelse(CEnat %in% c("Prestazioni (analisi)", 
+                                       "Vendite prodotti", 
+                                       "Ricavi da produzione",
+                                       "Attività non analitiche", 
+                                       "Altri proventi"), "Proventi per attività", 
+                          ifelse(CEnat %in% c("Contributi Regioni ASL altri",
+                                              "Contributi statali",
+                                              "Contributi da privati"), "Contributi", 
+                                 ifelse(CEnat %in% c("Materiali da laboratorio", 
+                                                     "Costo Produzione Interna",
+                                                     "Personale dirigente sanitario",
+                                                     "Personale comparto tecnico sanitario"), "Costi attività sanitarie", 
+                                        ifelse(CEnat %in% c("Personale tecnico-amministrativo",
+                                                            "borsisti",
+                                                            "Consulenze e coll. professionali",
+                                                            "Altri costi del personale", 
+                                                            "Prevenzione e sicurezza",
+                                                            "Presidi sanitari",
+                                                            "Stabulario",
+                                                            "Cancelleria",
+                                                            "Manutenzioni e riparazioni", 
+                                                            "Utenze",
+                                                            "Pulizia, giardinaggio e vigilanza", 
+                                                            "Trasporti",
+                                                            "Altri servizi",
+                                                            "Vari"), "Costi di struttura", "Ammortamenti")))), 
+         CEnatl1 = ifelse(Classificazione == "Attività di ricerca", "Attività di ricerca", CEnatl1))-> cc
 
-cc %>% select(Classe, Area, CEnat)
-
- 
 
 
 
 
-
-
-
-
-
-
-
-
-                        
-                         
- cc %>%  filter(ANNO == 2022, Costi == "Ricavo") %>%  
+ cc %>%  filter(ANNO == 2019, 
+                Costi == "Ricavo",
+                CEnatl1 %in% c("Proventi per attività", 
+                               "Contributi")) %>%  
   mutate(Ricavi = ifelse(Pagamento=="Pagamento", Fatturato,Tariffario),
          Ricavi = ifelse(CEnat == "Vendite prodotti", Fatturato, Ricavi),
          Ricavi = ifelse(Classe == "Ricavi da produzione",Tariffario, Ricavi ), 
@@ -150,10 +168,28 @@ cc %>% select(Classe, Area, CEnat)
  
  
  
- cc %>% filter(ANNO == 2022, Costi == "Costo") %>% 
+ cc %>% filter(ANNO == 2019, 
+               Costi == "Costo", 
+               CEnatl1 == "Costi attività sanitarie" ) %>% 
    group_by(CEnat) %>% 
    summarise(value = sum(Costo, na.rm = TRUE)) -> COSTI_SANITARI
   
+ 
+ cc %>% filter(ANNO == 2019, 
+               Costi == "Costo", 
+               CEnatl1 == "Costi di struttura" ) %>% 
+  group_by(CEnat) %>% 
+  summarise(value = sum(Costo, na.rm = TRUE)) -> COSTI_STRUTTURA
+ 
+ 
+ 
+ cc %>% filter(ANNO == 2019, 
+               Costi == "Costo", 
+               CEnatl1 == "Ammortamenti" ) %>% 
+   group_by(CEnat) %>% 
+   summarise(value = sum(Costo, na.rm = TRUE)) -> AMMORTAMENTI
+ 
+ 
  
  
  
