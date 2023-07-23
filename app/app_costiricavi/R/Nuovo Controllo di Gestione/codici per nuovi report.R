@@ -190,6 +190,16 @@ cc %>%
    summarise(value = sum(Costo, na.rm = TRUE)) -> AMMORTAMENTI
  
  
+ RICAVI %>% mutate(voce2= "Ricavi") %>%  
+   bind_rows(COSTI_SANITARI %>% 
+               mutate(voce2 = "Costi sanitari")) %>% 
+   bind_rows(COSTI_STRUTTURA %>% 
+               mutate(voce2 = "Costi di struttura")) %>% 
+   bind_rows(AMMORTAMENTI %>% 
+               mutate(voce2 = "Ammortamenti")) %>% View()
+   group_by(voce2, voce) %>% 
+   summarise(value = sum(value))
+ 
  
  
  
