@@ -1,8 +1,6 @@
-library(tidyverse)
-library(readr)
-library(readxl)
-library(here)
-library(lubridate)
+
+
+pkg() # <- funzone in .Rprofile
 library(DBI)
 library(odbc)
 
@@ -258,13 +256,19 @@ saveRDS(., file = here("data", "processed",   "pub.rds"))
 ## 2021 e 2022
 #questa stringa esegue le istruzioni che ci sono nel file "codici per fte programmati.R" e 
 #salva nella cartella /data/processed i file che servono i calcoli degli FTE programmati da cui si ottiene il RFTEprog
-source( here( "R","codici per fte programmati.R"))
+#source( here( "R","codici per fte programmati.R"))
+
+# ATTENZIONE I DATI VANNO GENERATI SOLO ALL'INIZIO DELL'ANNO DOPO CHE SONO STATE PRODOTTE LE SCHEDE BUDGET CON
+#L'ALLOCAZIONE DEGLI FTE ALLE STRUTTURE E AGLI OBIETTIVI
 
 # ##DATI FTEQ programmati 2022--- #
 # 
 # ftep22 <- tbl(conSB, sql(query)) %>% as_tibble() %>% 
 # mutate(Pesatura = ifelse(Pesatura != "no", "si", "no"), 
 #        Valorizzato = ifelse(Valorizzato != "no", "si", "no"))
+
+## QUINDI IN FASE DI AGGIORNAMENTO DEL DASHBOARD NON E' NECESSARIO ESEGUIRE NESSUN CODICE PERCHE' I FILE SONO GIA' PRESENTI NELLA
+## CARTELLA DATI DOVE ANDRA'ì A LEGGERE IL CODICE GLOBAL DELL'APPLICATIVO SHINY
 
 
 

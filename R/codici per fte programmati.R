@@ -25,9 +25,12 @@ dtProg <- readRDS(here("data", "processed", "datiSB.rds"))## questo vale per il 
 #                                 Indicatore == "Volume attività erogata per FTE  (Ricavo per FTE)", "si", Valorizzato))
 # saveRDS(ftep22, file = here("data", "processed", "ftep22.rds"))
 
+
 ftep22 <- readRDS(here("data", "processed", "ftep22.rds"))
 
 # Codice per FTp del 2023----
+conSB <- DBI::dbConnect(odbc::odbc(), Driver = "SQL Server", Server = "CED-IIS2",
+                        Database = "ObiettiviStrategici2022", Port = 1433)
 
 fte23 <- tbl(conSB, sql(query)) %>% as_tibble() #<- vai in fte23.R per richiamare la connessione conSB e la query
 
@@ -105,7 +108,7 @@ ftep22 %>%
   select(anno, FTp = FTE_perc) %>% 
   
   ungroup()
-) %>% 
+) %>% View()
   
   rbind(
     

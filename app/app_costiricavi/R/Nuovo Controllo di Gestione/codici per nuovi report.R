@@ -4,6 +4,7 @@ library(gt)
 library(readr)
 library(readxl)
 library(lubridate)
+library(flextable)
 # library(DBI)
 # library(odbc)
 
@@ -36,7 +37,7 @@ cc <- readRDS(here("data", "processed","CC.rds"))
 #   write.xlsx(file = "anagrafeCE.xlsx")
 
 cc %>% 
-  mutate(CEnat = ifelse(Area %in% c("esami batteriologici", 
+  mutate(RG7 = ifelse(Area %in% c("esami batteriologici", 
                                      "esami anatomo patologici",
                                      "esami biochimico clinici" , 
                                      "esami biologia molecolare", 
@@ -92,7 +93,7 @@ cc %>%
          
          
          
-         CEnat = factor(CEnat, levels = c("Prestazioni (analisi)", 
+         RG7 = factor(RG7, levels = c("Prestazioni (analisi)", 
                                                  "Vendite prodotti", 
                                                  "Ricavi da produzione",
                                                  "Attività non analitiche", 
@@ -120,19 +121,19 @@ cc %>%
                                           "Vari",
                                           "Ammortamenti"))) %>% 
   
-  mutate(CEnatl1 = ifelse(CEnat %in% c("Prestazioni (analisi)", 
+  mutate(RG6 = ifelse(RG7 %in% c("Prestazioni (analisi)", 
                                        "Vendite prodotti", 
                                        "Ricavi da produzione",
                                        "Attività non analitiche", 
                                        "Altri proventi"), "Proventi per attività", 
-                          ifelse(CEnat %in% c("Contributi Regioni ASL altri",
+                          ifelse(RG7 %in% c("Contributi Regioni ASL altri",
                                               "Contributi statali",
                                               "Contributi da privati"), "Contributi", 
-                                 ifelse(CEnat %in% c("Materiali da laboratorio", 
+                                 ifelse(RG7 %in% c("Materiali da laboratorio", 
                                                      "Costo Produzione Interna",
                                                      "Personale dirigente sanitario",
                                                      "Personale comparto tecnico sanitario"), "Costi attività sanitarie", 
-                                        ifelse(CEnat %in% c("Personale tecnico-amministrativo",
+                                        ifelse(RG7 %in% c("Personale tecnico-amministrativo",
                                                             "borsisti",
                                                             "Consulenze e coll. professionali",
                                                             "Altri costi del personale", 
@@ -146,7 +147,7 @@ cc %>%
                                                             "Trasporti",
                                                             "Altri servizi",
                                                             "Vari"), "Costi di struttura", "Ammortamenti")))), 
-         CEnatl1 = ifelse(Classificazione == "Attività di ricerca", "Attività di ricerca", CEnatl1))-> cc
+         RG6 = ifelse(Classificazione == "Attività di ricerca", "Attività di ricerca", RG6))-> cc
 
 
 
@@ -154,54 +155,135 @@ cc %>%
 
  cc %>%  filter(ANNO == 2019, 
                 Costi == "Ricavo",
-                CEnatl1 %in% c("Proventi per attività", 
+                RG6 %in% c("Proventi per attività", 
                                "Contributi")) %>%  
   mutate(Ricavi = ifelse(Pagamento=="Pagamento", Fatturato,Tariffario),
-         Ricavi = ifelse(CEnat == "Vendite prodotti", Fatturato, Ricavi),
+         Ricavi = ifelse(RG7 == "Vendite prodotti", Fatturato, Ricavi),
          Ricavi = ifelse(Classe == "Ricavi da produzione",Tariffario, Ricavi ), 
-         Ricavi = ifelse(CEnat %in% c("Contributi Regioni ASL altri",
+         Ricavi = ifelse(RG7 %in% c("Contributi Regioni ASL altri",
                                       "Contributi statali",
                                       "Contributi da privati"),  Tariffario, Ricavi), 
-         Ricavi = ifelse(CEnat == "Altri proventi", Tariffario, Ricavi)) %>% 
-    group_by(CEnat) %>%  
-    summarise(value = sum(Ricavi, na.rm = TRUE)) -> RICAVI
+         Ricavi = ifelse(RG7 == "Altri proventi", Tariffario, Ricavi), 
+         RG5 = "Ricavi") %>%  
+       
+    group_by(RG5,  RG6, RG7 ) %>%  
+    summarise(value = sum(Ricavi, na.rm = TRUE)) %>% 
+   arrange(RG7) %>% 
+   
+   adorn_totals(where = "row", name = "TotRic")-> RICAVI
  
  
  
  cc %>% filter(ANNO == 2019, 
                Costi == "Costo", 
-               CEnatl1 == "Costi attività sanitarie" ) %>% 
-   group_by(CEnat) %>% 
-   summarise(value = sum(Costo, na.rm = TRUE)) -> COSTI_SANITARI
+               RG6 == "Costi attività sanitarie" ) %>% 
+   mutate(RG5 = "Costi sanitari") %>% 
+   
+   group_by(RG5, RG6, RG7 ) %>% 
+   summarise(value = sum(Costo, na.rm = TRUE)) %>%
+   arrange(RG7) %>%
+   adorn_totals(where = "row", name = "TotCosti")  -> COSTI_SANITARI
   
  
- cc %>% filter(ANNO == 2019, 
-               Costi == "Costo", 
-               CEnatl1 == "Costi di struttura" ) %>% 
-  group_by(CEnat) %>% 
-  summarise(value = sum(Costo, na.rm = TRUE)) -> COSTI_STRUTTURA
+ margine <- RICAVI %>% 
+   rbind(COSTI_SANITARI) %>%  
+   filter(RG5 %in% c("TotRic", "TotCosti")) %>% 
+   pivot_wider(names_from = RG5, values_from = value) %>%  
+   mutate(margine = TotRic-TotCosti)
+
+  
+ 
+ RICAVI %>% 
+   rbind(COSTI_SANITARI) %>% 
+   add_row(RG5 = "Margine di contribuzione", RG6 = "-", RG7 = "-", value = margine$margine) %>% 
+   filter(!RG5 %in% c("TotRic", "TotCosti")) %>% 
+   
+   bind_rows( 
  
  
  
  cc %>% filter(ANNO == 2019, 
                Costi == "Costo", 
-               CEnatl1 == "Ammortamenti" ) %>% 
-   group_by(CEnat) %>% 
-   summarise(value = sum(Costo, na.rm = TRUE)) -> AMMORTAMENTI
+               RG6 == "Costi di struttura" ) %>% 
+   mutate(RG5 = "Costi di Struttura") %>% 
+  group_by(RG5, RG6, RG7 ) %>% 
+  summarise(value = sum(Costo, na.rm = TRUE)) %>% 
+    arrange(RG7) %>%
+   adorn_totals(where = "row", name = "TotCostrutt")) -> CE 
+  
+ 
+ marginelordo <- CE %>% 
+   filter(RG5 %in% c("Margine di contribuzione", "TotCostrutt")) %>% 
+   pivot_wider(names_from = RG5, values_from = value) %>%  
+   mutate(margine = `Margine di contribuzione`- TotCostrutt)
  
  
- RICAVI %>% mutate(voce2= "Ricavi") %>%  
+ CE %>% 
+   add_row(RG5 = "Margine lordo", RG6 = "-", RG7 = "-", value = marginelordo$margine) %>% 
+   filter(RG5 != "TotCostrutt" ) %>%  View()
+ 
+ 
+ cc %>% filter(ANNO == 2019, 
+               Costi == "Costo", 
+               RG6 == "Ammortamenti" ) %>% 
+   group_by(RG6, RG7) %>% 
+   summarise(value = sum(Costo, na.rm = TRUE)) %>% 
+   adorn_totals(where = "row") -> AMMORTAMENTI
+ 
+ 
+ RICAVI %>% mutate(RG5 = "Ricavi") %>%  
    bind_rows(COSTI_SANITARI %>% 
-               mutate(voce2 = "Costi sanitari")) %>% 
+               mutate(RG5 = "Costi sanitari")) %>% 
    bind_rows(COSTI_STRUTTURA %>% 
-               mutate(voce2 = "Costi di struttura")) %>% 
+               mutate(RG5 = "Costi di struttura")) %>% 
    bind_rows(AMMORTAMENTI %>% 
-               mutate(voce2 = "Ammortamenti")) %>% View()
-   group_by(voce2, voce) %>% 
-   summarise(value = sum(value))
+               mutate(RG5 = "Ammortamenti")) %>% 
+   mutate(RG5 = factor(RG5, levels = c("Ricavi", "Costi sanitari", 
+                                           "Costi di struttura", "Ammortamenti")), 
+          RG6 = factor(RG6, levels = c("Proventi per attività", 
+                                            "Contributi", 
+                                            "Costi attività sanitarie", 
+                                            "Costi di struttura",
+                                            "Ammortamenti"
+                                            ))) %>% 
+   group_by( RG5, RG6, RG7) %>% 
+   summarise(value = sum(value)) -> CE
+ 
+ 
+ fxt <- flextable(CE)
+ 
+ fxt %>% 
+   merge_v(j = ~ RG5 + RG6 )
  
  
  
+
+ gt_tab <- gt(CE, groupname_col = c("RG5","RG6"))
+
+ ## formatto la tabella----
+
+gt_tab %>%
+
+tab_header(
+   title = "Conto Economico Gestionale per natura",
+   subtitle = "2019") %>%
+tab_source_note(
+     source_note = md("_A cura del **COGEP**_")) %>% 
+   tab_style(
+     style = list(
+       cell_fill("black"),
+       cell_text(color = "white", weight = "bold")
+     ),
+     locations = cells_row_groups()
+   ) %>% 
+   tab_style(
+     style = cell_text(color = "darkgrey", weight = "bold"),
+     locations = cells_stub()
+   )
+
+
+   
+   
  
  # rbind(tibble(
   #   Dipartimento = "Direzione Amministrativa",
