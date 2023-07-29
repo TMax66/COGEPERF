@@ -708,28 +708,6 @@ output$tr <- renderUI({
   trendRep <- reactive(
     
     tabIZSLER %>%
-      # mutate(Reparto = recode(Reparto,  "REPARTO PRODUZIONE PRIMARIA" = "RPP",
-      #                         "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI" = "RChAM",
-      #                         "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)" = "RChAB",
-      #                         "REPARTO CONTROLLO ALIMENTI" = "RCA",
-      #                         "REPARTO VIROLOGIA" = "RVIR",
-      #                         "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "RVVPB",
-      #                         "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO" = "RPCB",
-      #                         "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE" = "RTBA",
-      #                         "SEDE TERRITORIALE DI CREMONA - MANTOVA" = "CR-MN",
-      #                         "SEDE TERRITORIALE DI BRESCIA" = "BS",
-      #                         "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO" = "BG-BI-SO",
-      #                         "SEDE TERRITORIALE DI LODI - MILANO" = "LO-MI",
-      #                         "SEDE TERRITORIALE DI PAVIA" = "PV",
-      #                         "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA" = "BO-MO-FE",
-      #                         "SEDE TERRITORIALE DI FORLÌ - RAVENNA" = "FO-RA",
-      #                         "SEDE TERRITORIALE DI PIACENZA - PARMA" = "PC-PR",
-      #                         "SEDE TERRITORIALE DI REGGIO EMILIA" = "RE",
-      #                         "GESTIONE CENTRALIZZATA DELLE RICHIESTE" = "GCR",
-      #                         "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA" = "AREG",
-      #                         "FORMAZIONE E BIBLIOTECA" = "FORMAZIONE",
-      #                         "SORVEGLIANZA EPIDEMIOLOGICA" = "SORVEPID" )) %>%
-      
       rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, 
               "VP" = TotFattVP, "AI" = TAI,"COSTI" = TotCost) %>%  
       filter( Dipartimento == input$dip) %>%    
