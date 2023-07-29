@@ -138,11 +138,64 @@ T1 %>%  ##attività costi e fte
   mutate(Dipartimento = casefold(Dipartimento, upper = TRUE),
          TotFattVP = ifelse(is.na(TotFattVP), 0, TotFattVP), 
          TAI = ifelse(is.na(TAI), 0, TAI), 
-         TotTariff = TotTariff - (TotFattVP + TAI)) %>% 
+         TotTariff = TotTariff - (TotFattVP + TAI), 
+         Rep2 = recode(Reparto,  "REPARTO PRODUZIONE PRIMARIA" = "RPP", # questa ricodifica è molto lenta prima si trovava nel codice server 
+                       #per costurire il dataset da cui originava il trenplot dei dipartimenti.... ora l'ho spostata qui in modo che
+                       #quando gira l'app shiny non rallenta molto
+                          "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI" = "RChAM",
+                          "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)" = "RChAB",
+                          "REPARTO CONTROLLO ALIMENTI" = "RCA",
+                          "REPARTO VIROLOGIA" = "RVIR",
+                          "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "RVVPB",
+                          "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO" = "RPCB",
+                          "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE" = "RTBA",
+                          "SEDE TERRITORIALE DI CREMONA - MANTOVA" = "CR-MN",
+                          "SEDE TERRITORIALE DI BRESCIA" = "BS",
+                          "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO" = "BG-BI-SO",
+                          "SEDE TERRITORIALE DI LODI - MILANO" = "LO-MI",
+                          "SEDE TERRITORIALE DI PAVIA" = "PV",
+                          "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA" = "BO-MO-FE",
+                          "SEDE TERRITORIALE DI FORLÌ - RAVENNA" = "FO-RA",
+                          "SEDE TERRITORIALE DI PIACENZA - PARMA" = "PC-PR",
+                          "SEDE TERRITORIALE DI REGGIO EMILIA" = "RE",
+                          "GESTIONE CENTRALIZZATA DELLE RICHIESTE" = "GCR",
+                          "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA" = "AREG",
+                          "FORMAZIONE E BIBLIOTECA" = "FORMAZIONE",
+                          "SORVEGLIANZA EPIDEMIOLOGICA" = "SORVEPID" )) %>% 
 
 saveRDS(.,here("data", "processed", "TabellaGenerale.rds"))
 
 
+###ATTENZIONE CANCELLA QUESTO CODICE (sotto) DOPO IL PROSSIMO AGGIORNAMENTO A OTTOBRE!!!!!!
+
+# Tabella <- readRDS(here("data", "processed", "TabellaGenerale.rds"))
+# 
+# 
+# Tabella %>% 
+#   mutate(Rep2 = recode(Reparto,  "REPARTO PRODUZIONE PRIMARIA" = "RPP",
+#                 "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI" = "RChAM",
+#                 "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)" = "RChAB",
+#                 "REPARTO CONTROLLO ALIMENTI" = "RCA",
+#                 "REPARTO VIROLOGIA" = "RVIR",
+#                 "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "RVVPB",
+#                 "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO" = "RPCB",
+#                 "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE" = "RTBA",
+#                 "SEDE TERRITORIALE DI CREMONA - MANTOVA" = "CR-MN",
+#                 "SEDE TERRITORIALE DI BRESCIA" = "BS",
+#                 "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO" = "BG-BI-SO",
+#                 "SEDE TERRITORIALE DI LODI - MILANO" = "LO-MI",
+#                 "SEDE TERRITORIALE DI PAVIA" = "PV",
+#                 "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA" = "BO-MO-FE",
+#                 "SEDE TERRITORIALE DI FORLÌ - RAVENNA" = "FO-RA",
+#                 "SEDE TERRITORIALE DI PIACENZA - PARMA" = "PC-PR",
+#                 "SEDE TERRITORIALE DI REGGIO EMILIA" = "RE",
+#                 "GESTIONE CENTRALIZZATA DELLE RICHIESTE" = "GCR",
+#                 "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA" = "AREG",
+#                 "FORMAZIONE E BIBLIOTECA" = "FORMAZIONE",
+#                 "SORVEGLIANZA EPIDEMIOLOGICA" = "SORVEPID" )) %>% 
+#   saveRDS(.,here("data", "processed", "TabellaGenerale.rds"))
+
+  
 
 ## TABELLA GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA----
 
@@ -210,16 +263,16 @@ acc %>%
 
 
 prj <- readRDS(here("data", "processed", "prj2x.RDS"))##<- deriva dal codice del file codice per accesso dbase progetti.R
-#ore <- readRDS(here("data", "processed", "ore.RDS"))
 
-
+ore <- readRDS(here("data", "processed", "ore.RDS"))
 anag <- ore %>% 
   mutate(annoraplav = year(FineRapporto)) %>% 
   filter(annoraplav > 2018)%>%
   mutate(Nome = gsub("\\s.*$", "", Nome) ) %>% 
-  distinct(ANNO,Matricola, .keep_all = TRUE)
+  distinct(ANNO,Matricola, .keep_all = TRUE) %>% 
+  saveRDS(here("data", "processed", "anag.RDS"))
 
-#anag <- readRDS(here("data", "processed", "anag.RDS"))
+ 
 
 
 prj %>%
@@ -233,6 +286,8 @@ prj %>%
 
 ##DATI DA PUBBLICAZIONI####
 
+ 
+anag <- readRDS(here("data", "processed", "anag.RDS"))
 
 pubblicazioni <- read_excel(here("data", "raw", "pubblicazioni.xlsx"))
 pubblicazioni$AU <- str_to_upper(pubblicazioni$AU)

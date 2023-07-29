@@ -708,32 +708,32 @@ output$tr <- renderUI({
   trendRep <- reactive(
     
     tabIZSLER %>%
-      mutate(Reparto = recode(Reparto,  "REPARTO PRODUZIONE PRIMARIA" = "RPP",
-                              "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI" = "RChAM",
-                              "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)" = "RChAB",
-                              "REPARTO CONTROLLO ALIMENTI" = "RCA",
-                              "REPARTO VIROLOGIA" = "RVIR",
-                              "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "RVVPB",
-                              "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO" = "RPCB",
-                              "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE" = "RTBA",
-                              "SEDE TERRITORIALE DI CREMONA - MANTOVA" = "CR-MN",
-                              "SEDE TERRITORIALE DI BRESCIA" = "BS",
-                              "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO" = "BG-BI-SO",
-                              "SEDE TERRITORIALE DI LODI - MILANO" = "LO-MI",
-                              "SEDE TERRITORIALE DI PAVIA" = "PV",
-                              "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA" = "BO-MO-FE",
-                              "SEDE TERRITORIALE DI FORLÌ - RAVENNA" = "FO-RA",
-                              "SEDE TERRITORIALE DI PIACENZA - PARMA" = "PC-PR",
-                              "SEDE TERRITORIALE DI REGGIO EMILIA" = "RE",
-                              "GESTIONE CENTRALIZZATA DELLE RICHIESTE" = "GCR",
-                              "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA" = "AREG",
-                              "FORMAZIONE E BIBLIOTECA" = "FORMAZIONE",
-                              "SORVEGLIANZA EPIDEMIOLOGICA" = "SORVEPID" )) %>%
+      # mutate(Reparto = recode(Reparto,  "REPARTO PRODUZIONE PRIMARIA" = "RPP",
+      #                         "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI" = "RChAM",
+      #                         "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)" = "RChAB",
+      #                         "REPARTO CONTROLLO ALIMENTI" = "RCA",
+      #                         "REPARTO VIROLOGIA" = "RVIR",
+      #                         "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE" = "RVVPB",
+      #                         "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO" = "RPCB",
+      #                         "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE" = "RTBA",
+      #                         "SEDE TERRITORIALE DI CREMONA - MANTOVA" = "CR-MN",
+      #                         "SEDE TERRITORIALE DI BRESCIA" = "BS",
+      #                         "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO" = "BG-BI-SO",
+      #                         "SEDE TERRITORIALE DI LODI - MILANO" = "LO-MI",
+      #                         "SEDE TERRITORIALE DI PAVIA" = "PV",
+      #                         "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA" = "BO-MO-FE",
+      #                         "SEDE TERRITORIALE DI FORLÌ - RAVENNA" = "FO-RA",
+      #                         "SEDE TERRITORIALE DI PIACENZA - PARMA" = "PC-PR",
+      #                         "SEDE TERRITORIALE DI REGGIO EMILIA" = "RE",
+      #                         "GESTIONE CENTRALIZZATA DELLE RICHIESTE" = "GCR",
+      #                         "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA" = "AREG",
+      #                         "FORMAZIONE E BIBLIOTECA" = "FORMAZIONE",
+      #                         "SORVEGLIANZA EPIDEMIOLOGICA" = "SORVEPID" )) %>%
       
       rename( "Prestazioni" = TotPrestazioni, "Valorizzazione" = TotTariff, 
               "VP" = TotFattVP, "AI" = TAI,"COSTI" = TotCost) %>%  
       filter( Dipartimento == input$dip) %>%    
-      group_by(Reparto, ANNO, MESE) %>%   
+      group_by(Rep2, ANNO, MESE) %>%   
       summarise_at(c("Prestazioni", "Valorizzazione",  "VP", "AI", "FTED", "FTEC","COSTI"), sum, na.rm = T) %>%  
       mutate(RT = (Valorizzazione+VP+AI),
              FTET = FTED+FTEC,
@@ -745,10 +745,10 @@ output$tr <- renderUI({
              RT = cumsum(RT)) %>%
       filter(Prestazioni >0) %>% 
       filter(MESE == max(MESE)) %>%  
-      pivot_longer(!c(ANNO,Reparto), names_to = "KPI", values_to = "valore") %>%
+      pivot_longer(!c(ANNO,Rep2), names_to = "KPI", values_to = "valore") %>%
       filter(KPI == input$kpi2) %>%
-      group_by(Reparto) %>%
-      arrange(Reparto, ANNO) %>%
+      group_by(Rep2) %>%
+      arrange(Rep2, ANNO) %>%
       rename(Anno = ANNO) %>% 
       filter(Anno != Year()) %>% 
       mutate(Var = round((valore/lag(valore)-1)*100, 2)) 
@@ -763,7 +763,7 @@ output$tr <- renderUI({
       geom_ribbon(aes(ymin = 0, ymax = (.data[["valore"]])+0.1*(.data[["valore"]])), alpha=0.0)+
       geom_point(aes(y = .data[["valore"]]), size= 10, color = "blue", alpha = 0.2) +
       geom_line(aes(y = .data[["valore"]]))+
-      facet_wrap(facets = ~Reparto, nrow=1, scales = "free")+
+      facet_wrap(facets = ~Rep2, nrow=1, scales = "free")+
       scale_x_continuous(breaks = unique(trendRep()$Anno), expand=c(0.16, 0))+
       geom_text(data = dplyr::filter(trendRep(), Anno == 2020), aes(label = sprintf('%+0.1f%%',.data[["Var"]])),
                 x = 2019.5, y = 0, vjust = -1, fontface = 'bold', size=8)+
